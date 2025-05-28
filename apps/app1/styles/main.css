@@ -4,6 +4,7 @@ body{font-family:"Ubuntu",sans-serif;background:var(--bg);color:var(--central);l
 h1{text-align:center;font-weight:700;margin:1rem 0}
 .container{max-width:1000px;margin:0 auto;padding:1.2rem}
 .inputs{display:grid;grid-template-columns:repeat(4,1fr) 180px;gap:1rem;align-items:end}
+#inputs2{margin-top:.5rem}
 .inputs label{font-size:.9rem;margin-bottom:.25rem}
 .inputs input{width:100%;padding:.5rem;font-size:1rem;border:none;border-radius:6px}
 .actions{display:grid;grid-template-columns:repeat(4,1fr) 180px;gap:1rem;margin-top:.9rem}
@@ -26,10 +27,12 @@ button{padding:.6rem 1.4rem;font-size:1rem;background:var(--accent);color:var(--
 .hand::after{content:"";position:absolute;left:50%;top:50%;width:2px;height:88px;transform-origin:50% 100%;transform:translate(-50%,0) rotate(0deg);border-radius:1px}
 #handPA::after{background:var(--accent)}
 #handPFr::after{background:var(--sub)}
-#timeline,#timelinePFr{display:flex;gap:1px;margin-top:.8rem}
+#handPFr2::after{background:var(--metro)}
+#timeline,#timelinePFr,#timelinePFr2{display:flex;gap:1px;margin-top:.8rem}
 #timeline{height:18px}
 #timelinePFr{height:10px}
-#timeline span,#timelinePFr span{flex:1 0 0;background:rgba(255,255,255,.08);transition:background .05s}
+#timelinePFr2{height:10px}
+#timeline span,#timelinePFr span,#timelinePFr2 span{flex:1 0 0;background:rgba(255,255,255,.08);transition:background .05s}
 #timeline span.accentStatic{background:var(--accent);opacity:.5}
 #timeline span.startStatic{background:var(--metro);opacity:.7}
 
