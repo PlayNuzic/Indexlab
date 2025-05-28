@@ -1,0 +1,35 @@
+:root{--bg:#43433b;--central:#eee8d8;--accent:#e76f68;--sub:#bdd9e6;--metro:#ffbb33;--warn:#ffbb33}
+*{box-sizing:border-box;margin:0}
+body{font-family:"Ubuntu",sans-serif;background:var(--bg);color:var(--central);line-height:1.45}
+h1{text-align:center;font-weight:700;margin:1rem 0}
+.container{max-width:1000px;margin:0 auto;padding:1.2rem}
+.inputs{display:grid;grid-template-columns:repeat(4,1fr) 180px;gap:1rem;align-items:end}
+.inputs label{font-size:.9rem;margin-bottom:.25rem}
+.inputs input{width:100%;padding:.5rem;font-size:1rem;border:none;border-radius:6px}
+.actions{display:grid;grid-template-columns:repeat(4,1fr) 180px;gap:1rem;margin-top:.9rem}
+.actions .left{grid-column:1/3;display:flex;flex-direction:column;align-items:flex-start}
+.actions .center{grid-column:3/5;display:flex;flex-direction:column;align-items:center}
+button{padding:.6rem 1.4rem;font-size:1rem;background:var(--accent);color:var(--bg);border:none;border-radius:6px;font-weight:700;cursor:pointer}
+#tapBtn{margin-bottom:.6rem;width:140px}
+#light{width:140px;height:140px;border-radius:50%;background:var(--central);transition:background .05s;box-shadow:0 0 12px rgba(0,0,0,.65)}
+#derived,#error{text-align:center;font-weight:700}
+#derived{font-size:1.3rem;margin-top:1rem;margin-bottom:.8rem;line-height:1.3}
+#error{color:var(--warn);min-height:1.4em}
+.section{background:rgba(255,255,255,.05);border-radius:8px;padding:1rem;margin:1.3rem 0}
+.section p{margin:0;font-size:.95rem}
+#tapHint{font-size:.85rem;margin-top:.25rem}
+.cycleCtrl{display:flex;justify-content:center;align-items:center;gap:.6rem;margin-top:.6rem}
+.cycleCtrl button{padding:.35rem .75rem;font-size:1.2rem;background:var(--sub);color:var(--bg)}
+#cycleWrap{position:relative;width:240px;height:240px;margin:1rem auto}
+#cycleViz{position:absolute;inset:0;width:100%;height:100%}
+.hand{position:absolute;inset:0;width:100%;height:100%;transform-origin:50% 50%;pointer-events:none}
+.hand::after{content:"";position:absolute;left:50%;top:50%;width:2px;height:88px;transform-origin:50% 100%;transform:translate(-50%,0) rotate(0deg);border-radius:1px}
+#handPA::after{background:var(--accent)}
+#handPFr::after{background:var(--sub)}
+#timeline,#timelinePFr{display:flex;gap:1px;margin-top:.8rem}
+#timeline{height:18px}
+#timelinePFr{height:10px}
+#timeline span,#timelinePFr span{flex:1 0 0;background:rgba(255,255,255,.08);transition:background .05s}
+#timeline span.accentStatic{background:var(--accent);opacity:.5}
+#timeline span.startStatic{background:var(--metro);opacity:.7}
+

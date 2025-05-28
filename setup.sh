@@ -28,4 +28,7 @@ corepack enable
 # 4. Instal·la les dependències de Node (inclòs Jest) abans que es talli la xarxa
 npm install --ignore-scripts --no-audit --progress=false
 
+#5. Install Cheerio
+npm install cheerio
+
 echo "✅ Entorn preparat. Pots fer git add / commit / push (HTTPS amb PAT)."
