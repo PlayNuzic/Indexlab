@@ -143,10 +143,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const beat1=60/d.fr1.V;
     const sub1 = beat1*d.fr1.n/d.fr1.d;
     const step1 = d.cycleCommon/d.fr1.n;
-<<<<<<< ours
-=======
     const pfrPerCycle1 = d.cycleCommon*d.fr1.d/d.fr1.n;
->>>>>>> theirs
 
 
     for(let g=0;g<d.fr1.LgEff/d.fr1.n;g++){
@@ -156,36 +153,6 @@ window.addEventListener('DOMContentLoaded',()=>{
       for(let p=0;p<d.fr1.d;p++){
         const t=gStart+p*sub1;
         const idx=g*d.fr1.d+p;
-<<<<<<< ours
-        beep(t,p===0?1400:350);
-        sched(t,()=>{E.light.style.background=p===0?'var(--accent)':'var(--sub)';setTimeout(()=>E.light.style.background='var(--central)',50);});
-        if(subSp[idx]) sched(t,()=>flash(subSp[idx],'var(--sub)'));
-        sched(t,()=>E.hPFr.style.transform=`rotate(${(idx/(d.fr1.LgEff))*360}deg)`);
-      }
-    }
-
-    if(d.fr2Active){
-      const beat2=60/d.fr2.V;
-      const sub2 = beat2*d.fr2.n/d.fr2.d;
-      const step2=d.cycleCommon/d.fr2.n;
-      for(let g=0;g<d.fr2.LgEff/d.fr2.n;g++){
-        const gStart=start+g*d.fr2.n*beat2;
-        const idxLine=Math.floor(g*step2);
-        if(lines[idxLine]) sched(gStart,()=>flash(lines[idxLine],'var(--accent)'));
-        for(let p=0;p<d.fr2.d;p++){
-          const t=gStart+p*sub2;
-          const idx=g*d.fr2.d+p;
-          beep(t,p===0?1200:350);
-          if(subSp2[idx]) sched(t,()=>flash(subSp2[idx],'var(--sub)'));
-          sched(t,()=>E.hPFr2.style.transform=`rotate(${(idx/(d.fr2.LgEff))*360}deg)`);
-        }
-      }
-    }
-
-    for(let b=0;b<d.fr1.LgEff;b++){
-      const t=start+b*beat1;
-      sched(t,()=>E.hPA.style.transform=`rotate(${(b/d.fr1.LgEff)*360}deg)`);
-=======
         beep(t,p===0?1400:700);
         sched(t,()=>{E.light.style.background=p===0?'var(--accent)':'var(--sub)';setTimeout(()=>E.light.style.background='var(--central)',50);});
         if(subSp[idx]) sched(t,()=>flash(subSp[idx],'var(--sub)'));
@@ -218,7 +185,6 @@ window.addEventListener('DOMContentLoaded',()=>{
       const t=start+b*beat1;
       const posPA=b%d.cycleCommon;
       sched(t,()=>E.hPA.style.transform=`rotate(${(posPA/d.cycleCommon)*360}deg)`);
->>>>>>> theirs
       if(paSp[b]) sched(t,()=>flash(paSp[b],b===0?'var(--metro)':'var(--accent)'));
       if(E.metro.checked) beep(t,2600);
     }
@@ -244,10 +210,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   E.play.onclick=toggle;
   Object.values(F).forEach(inp=>inp.addEventListener('input',()=>{compute();restart();}));
   Object.values(F2).forEach(inp=>inp.addEventListener('input',()=>{compute();restart();}));
-<<<<<<< ours
-  toggleSecond.addEventListener('change',()=>{E.inputs2.style.display=toggleSecond.checked?'grid':'none';compute();restart();});
-=======
->>>>>>> theirs
   [E.metro,E.loopLg,E.loopInf].forEach(chk=>chk.addEventListener('change',()=>{compute();restart();}));
   E.cMinus.onclick=()=>{const d=compute();if(d&&d.cycle>1){F.Lg.value=d.n*(d.cycle-1);compute();restart();}};
   E.cPlus.onclick=()=>{const d=compute();if(d){F.Lg.value=d.n*(d.cycle+1);compute();restart();}};
