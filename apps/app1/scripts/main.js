@@ -2,6 +2,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   const gcd=(a,b)=>b?gcd(b,a%b):a;
   const $=id=>document.getElementById(id);
   const F={n:$('n'),d:$('d'),V:$('V'),Lg:$('Lg')};
+  const F2 = { n: $('n2'), d: $('d2'), V: $('V'), Lg: $('Lg') };
   const E={err:$('error'),der:$('derived'),i2:$('info2'),i3:$('info3'),light:$('light'),play:$('startBtn'),tap:$('tapBtn'),tapH:$('tapHint'),metro:$('metroToggle'),loopLg:$('lgLoopToggle'),loopInf:$('infLoopToggle'),cMinus:$('cycleMinus'),cPlus:$('cyclePlus'),cDisp:$('cycleDisp'),cViz:$('cycleViz'),hPA:$('handPA'),hPFr:$('handPFr'),hPFr2:$('handPFr2'),tl:$('timeline'),tlSub:$('timelinePFr'),tlSub2:$('timelinePFr2'),inputs2:$('inputs2')};
   let ctx=null,timers=[],playing=false,lines=[],paSp=[],subSp=[],subSp2=[],taps=[];
 
