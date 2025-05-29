@@ -2,8 +2,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   const gcd=(a,b)=>b?gcd(b,a%b):a;
   const $=id=>document.getElementById(id);
   const F={n:$('n'),d:$('d'),V:$('V'),Lg:$('Lg')};
-  const F2={n:$('n2'),d:$('d2'),V:$('V2'),Lg:$('Lg2')};
-  const toggleSecond=$('toggleSecond');
   const E={err:$('error'),der:$('derived'),i2:$('info2'),i3:$('info3'),light:$('light'),play:$('startBtn'),tap:$('tapBtn'),tapH:$('tapHint'),metro:$('metroToggle'),loopLg:$('lgLoopToggle'),loopInf:$('infLoopToggle'),cMinus:$('cycleMinus'),cPlus:$('cyclePlus'),cDisp:$('cycleDisp'),cViz:$('cycleViz'),hPA:$('handPA'),hPFr:$('handPFr'),hPFr2:$('handPFr2'),tl:$('timeline'),tlSub:$('timelinePFr'),tlSub2:$('timelinePFr2'),inputs2:$('inputs2')};
   let ctx=null,timers=[],playing=false,lines=[],paSp=[],subSp=[],subSp2=[],taps=[];
 
@@ -22,24 +20,20 @@ window.addEventListener('DOMContentLoaded',()=>{
       V:+F.V.value||60,
       Lg:+F.Lg.value||(+F.n.value||1)
     };
-    const fr2Active=toggleSecond.checked;
     const fr2={
-      n:+F2.n.value||1,
-      d:+F2.d.value||1,
-      V:+F2.V.value||60,
-      Lg:+F2.Lg.value||(+F2.n.value||1)
+      n:+F2.n.value||0,
+      d:+F2.d.value||0,
+      V:fr1.V,
+      Lg:fr1.Lg
     };
+    const fr2Active=fr2.n>0&&fr2.d>0;
     const loopInf=E.loopInf.checked,
           loopLg=E.loopLg.checked;
 
-    if(!loopInf&&fr1.Lg%fr1.n!==0){
-      const p=Math.floor(fr1.Lg/fr1.n)*fr1.n;
-      E.err.textContent=`⚠️ Lg no múltiplo. Usa ${p||''} o ${p+fr1.n}`;
-      return null;
-    }
-    if(fr2Active && !loopInf && fr2.Lg%fr2.n!==0){
-      const p=Math.floor(fr2.Lg/fr2.n)*fr2.n;
-      E.err.textContent=`⚠️ Lg2 no múltiplo. Usa ${p||''} o ${p+fr2.n}`;
+    const lcmN = fr2Active ? (fr1.n*fr2.n)/gcd(fr1.n,fr2.n) : fr1.n;
+    if(!loopInf && fr1.Lg%lcmN!==0){
+      const p=Math.floor(fr1.Lg/lcmN)*lcmN;
+      E.err.textContent=`⚠️ Lg no múltiplo. Usa ${p||''} o ${p+lcmN}`;
       return null;
     }
     E.err.textContent='';
@@ -54,25 +48,20 @@ window.addEventListener('DOMContentLoaded',()=>{
     const dR1    = fr1.d/m1;
     const VFr1   = fr1.V*dR1/nR1;
 
-    let info=`LgPa ${LgEff1} · LgFr ${LgFr1} · Ciclo ${cycle1}`+
-             `<br>MCD: n' ${nR1} d' ${dR1}`+
-             `<br>BPM Fr ${VFr1.toFixed(2)} · BPM a ${fr1.V.toFixed(2)}`;
+    let info=`LgPa1 ${LgEff1} LgFr1 ${LgFr1}`;
 
     let cycleCommon=cycle1;
 
+    let LgEff2=0, LgFr2=0;
     if(fr2Active){
-      const LgEff2 = loopInf ? fr2.n : fr2.Lg;
-      fr2.LgEff = LgEff2;
-      const cycle2 = LgEff2/fr2.n;
-      fr2.cycle = cycle2;
-      const m2     = gcd(fr2.n,fr2.d);
-      const nR2    = fr2.n/m2;
-      const dR2    = fr2.d/m2;
-      const VFr2   = fr2.V*dR2/nR2;
-      info += `<br>2ª LgPa ${LgEff2} · Ciclo ${cycle2}`+
-              `<br>BPM2 Fr ${VFr2.toFixed(2)} · BPM2 a ${fr2.V.toFixed(2)}`;
+      LgEff2 = loopInf ? fr2.n : fr2.Lg;
+      LgFr2 = Math.round(LgEff2*fr2.d/fr2.n);
       cycleCommon = fr1.n*fr2.n/gcd(fr1.n,fr2.n);
     }
+    fr2.LgEff = LgEff2;
+    info+=`<br>LgPa2 ${LgEff2} LgFr2 ${LgFr2}`+
+          `<br>MCD: n' ${nR1} d' ${dR1}`+
+          `<br>BPM Fr ${VFr1.toFixed(2)} · BPM a ${fr1.V.toFixed(2)}`;
 
     E.der.innerHTML=info;
     E.i2.textContent=`Ciclo ${cycleCommon}`;
@@ -154,6 +143,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     const beat1=60/d.fr1.V;
     const sub1 = beat1*d.fr1.n/d.fr1.d;
     const step1 = d.cycleCommon/d.fr1.n;
+<<<<<<< ours
+=======
+    const pfrPerCycle1 = d.cycleCommon*d.fr1.d/d.fr1.n;
+>>>>>>> theirs
 
 
     for(let g=0;g<d.fr1.LgEff/d.fr1.n;g++){
@@ -163,6 +156,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       for(let p=0;p<d.fr1.d;p++){
         const t=gStart+p*sub1;
         const idx=g*d.fr1.d+p;
+<<<<<<< ours
         beep(t,p===0?1400:350);
         sched(t,()=>{E.light.style.background=p===0?'var(--accent)':'var(--sub)';setTimeout(()=>E.light.style.background='var(--central)',50);});
         if(subSp[idx]) sched(t,()=>flash(subSp[idx],'var(--sub)'));
@@ -191,13 +185,51 @@ window.addEventListener('DOMContentLoaded',()=>{
     for(let b=0;b<d.fr1.LgEff;b++){
       const t=start+b*beat1;
       sched(t,()=>E.hPA.style.transform=`rotate(${(b/d.fr1.LgEff)*360}deg)`);
+=======
+        beep(t,p===0?1400:700);
+        sched(t,()=>{E.light.style.background=p===0?'var(--accent)':'var(--sub)';setTimeout(()=>E.light.style.background='var(--central)',50);});
+        if(subSp[idx]) sched(t,()=>flash(subSp[idx],'var(--sub)'));
+        const pos1 = idx % pfrPerCycle1;
+        sched(t,()=>E.hPFr.style.transform=`rotate(${(pos1/pfrPerCycle1)*360}deg)`);
+      }
+    }
+
+    if(d.fr2Active){
+      const beat2=60/d.fr2.V;
+      const sub2 = beat2*d.fr2.n/d.fr2.d;
+      const step2=d.cycleCommon/d.fr2.n;
+      const pfrPerCycle2 = d.cycleCommon*d.fr2.d/d.fr2.n;
+      for(let g=0;g<d.fr2.LgEff/d.fr2.n;g++){
+        const gStart=start+g*d.fr2.n*beat2;
+        const idxLine=Math.floor(g*step2);
+        if(lines[idxLine]) sched(gStart,()=>flash(lines[idxLine],'var(--accent)'));
+        for(let p=0;p<d.fr2.d;p++){
+          const t=gStart+p*sub2;
+          const idx=g*d.fr2.d+p;
+          beep(t,p===0?1200:500);
+          if(subSp2[idx]) sched(t,()=>flash(subSp2[idx],'var(--sub)'));
+          const pos2=idx%pfrPerCycle2;
+          sched(t,()=>E.hPFr2.style.transform=`rotate(${(pos2/pfrPerCycle2)*360}deg)`);
+        }
+      }
+    }
+
+    for(let b=0;b<d.fr1.LgEff;b++){
+      const t=start+b*beat1;
+      const posPA=b%d.cycleCommon;
+      sched(t,()=>E.hPA.style.transform=`rotate(${(posPA/d.cycleCommon)*360}deg)`);
+>>>>>>> theirs
       if(paSp[b]) sched(t,()=>flash(paSp[b],b===0?'var(--metro)':'var(--accent)'));
       if(E.metro.checked) beep(t,2600);
     }
 
     const end=start+Math.max(d.fr1.LgEff*beat1,d.fr2Active?d.fr2.LgEff*60/d.fr2.V:0);
     const loop=d.loopInf||d.loopLg;
-    sched(loop?end:end+0.1,()=>{if(playing){clearAll();loop?play():toggle();}});
+    if(loop){
+      sched(end,()=>{if(playing){clearAll();play();}});
+    }else{
+      sched(end+0.1,()=>{if(playing){clearAll();toggle();}});
+    }
   }
 
   function toggle(){
@@ -212,7 +244,10 @@ window.addEventListener('DOMContentLoaded',()=>{
   E.play.onclick=toggle;
   Object.values(F).forEach(inp=>inp.addEventListener('input',()=>{compute();restart();}));
   Object.values(F2).forEach(inp=>inp.addEventListener('input',()=>{compute();restart();}));
+<<<<<<< ours
   toggleSecond.addEventListener('change',()=>{E.inputs2.style.display=toggleSecond.checked?'grid':'none';compute();restart();});
+=======
+>>>>>>> theirs
   [E.metro,E.loopLg,E.loopInf].forEach(chk=>chk.addEventListener('change',()=>{compute();restart();}));
   E.cMinus.onclick=()=>{const d=compute();if(d&&d.cycle>1){F.Lg.value=d.n*(d.cycle-1);compute();restart();}};
   E.cPlus.onclick=()=>{const d=compute();if(d){F.Lg.value=d.n*(d.cycle+1);compute();restart();}};

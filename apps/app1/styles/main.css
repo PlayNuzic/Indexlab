@@ -35,4 +35,8 @@ button{padding:.6rem 1.4rem;font-size:1rem;background:var(--accent);color:var(--
 #timeline span,#timelinePFr span,#timelinePFr2 span{flex:1 0 0;background:rgba(255,255,255,.08);transition:background .05s}
 #timeline span.accentStatic{background:var(--accent);opacity:.5}
 #timeline span.startStatic{background:var(--metro);opacity:.7}
+#timelinePFr span.accentStatic{background:var(--sub);opacity:.5}
+#timelinePFr span.startStatic{background:var(--sub);opacity:.7}
+#timelinePFr2 span.accentStatic{background:var(--accent);opacity:.5}
+#timelinePFr2 span.startStatic{background:var(--accent);opacity:.7}
 
