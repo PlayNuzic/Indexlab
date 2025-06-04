@@ -1,4 +1,14 @@
-const synth = new Tone.Synth().toDestination();
+let synth;
+function loadInstrument(type){
+  if(synth) synth.dispose();
+  if(type==='piano'){
+    // Use simple synth placeholder for piano (samples could be added here)
+    synth = new Tone.Synth({oscillator:{type:'triangle'}}).toDestination();
+  }else{
+    synth = new Tone.Synth().toDestination();
+  }
+}
+loadInstrument('sine');
 
 let mode = 'iS';
 let level = 1;
@@ -16,12 +26,15 @@ const intervals = {
 
 function startGame(selected){
   mode = selected;
-  level = 1;
+  level = parseInt(document.getElementById('levelSelect').value) || 1;
   question = 0;
   correct = 0;
   document.getElementById('welcome').style.display='none';
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
+  initButtons();
+  loadInstrument(document.getElementById('instrument').value);
+  document.getElementById('instrumentWrap').style.display = level>=3 ? 'block' : 'none';
   nextQuestion();
 }
 
@@ -32,6 +45,7 @@ document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('nextBlock').onclick=()=>{
   question=0;correct=0;document.getElementById('summary').style.display='none';nextQuestion();
 };
+document.getElementById('instrument').onchange=e=>loadInstrument(e.target.value);
 
 function playNotes(){
   if(mode==='iS'){
@@ -59,6 +73,7 @@ function nextQuestion(){
   document.getElementById('answer').value='';
   document.getElementById('feedback').textContent='';
   document.getElementById('answer').placeholder = `${mode}(${currentInterval})`;
+  initButtons();
 }
 
 function submitAnswer(){
@@ -81,4 +96,16 @@ function showSummary(){
   else if(acc<0.5 && level>1) level--;
   document.getElementById('result').textContent=`Acierts ${correct}/10. Nivell actual ${level}.`;
   document.getElementById('summary').style.display='block';
+  document.getElementById('instrumentWrap').style.display = level>=3 ? 'block' : 'none';
+}
+
+function initButtons(){
+  const wrap=document.getElementById('quickAns');
+  wrap.innerHTML='';
+  for(let i=0;i<12;i++){
+    const b=document.createElement('button');
+    b.textContent=`${mode}(${i})`;
+    b.addEventListener('click',()=>{document.getElementById('answer').value=`${mode}(${i})`;submitAnswer();});
+    wrap.appendChild(b);
+  }
 }

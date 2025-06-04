@@ -12,8 +12,24 @@
   <section id="welcome">
     <h1>Ear Training Nuzic</h1>
     <p>Escull un mode per entrenar els intervals amb notació Nuzic.</p>
-    <button id="startIS">Entrenar intervals melòdics (iS)</button>
-    <button id="startIA">Entrenar intervals harmònics (iA)</button>
+    <div class="modeBtns">
+      <button id="startIS">Entrenar intervals melòdics (iS)</button>
+      <button id="startIA">Entrenar intervals harmònics (iA)</button>
+    </div>
+    <label for="levelSelect" style="margin-top:.5rem;display:block;">Nivell inicial:
+      <select id="levelSelect">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+    </label>
+    <div id="instrumentWrap" style="display:none;margin-top:.5rem;">
+      <label for="instrument">Instrument:</label>
+      <select id="instrument">
+        <option value="sine">Sintetitzador</option>
+        <option value="piano">Piano</option>
+      </select>
+    </div>
     <p style="margin-top:1rem"><a href="../../index.html">&larr; Torna a l’índex</a></p>
   </section>
 
@@ -24,6 +40,7 @@
       <input type="text" id="answer" placeholder="iS(4)">
       <button id="submitBtn">Enviar</button>
     </div>
+    <div id="quickAns"></div>
     <p id="feedback"></p>
   </section>
 

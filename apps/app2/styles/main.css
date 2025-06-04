@@ -4,3 +4,6 @@ section{margin-bottom:2rem;}
 input{padding:.4rem;}
 button{padding:.5rem 1rem;background:var(--accent);border:none;border-radius:4px;color:var(--bg-body);cursor:pointer;}
 button:hover{background:#e6a12b;}
+#quickAns{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;margin-top:.5rem;}
+.modeBtns{display:flex;flex-direction:column;gap:.5rem;margin:.5rem 0;}
+select{padding:.4rem;}
