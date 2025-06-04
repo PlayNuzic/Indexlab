@@ -3,18 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Indexlab — App1</title>
+  <title>Indexlab — Apps</title>
   <!-- Enllaça el CSS comú -->
   <link rel="stylesheet" href="./libs/shared-ui/index.css">
+  <style>
+    .cards{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
+  </style>
 </head>
-<body>
-  <div class="card">
-    <img src="./apps/app1/thumbnail.png" alt="App1 Preview">
-    <div class="card-content">
-      <h1>App1: Fracciones Rítmicas</h1>
-      <p>Explora el generador de fraccions rítmiques interactivament.</p>
-      <a class="btn" href="./apps/app1/index.html" target="_blank">Obre App1</a>
+  <body>
+    <div class="cards">
+    <div class="card">
+      <img src="./apps/app1/thumbnail.png" alt="App1 Preview">
+      <div class="card-content">
+        <h1>App1: Fracciones Rítmicas</h1>
+        <p>Explora el generador de fraccions rítmiques interactivament.</p>
+        <a class="btn" href="./apps/app1/index.html" target="_blank">Obre App1</a>
+      </div>
     </div>
-  </div>
-</body>
+    <div class="card">
+      <img src="./apps/app2/thumbnail.png" alt="App2 Preview">
+      <div class="card-content">
+        <h1>App2: Ear Training Nuzic</h1>
+        <p>Practica el reconeixement d'intervals melòdics i harmònics.</p>
+        <a class="btn" href="./apps/app2/index.html" target="_blank">Obre App2</a>
+      </div>
+    </div>
+    </div>
+  </body>
 </html>

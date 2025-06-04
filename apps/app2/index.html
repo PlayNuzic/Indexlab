@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ear Training Nuzic</title>
+  <link rel="stylesheet" href="../../libs/shared-ui/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+  <section id="welcome">
+    <h1>Ear Training Nuzic</h1>
+    <p>Escull un mode per entrenar els intervals amb notació Nuzic.</p>
+    <button id="startIS">Entrenar intervals melòdics (iS)</button>
+    <button id="startIA">Entrenar intervals harmònics (iA)</button>
+    <p style="margin-top:1rem"><a href="../../index.html">&larr; Torna a l’índex</a></p>
+  </section>
+
+  <section id="game" style="display:none">
+    <p id="question"></p>
+    <div class="controls">
+      <button id="playBtn">Escolta de nou</button>
+      <input type="text" id="answer" placeholder="iS(4)">
+      <button id="submitBtn">Enviar</button>
+    </div>
+    <p id="feedback"></p>
+  </section>
+
+  <section id="summary" style="display:none">
+    <p id="result"></p>
+    <button id="nextBlock">Següent bloc</button>
+  </section>
+
+  <script src="../../node_modules/tone/build/Tone.js"></script>
+  <script src="./scripts/main.js"></script>
+</body>
+</html>
