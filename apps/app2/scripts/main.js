@@ -8,7 +8,6 @@ function loadInstrument(type){
     synth = new Tone.Synth().toDestination();
   }
 }
-loadInstrument('sine');
 
 let mode = 'iS';
 let level = 1;
@@ -24,11 +23,11 @@ let repeat = false;
 const requiredToLevelUp = 10;
 
 const intervals = {
-  1: [1,-1,2,-2,10,-10,11,-11],
-  2: [5,-5,6,-6,7,-7],
-  3: [3,-3,4,-4,8,-8,9,-9]
+  1: [0,1,-1,2,-2,10,-10,11,-11],
+  2: [0,5,-5,6,-6,7,-7],
+  3: [0,3,-3,4,-4,8,-8,9,-9]
 };
-intervals[4] = [...intervals[1], ...intervals[3]];
+intervals[4] = [...new Set([...intervals[1], ...intervals[3]])];
 intervals[5] = [...new Set([...intervals[4], ...intervals[2]])];
 
 function startGame(selected){
@@ -43,15 +42,23 @@ function startGame(selected){
   document.getElementById('welcome').style.display='none';
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
+  loadInstrument(document.getElementById('instrument').value || 'sine');
   initButtons();
-  loadInstrument(document.getElementById('instrument').value);
   document.getElementById('instrumentWrap').style.display = level>=3 ? 'block' : 'none';
   updateScore();
   nextQuestion();
 }
 
-document.getElementById('startIS').onclick=()=>startGame('iS');
-document.getElementById('startIA').onclick=()=>startGame('iA');
+document.getElementById('startIS').onclick=()=>{
+  Tone.start().then(()=>{
+    startGame('iS');
+  });
+};
+document.getElementById('startIA').onclick=()=>{
+  Tone.start().then(()=>{
+    startGame('iA');
+  });
+};
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('nextBlock').onclick=()=>{
   if(level < 5 && confirm('Vols passar al següent nivell?')){
@@ -142,8 +149,8 @@ function showSummary(){
 function initButtons(){
   const wrap=document.getElementById('quickAns');
   wrap.innerHTML='';
-  const positives = [1,2,3,4,5,6,7,8,9,10,11];
-  const negatives = positives.map(n=>-n);
+  const positives = [0,1,2,3,4,5,6,7,8,9,10,11];
+  const negatives = positives.slice(1).map(n=>-n);
   const allowed=new Set(intervals[level]);
   const create=(i)=>{
     const b=document.createElement('button');
