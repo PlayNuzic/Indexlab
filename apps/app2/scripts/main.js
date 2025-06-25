@@ -1,5 +1,5 @@
 let synth;
-function loadInstrument(type){
+async function loadInstrument(type){
   if(synth) synth.dispose();
   if(type==='piano'){
     synth = new Tone.Sampler({
@@ -12,6 +12,7 @@ function loadInstrument(type){
       release:1,
       baseUrl:"https://tonejs.github.io/audio/salamander/"
     }).toDestination();
+    await synth.loaded;
   }else{
     synth = new Tone.PolySynth(Tone.Synth).toDestination();
   }
@@ -39,7 +40,7 @@ const intervals = {
 intervals[4] = [...new Set([0, ...intervals[1].slice(1), ...intervals[3].slice(1)])];
 intervals[5] = [...new Set([0, ...intervals[4].slice(1), ...intervals[2].slice(1)])];
 
-function startGame(selected){
+async function startGame(selected){
   mode = selected;
   level = parseInt(document.getElementById('levelSelect').value) || 1;
   question = 0;
@@ -51,9 +52,8 @@ function startGame(selected){
   document.getElementById('welcome').style.display='none';
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
-  loadInstrument(document.getElementById('instrument').value || 'sine');
+  await loadInstrument(document.getElementById('instrument').value || 'sine');
   initButtons();
-  document.getElementById('instrumentWrap').style.display = level>=3 ? 'block' : 'none';
   updateScore();
   nextQuestion();
 }
@@ -103,7 +103,10 @@ function playNotes(){
 function nextQuestion(){
   if(!repeat){
     question++;
-    const opts = intervals[level];
+    let opts = intervals[level];
+    if(mode==='iA'){
+      opts = opts.filter(n=>n>=0);
+    }
     currentInterval = opts[Math.floor(Math.random()*opts.length)];
     note1 = 60 + Math.floor(Math.random()*12);
     note2 = note1 + currentInterval;
@@ -152,15 +155,14 @@ function showSummary(){
   document.getElementById("result").textContent=`Encerts en aquest nivell: ${correctLevel} · Errors: ${wrongLevel}`;
   document.getElementById("totals").textContent=`Totals sessió · Enc.: ${correctTotal} · Err.: ${wrongTotal} · Percentatge: ${percent}% · Nivell ${level}`;
   document.getElementById("summary").style.display="block";
-  document.getElementById("instrumentWrap").style.display = level>=3 ? "block" : "none";
 }
 
 function initButtons(){
   const wrap=document.getElementById('quickAns');
   wrap.innerHTML='';
   const positives = [0,1,2,3,4,5,6,7,8,9,10,11];
-  const negatives = positives.slice(1).map(n=>-n);
-  const allowed=new Set(intervals[level]);
+  const negatives = mode==='iS' ? positives.slice(1).map(n=>-n) : [];
+  const allowed=new Set(mode==='iA'?intervals[level].filter(n=>n>=0):intervals[level]);
   const create=(i)=>{
     const b=document.createElement('button');
     b.textContent=`${mode}(${i})`;
@@ -173,10 +175,12 @@ function initButtons(){
     wrap.appendChild(b);
   };
   positives.forEach(create);
-  const br=document.createElement('div');
-  br.style.flexBasis='100%';
-  wrap.appendChild(br);
-  negatives.forEach(create);
+  if(negatives.length){
+    const br=document.createElement('div');
+    br.style.flexBasis='100%';
+    wrap.appendChild(br);
+    negatives.forEach(create);
+  }
 }
 
 function updateScore(){
