@@ -22,13 +22,14 @@ let note2 = 60;
 let repeat = false;
 const requiredToLevelUp = 10;
 
+// Interval sets per level. Unison (0) always included and placed first.
 const intervals = {
   1: [0,1,-1,2,-2,10,-10,11,-11],
   2: [0,5,-5,6,-6,7,-7],
   3: [0,3,-3,4,-4,8,-8,9,-9]
 };
-intervals[4] = [...new Set([...intervals[1], ...intervals[3]])];
-intervals[5] = [...new Set([...intervals[4], ...intervals[2]])];
+intervals[4] = [...new Set([0, ...intervals[1].slice(1), ...intervals[3].slice(1)])];
+intervals[5] = [...new Set([0, ...intervals[4].slice(1), ...intervals[2].slice(1)])];
 
 function startGame(selected){
   mode = selected;
