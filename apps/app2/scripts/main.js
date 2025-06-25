@@ -12,7 +12,7 @@ async function loadInstrument(type){
       release:1,
       baseUrl:"https://tonejs.github.io/audio/salamander/"
     }).toDestination();
-    await synth.loaded;
+    await Tone.loaded();
   }else{
     synth = new Tone.PolySynth(Tone.Synth).toDestination();
   }
@@ -41,6 +41,7 @@ intervals[4] = [...new Set([0, ...intervals[1].slice(1), ...intervals[3].slice(1
 intervals[5] = [...new Set([0, ...intervals[4].slice(1), ...intervals[2].slice(1)])];
 
 async function startGame(selected){
+  await Tone.start();
   mode = selected;
   level = parseInt(document.getElementById('levelSelect').value) || 1;
   question = 0;
@@ -59,14 +60,10 @@ async function startGame(selected){
 }
 
 document.getElementById('startIS').onclick=()=>{
-  Tone.start().then(()=>{
-    startGame('iS');
-  });
+  startGame('iS');
 };
 document.getElementById('startIA').onclick=()=>{
-  Tone.start().then(()=>{
-    startGame('iA');
-  });
+  startGame('iA');
 };
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('nextBlock').onclick=()=>{
