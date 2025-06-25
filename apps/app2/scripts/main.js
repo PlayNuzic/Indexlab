@@ -23,12 +23,12 @@ let repeat = false;
 const requiredToLevelUp = 10;
 
 const intervals = {
-  1: [0,1,2,3,4,5,-1,-2,-3,-4,-5],
-  2: [0,1,2,3,4,5,7,8,9,-1,-2,-3,-4,-5,-7,-8,-9],
-  3: [0,1,2,3,4,5,6,7,8,9,10,11,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11],
-  4: [0,1,2,3,4,5,6,7,8,9,10,11,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11],
-  5: [0,1,2,3,4,5,6,7,8,9,10,11,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11]
+  1: [1,-1,2,-2,10,-10,11,-11],
+  2: [5,-5,6,-6,7,-7],
+  3: [3,-3,4,-4,8,-8,9,-9]
 };
+intervals[4] = [...intervals[1], ...intervals[3]];
+intervals[5] = [...new Set([...intervals[4], ...intervals[2]])];
 
 function startGame(selected){
   mode = selected;
@@ -50,7 +50,6 @@ function startGame(selected){
 
 document.getElementById('startIS').onclick=()=>startGame('iS');
 document.getElementById('startIA').onclick=()=>startGame('iA');
-document.getElementById('submitBtn').onclick=submitAnswer;
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('nextBlock').onclick=()=>{
   question=0;correct=0;repeat=false;
@@ -90,17 +89,13 @@ function nextQuestion(){
   }
   playNotes();
   document.getElementById('question').textContent=`Pregunta ${question}/10 · Nivell ${level}`;
-  document.getElementById('answer').value='';
   document.getElementById('feedback').textContent='';
-  document.getElementById('answer').placeholder = `${mode}(?)`;
   initButtons();
 }
 
-function submitAnswer(){
-  const ans = document.getElementById('answer').value.trim();
-  const match = ans.match(/i[SA]\((-?\d+)\)/i);
-  const expected = (mode==='iS'? 'iS(':'iA(')+currentInterval+')';
-  if(match && parseInt(match[1])===currentInterval){
+function submitAnswer(value){
+  const expected = currentInterval;
+  if(value === expected){
     correct++;
     correctTotal++;
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${(note2%12)} - ${(note1%12)} = ${currentInterval} => ${mode}(${currentInterval})`;
@@ -122,9 +117,9 @@ function submitAnswer(){
     if(!repeat){
       document.getElementById('feedback').textContent='\u274C Incorrecte. Torna-ho a provar!';
       repeat=true;
-      setTimeout(()=>{playNotes();document.getElementById('answer').value='';},1000);
+      setTimeout(()=>{playNotes();},1000);
     }else{
-      document.getElementById('feedback').textContent=`\u274C Era ${expected}`;
+      document.getElementById('feedback').textContent=`\u274C Era ${mode}(${expected})`;
       repeat=false;
       setTimeout(nextQuestion,1000);
     }
@@ -144,12 +139,23 @@ function showSummary(){
 function initButtons(){
   const wrap=document.getElementById('quickAns');
   wrap.innerHTML='';
-  for(let i=-11;i<12;i++){
+  const positives = [1,2,3,4,5,6,7,8,9,10,11];
+  const negatives = positives.map(n=>-n);
+  positives.forEach(i=>{
     const b=document.createElement('button');
     b.textContent=`${mode}(${i})`;
-    b.addEventListener('click',()=>{document.getElementById('answer').value=`${mode}(${i})`;submitAnswer();});
+    b.addEventListener('click',()=>submitAnswer(i));
     wrap.appendChild(b);
-  }
+  });
+  const br=document.createElement('div');
+  br.style.flexBasis='100%';
+  wrap.appendChild(br);
+  negatives.forEach(i=>{
+    const b=document.createElement('button');
+    b.textContent=`${mode}(${i})`;
+    b.addEventListener('click',()=>submitAnswer(i));
+    wrap.appendChild(b);
+  });
 }
 
 function updateScore(){
