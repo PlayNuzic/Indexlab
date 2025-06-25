@@ -23,9 +23,11 @@ let repeat = false;
 const requiredToLevelUp = 10;
 
 const intervals = {
-  1: [0,1,2,3,4,5],
-  2: [0,1,2,3,4,5,7,8,9],
-  3: [0,1,2,3,4,5,6,7,8,9,10,11]
+  1: [0,1,2,3,4,5,-1,-2,-3,-4,-5],
+  2: [0,1,2,3,4,5,7,8,9,-1,-2,-3,-4,-5,-7,-8,-9],
+  3: [0,1,2,3,4,5,6,7,8,9,10,11,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11],
+  4: [0,1,2,3,4,5,6,7,8,9,10,11,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11],
+  5: [0,1,2,3,4,5,6,7,8,9,10,11,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11]
 };
 
 function startGame(selected){
@@ -90,7 +92,7 @@ function nextQuestion(){
   document.getElementById('question').textContent=`Pregunta ${question}/10 · Nivell ${level}`;
   document.getElementById('answer').value='';
   document.getElementById('feedback').textContent='';
-  document.getElementById('answer').placeholder = `${mode}(${currentInterval})`;
+  document.getElementById('answer').placeholder = `${mode}(?)`;
   initButtons();
 }
 
@@ -105,7 +107,7 @@ function submitAnswer(){
     updateScore();
     repeat=false;
     setTimeout(()=>{
-      if(correctTotal>=requiredToLevelUp && level<3){
+      if(correctTotal>=requiredToLevelUp && level<5){
         if(confirm('Has assolit 10 encerts! Vols passar de nivell?')){
           level++;
           correctTotal=0;
@@ -118,7 +120,7 @@ function submitAnswer(){
     wrongTotal++;
     updateScore();
     if(!repeat){
-      document.getElementById('feedback').textContent=`\u274C Era ${expected}. Torna-ho a provar!`;
+      document.getElementById('feedback').textContent='\u274C Incorrecte. Torna-ho a provar!';
       repeat=true;
       setTimeout(()=>{playNotes();document.getElementById('answer').value='';},1000);
     }else{
@@ -131,8 +133,10 @@ function submitAnswer(){
 
 function showSummary(){
   document.getElementById('game').style.display='none';
+  const total = correctTotal + wrongTotal;
+  const percent = total ? Math.round(correctTotal*100/total) : 0;
   document.getElementById('result').textContent=`Acierts en aquest bloc: ${correct}/10.`;
-  document.getElementById('totals').textContent=`Totals · Enc.: ${correctTotal} · Err.: ${wrongTotal} · Nivell ${level}`;
+  document.getElementById('totals').textContent=`Totals · Enc.: ${correctTotal} · Err.: ${wrongTotal} · Aciert: ${percent}% · Nivell ${level}`;
   document.getElementById('summary').style.display='block';
   document.getElementById('instrumentWrap').style.display = level>=3 ? 'block' : 'none';
 }
@@ -140,7 +144,7 @@ function showSummary(){
 function initButtons(){
   const wrap=document.getElementById('quickAns');
   wrap.innerHTML='';
-  for(let i=0;i<12;i++){
+  for(let i=-11;i<12;i++){
     const b=document.createElement('button');
     b.textContent=`${mode}(${i})`;
     b.addEventListener('click',()=>{document.getElementById('answer').value=`${mode}(${i})`;submitAnswer();});
