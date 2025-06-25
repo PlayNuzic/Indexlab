@@ -2,8 +2,17 @@ let synth;
 function loadInstrument(type){
   if(synth) synth.dispose();
   if(type==='piano'){
-    // Use simple synth placeholder for piano (samples could be added here)
-    synth = new Tone.Synth({oscillator:{type:'triangle'}}).toDestination();
+    // Load a sampler using remote piano samples
+    synth = new Tone.Sampler({
+      urls:{
+        C4:"C4.mp3",
+        "D#4":"Ds4.mp3",
+        "F#4":"Fs4.mp3",
+        A4:"A4.mp3"
+      },
+      release:1,
+      baseUrl:"https://tonejs.github.io/audio/salamander/"
+    }).toDestination();
   }else{
     synth = new Tone.Synth().toDestination();
   }
@@ -82,13 +91,20 @@ document.getElementById('backBtn').onclick=()=>{
 };
 
 function playNotes(){
+  const n1 = Tone.Frequency(note1,'midi');
+  const n2 = Tone.Frequency(note2,'midi');
   if(mode==='iS'){
-    synth.triggerAttackRelease(Tone.Frequency(note1,'midi'), '8n');
+    synth.triggerAttackRelease(n1, '8n');
     setTimeout(()=>{
-      synth.triggerAttackRelease(Tone.Frequency(note2,'midi'), '8n');
+      synth.triggerAttackRelease(n2, '8n');
     },800);
   }else{
-    synth.triggerAttackRelease([Tone.Frequency(note1,'midi'),Tone.Frequency(note2,'midi')],'8n');
+    if(synth instanceof Tone.Sampler){
+      synth.triggerAttackRelease([n1, n2], '8n');
+    }else{
+      synth.triggerAttackRelease(n1, '8n');
+      synth.triggerAttackRelease(n2, '8n');
+    }
   }
 }
 
