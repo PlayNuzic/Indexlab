@@ -11,3 +11,4 @@ button.small{font-size:.8rem;padding:.3rem .7rem;margin-top:.5rem;}
 select{padding:.4rem;}
 a{color:#ffbb33;}
 a:hover{text-decoration:underline;}
+button.disabled{background:#555;color:#999;cursor:default;}

@@ -13,7 +13,8 @@ loadInstrument('sine');
 let mode = 'iS';
 let level = 1;
 let question = 0;
-let correct = 0;
+let correctLevel = 0;
+let wrongLevel = 0;
 let correctTotal = 0;
 let wrongTotal = 0;
 let currentInterval = 0;
@@ -34,8 +35,9 @@ function startGame(selected){
   mode = selected;
   level = parseInt(document.getElementById('levelSelect').value) || 1;
   question = 0;
-  correct = 0;
+  correctLevel = 0;
   correctTotal = 0;
+  wrongLevel = 0;
   wrongTotal = 0;
   repeat = false;
   document.getElementById('welcome').style.display='none';
@@ -52,9 +54,16 @@ document.getElementById('startIS').onclick=()=>startGame('iS');
 document.getElementById('startIA').onclick=()=>startGame('iA');
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('nextBlock').onclick=()=>{
-  question=0;correct=0;repeat=false;
+  if(level < 5 && confirm('Vols passar al següent nivell?')){
+    level++;
+  }
+  question=0;
+  correctLevel=0;
+  wrongLevel=0;
+  repeat=false;
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
+  initButtons();
   updateScore();
   nextQuestion();
 };
@@ -76,10 +85,6 @@ function playNotes(){
 }
 
 function nextQuestion(){
-  if(!repeat && question>=10){
-    showSummary();
-    return;
-  }
   if(!repeat){
     question++;
     const opts = intervals[level];
@@ -88,7 +93,7 @@ function nextQuestion(){
     note2 = note1 + currentInterval;
   }
   playNotes();
-  document.getElementById('question').textContent=`Pregunta ${question}/10 · Nivell ${level}`;
+  document.getElementById('question').textContent=`Pregunta ${question} · Nivell ${level}`;
   document.getElementById('feedback').textContent='';
   initButtons();
 }
@@ -96,22 +101,20 @@ function nextQuestion(){
 function submitAnswer(value){
   const expected = currentInterval;
   if(value === expected){
-    correct++;
+    correctLevel++;
     correctTotal++;
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${(note2%12)} - ${(note1%12)} = ${currentInterval} => ${mode}(${currentInterval})`;
     updateScore();
     repeat=false;
     setTimeout(()=>{
-      if(correctTotal>=requiredToLevelUp && level<5){
-        if(confirm('Has assolit 10 encerts! Vols passar de nivell?')){
-          level++;
-          correctTotal=0;
-          wrongTotal=0;
-        }
+      if(correctLevel >= requiredToLevelUp){
+        showSummary();
+      }else{
+        nextQuestion();
       }
-      nextQuestion();
     },1500);
   }else{
+    wrongLevel++;
     wrongTotal++;
     updateScore();
     if(!repeat){
@@ -127,13 +130,13 @@ function submitAnswer(value){
 }
 
 function showSummary(){
-  document.getElementById('game').style.display='none';
-  const total = correctTotal + wrongTotal;
-  const percent = total ? Math.round(correctTotal*100/total) : 0;
-  document.getElementById('result').textContent=`Acierts en aquest bloc: ${correct}/10.`;
-  document.getElementById('totals').textContent=`Totals · Enc.: ${correctTotal} · Err.: ${wrongTotal} · Aciert: ${percent}% · Nivell ${level}`;
-  document.getElementById('summary').style.display='block';
-  document.getElementById('instrumentWrap').style.display = level>=3 ? 'block' : 'none';
+  document.getElementById("game").style.display="none";
+  const total = correctLevel + wrongLevel;
+  const percent = total ? Math.round(correctLevel*100/total) : 0;
+  document.getElementById("result").textContent=`Encerts en aquest nivell: ${correctLevel} · Errors: ${wrongLevel}`;
+  document.getElementById("totals").textContent=`Totals sessió · Enc.: ${correctTotal} · Err.: ${wrongTotal} · Percentatge: ${percent}% · Nivell ${level}`;
+  document.getElementById("summary").style.display="block";
+  document.getElementById("instrumentWrap").style.display = level>=3 ? "block" : "none";
 }
 
 function initButtons(){
@@ -141,21 +144,23 @@ function initButtons(){
   wrap.innerHTML='';
   const positives = [1,2,3,4,5,6,7,8,9,10,11];
   const negatives = positives.map(n=>-n);
-  positives.forEach(i=>{
+  const allowed=new Set(intervals[level]);
+  const create=(i)=>{
     const b=document.createElement('button');
     b.textContent=`${mode}(${i})`;
-    b.addEventListener('click',()=>submitAnswer(i));
+    if(!allowed.has(i)){
+      b.classList.add('disabled');
+      b.disabled=true;
+    }else{
+      b.addEventListener('click',()=>submitAnswer(i));
+    }
     wrap.appendChild(b);
-  });
+  };
+  positives.forEach(create);
   const br=document.createElement('div');
   br.style.flexBasis='100%';
   wrap.appendChild(br);
-  negatives.forEach(i=>{
-    const b=document.createElement('button');
-    b.textContent=`${mode}(${i})`;
-    b.addEventListener('click',()=>submitAnswer(i));
-    wrap.appendChild(b);
-  });
+  negatives.forEach(create);
 }
 
 function updateScore(){
