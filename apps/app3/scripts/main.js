@@ -46,9 +46,21 @@ window.addEventListener('DOMContentLoaded', async () => {
   let mode='eA';
   let notes=eAToNotes([3,4,3]);
   // starting MIDI note for Nm(0r3)
-  const BASE=12*3;
+  // starting MIDI note for Nm(0r3) -> C4 = MIDI 60
+  const BASE = 60;
 
-  const diagMidis=()=>notes.map((n,i)=>BASE+n+12*i);
+  const diagMidis = () => {
+    const result = [];
+    let current = BASE + notes[0];
+    result.push(current);
+    for (let i = 1; i < notes.length; i++) {
+      let diff = notes[i] - notes[i - 1];
+      if (diff <= 0) diff += 12;
+      current += diff;
+      result.push(current);
+    }
+    return result;
+  };
   const seqInput=document.getElementById('seq');
   const prefix=document.getElementById('seqPrefix');
   const errorEl=document.getElementById('error');
