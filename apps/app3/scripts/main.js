@@ -54,8 +54,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   let recordStart=0;
   let recorded=[];
   let recordBpm=120;
-  let playing=false;
-  let playTimers=[];
   // starting MIDI note for Nm(0r3)
   // starting MIDI note for Nm(0r3) -> C4 = MIDI 60
   const BASE = 60;
@@ -149,7 +147,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           }
           if(melodic) Sound.playMelody(noteArr);
           else Sound.playChord(noteArr);
-          if(recording && Date.now()-recordStart >= 4*(60000/recordBpm)){
+          if(recording){
             const beat=(Date.now()-recordStart)/(60000/recordBpm);
             recorded.push({beat,notes:noteArr.slice(),melodic});
           }
@@ -166,7 +164,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   function saveSnapshot(idx){
     snapshots[idx]=[...notes];
     localStorage.setItem('app3Snapshots',JSON.stringify(snapshots));
-    renderSnapshots();
   }
 
   function loadSnapshot(idx){
@@ -174,7 +171,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       notes=[...snapshots[idx]];
       seqInput.value=mode==='eA'?notesToEA(notes):notesToAc(notes);
       renderGrid();
-      renderSnapshots();
     }
   }
 
@@ -183,15 +179,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     for(let i=0;i<10;i++){
       const b=document.createElement('button');
       b.textContent=i+1;
-      b.classList.toggle('saved',!!snapshots[i]);
-      b.onclick=e=>{ 
-        if(e.shiftKey){
-          saveSnapshot(i);
-        }else{
-          loadSnapshot(i);
-        }
-        renderSnapshots();
-      };
+      b.onclick=e=>{ e.shiftKey ? saveSnapshot(i) : loadSnapshot(i); };
       snapWrap.appendChild(b);
     }
   }
@@ -248,42 +236,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     }else{
       recordBpm=parseFloat(bpmInput.value)||120;
       recorded=[];
-      const interval=60000/recordBpm;
-      recordStart=Date.now();
-      for(let i=0;i<4;i++){
-        recorded.push({beat:i,notes:[84],melodic:false});
-        setTimeout(()=>Sound.playNote(84),i*interval);
-      }
       recording=true;
+      recordStart=Date.now();
       recBtn.textContent='Atura';
     }
   };
 
-  function stopPlayback(){
-    playTimers.forEach(clearTimeout);
-    playTimers=[];
-    playing=false;
-    playSeqBtn.textContent='Reproduir';
-  }
-
   playSeqBtn.onclick=()=>{
-    if(playing){
-      stopPlayback();
-      return;
-    }
-    if(!recorded.length) return;
     const bpm=parseFloat(bpmInput.value)||120;
-    playing=true;
-    playSeqBtn.textContent='Atura';
     recorded.forEach(ev=>{
       const t=ev.beat*60000/bpm;
-      const id=setTimeout(()=>{ ev.melodic?Sound.playMelody(ev.notes):Sound.playChord(ev.notes); },t);
-      playTimers.push(id);
+      setTimeout(()=>{ ev.melodic?Sound.playMelody(ev.notes):Sound.playChord(ev.notes); },t);
     });
-    const last=recorded[recorded.length-1];
-    const end=last.beat*60000/bpm+2000;
-    const endTimer=setTimeout(stopPlayback,end);
-    playTimers.push(endTimer);
   };
 
   midiBtn.onclick=()=>{
