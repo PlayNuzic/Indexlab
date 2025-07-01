@@ -1,4 +1,6 @@
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  await Sound.init();
+  document.body.addEventListener('click',()=>Tone.start(),{once:true});
   // -------- helpers --------
   const parseNums = txt => txt.trim().split(/\s+/).map(n => parseInt(n.replace(/[^0-9-]/g,''),10)).filter(n => !isNaN(n));
 
@@ -33,6 +35,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // -------- state --------
   let mode='eA';
   let notes=eAToNotes([3,4,3]);
+  const BASE=60;
   const seqInput=document.getElementById('seq');
   const prefix=document.getElementById('seqPrefix');
   const errorEl=document.getElementById('error');
@@ -83,6 +86,16 @@ window.addEventListener('DOMContentLoaded', () => {
           td.textContent=matrix[r][c];
           td.classList.add(upper?'upper':'lower');
         }
+        td.onclick=()=>{
+          const size=notes.length;
+          if(isDiag){
+            Sound.playChord(notes.map(n=>BASE+n));
+          }else{
+            const idx1=c;
+            const idx2=size-1-r;
+            Sound.playChord([BASE+notes[idx1],BASE+notes[idx2]]);
+          }
+        };
         td.onmouseenter=()=>setHover({r,c});
         td.onmouseleave=()=>setHover(null);
         tr.appendChild(td);
