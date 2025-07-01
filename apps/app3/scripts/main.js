@@ -255,10 +255,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       recordBpm=parseFloat(bpmInput.value)||120;
       recorded=[];
       const interval=60000/recordBpm;
+      const beatDur = 60 / recordBpm;
       recordStart=Date.now();
       for(let i=0;i<4;i++){
         recorded.push({beat:i,notes:[84],melodic:false});
-        setTimeout(()=>Sound.playNote(84),i*interval);
+        setTimeout(()=>Sound.playNote(84, beatDur),i*interval);
       }
       recording=true;
       recBtn.textContent='Atura';
