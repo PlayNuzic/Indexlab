@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nuzic Chord Array Generator</title>
+  <link rel="stylesheet" href="../../libs/shared-ui/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+  <h1>Nuzic Chord Array Generator</h1>
+  <div class="controls">
+    <div class="tabs">
+      <button id="tabEA" class="active">eA</button>
+      <button id="tabAc">Ac</button>
+    </div>
+    <div class="seqInput">
+      <span id="seqPrefix">eA(</span>
+      <input id="seq" type="text" placeholder="3 4 3">
+      <span>)</span>
+    </div>
+    <button id="generate">Generar</button>
+    <p id="error" class="error"></p>
+  </div>
+  <div id="grid"></div>
+  <div class="card info">
+    <div class="card-content">
+      <p><strong>Matriz:</strong> La diagonal contiene las <span class="nm">Nm</span> (notas modulares) de cada voz: distancia en semitonos desde la raíz 0.</p>
+      <p>Sobre la diagonal (<span class="asc">azul</span>) aparecen los <em>iA</em> ascendentes entre Nm; bajo ella (<span class="desc">ámbar</span>) los complementarios. Cada pareja asc/desc suma el módulo 12.</p>
+      <p><span class="hover-diag">Hover verde</span> = resalta toda la diagonal. <span class="hover-pair">Hover rosa</span> = resalta un iA ascendente (triángulo superior) y su iA complementario (triángulo inferior).</p>
+      <p style="text-align:center"><a href="../../index.html">&larr; Torna a l'índex</a></p>
+    </div>
+  </div>
+
+  <script src="./scripts/main.js"></script>
+</body>
+</html>
