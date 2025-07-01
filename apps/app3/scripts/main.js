@@ -50,19 +50,29 @@ window.addEventListener('DOMContentLoaded', async () => {
   if(!Array.isArray(snapshots) || snapshots.length!==10){
     snapshots = Array(10).fill(null);
   }
+  let activeSnapshot=null;
   let recording=false;
   let recordStart=0;
   let recorded=[];
   let recordBpm=120;
   let playing=false;
   let playTimers=[];
-  // starting MIDI note for Nm(0r3)
-  // starting MIDI note for Nm(0r3) -> C4 = MIDI 60
-  const BASE = 60;
+
+  function notesChanged(){
+    if(activeSnapshot!==null){
+      activeSnapshot=null;
+      renderSnapshots();
+    }
+  }
+  // starting MIDI note for Nm(0r3) -> default C4 = MIDI 60
+  let baseMidi = 60;
+  const baseSelect=document.getElementById('baseNote');
+  baseSelect.value=String(baseMidi);
+  baseSelect.onchange=()=>{baseMidi=parseInt(baseSelect.value,10);renderGrid();};
 
   const diagMidis = () => {
     const result = [];
-    let current = BASE + notes[0];
+    let current = baseMidi + notes[0];
     result.push(current);
     for (let i = 1; i < notes.length; i++) {
       let diff = notes[i] - notes[i - 1];
@@ -103,6 +113,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     notes= mode==='eA'? eAToNotes(nums) : nums.map(x=>((x%12)+12)%12);
     errorEl.textContent='';
     renderGrid();
+    notesChanged();
   };
 
   function renderGrid(){
@@ -123,7 +134,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           const inp=document.createElement('input');
           inp.type='number';
           inp.value=matrix[r][c];
-          inp.oninput=()=>{notes[c]=((parseInt(inp.value,10)||0)%12+12)%12;renderGrid();};
+          inp.oninput=()=>{notes[c]=((parseInt(inp.value,10)||0)%12+12)%12;renderGrid();notesChanged();};
           td.appendChild(inp);
         }else{
           td.textContent=matrix[r][c];
@@ -148,9 +159,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             }
           }
           const bpm = parseFloat(bpmInput.value) || 120;
-          const dur = 2 * (60 / bpm);
-          if(melodic) Sound.playMelody(noteArr, dur);
-          else Sound.playChord(noteArr, dur);
+          const chordDur = 2 * (60 / bpm);
+          const melodicDur = 60 / bpm;
+          if(melodic) Sound.playMelody(noteArr, melodicDur);
+          else Sound.playChord(noteArr, chordDur);
           if(recording && Date.now()-recordStart >= 4*(60000/recordBpm)){
             const beat=(Date.now()-recordStart)/(60000/recordBpm);
             recorded.push({beat,notes:noteArr.slice(),melodic});
@@ -168,6 +180,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   function saveSnapshot(idx){
     snapshots[idx]=[...notes];
     localStorage.setItem('app3Snapshots',JSON.stringify(snapshots));
+    activeSnapshot=null;
     renderSnapshots();
   }
 
@@ -176,6 +189,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       notes=[...snapshots[idx]];
       seqInput.value=mode==='eA'?notesToEA(notes):notesToAc(notes);
       renderGrid();
+      activeSnapshot=idx;
       renderSnapshots();
     }
   }
@@ -186,6 +200,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const b=document.createElement('button');
       b.textContent=i+1;
       b.classList.toggle('saved',!!snapshots[i]);
+      b.classList.toggle('active',activeSnapshot===i);
       b.onclick=e=>{ 
         if(e.shiftKey){
           saveSnapshot(i);
@@ -254,7 +269,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       recordStart=Date.now();
       for(let i=0;i<4;i++){
         recorded.push({beat:i,notes:[84],melodic:false});
-        setTimeout(()=>Sound.playNote(84),i*interval);
+        setTimeout(()=>Sound.playNote(84,60/recordBpm),i*interval);
       }
       recording=true;
       recBtn.textContent='Atura';
@@ -280,8 +295,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     recorded.forEach(ev=>{
       const t = ev.beat * 60000 / bpm;
       const id = setTimeout(() => {
-        const dur = 2 * (60 / bpm);
-        ev.melodic ? Sound.playMelody(ev.notes, dur) : Sound.playChord(ev.notes, dur);
+        const chordDur = 2 * (60 / bpm);
+        const melodicDur = 60 / bpm;
+        ev.melodic ? Sound.playMelody(ev.notes, melodicDur) : Sound.playChord(ev.notes, chordDur);
       }, t);
       playTimers.push(id);
     });
@@ -294,11 +310,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   midiBtn.onclick=()=>{
     if(!recorded.length) return;
     const midi=new Midi();
+    const bpm=parseFloat(bpmInput.value)||120;
+    midi.header.setTempo(bpm);
     const track=midi.addTrack();
     recorded.forEach(ev=>{
       if(ev.melodic){
         ev.notes.forEach((n,i)=>{
-          track.addNote({midi:n,time:ev.beat+i*0.5,duration:0.5});
+          track.addNote({midi:n,time:ev.beat+i,duration:1});
         });
       }else{
         ev.notes.forEach(n=>track.addNote({midi:n,time:ev.beat,duration:1}));

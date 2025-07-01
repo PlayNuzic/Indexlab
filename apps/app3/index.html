@@ -22,7 +22,13 @@
     </div>
     <button id="generate">Generar</button>
     <button id="togglePlay">Interval harmònic (iA)</button>
-    <div id="snapshots" class="snapshots"></div>
+    <div class="preset-row">
+      <div id="snapshots" class="snapshots"></div>
+      <select id="baseNote">
+        <option value="60" selected>C4</option>
+        <option value="48">C3</option>
+      </select>
+    </div>
     <div class="rec-controls">
       <label>BPM <input id="bpm" type="number" value="120"></label>
       <button id="tapBtn">Tap</button>
