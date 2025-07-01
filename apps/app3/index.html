@@ -9,30 +9,27 @@
   <link rel="stylesheet" href="./styles/main.css">
 </head>
 <body>
-  <h1>Nuzic Chord Array Generator</h1>
-  <div class="controls">
-    <div class="tabs">
-      <button id="tabEA" class="active">eA</button>
-      <button id="tabAc">Ac</button>
-    </div>
-    <div class="seqInput">
-      <span id="seqPrefix">eA(</span>
-      <input id="seq" type="text" placeholder="3 4 3">
-      <span>)</span>
-    </div>
-    <button id="generate">Generar</button>
-    <p id="error" class="error"></p>
-  </div>
-  <div id="grid"></div>
-  <div class="card info">
-    <div class="card-content">
-      <p><strong>Matriz:</strong> La diagonal contiene las <span class="nm">Nm</span> (notas modulares) de cada voz: distancia en semitonos desde la raíz 0.</p>
-      <p>Sobre la diagonal (<span class="asc">azul</span>) aparecen los <em>iA</em> ascendentes entre Nm; bajo ella (<span class="desc">ámbar</span>) los complementarios. Cada pareja asc/desc suma el módulo 12.</p>
-      <p><span class="hover-diag">Hover verde</span> = resalta toda la diagonal. <span class="hover-pair">Hover rosa</span> = resalta un iA ascendente (triángulo superior) y su iA complementario (triángulo inferior).</p>
-      <p style="text-align:center"><a href="../../index.html">&larr; Torna a l'índex</a></p>
-    </div>
-  </div>
+  <div class="app-container">
+    <!-- 1) Títol centrat -->
+    <h1 class="app-title">Nuzic Chord Array Generator</h1>
 
+    <!-- 2) Selector + input + botó en un sol bloc -->
+    <div class="controls">
+      <!-- el teu <select> eA/Ac aquí -->
+      <!-- el teu <input> aquí -->
+      <button id="generate">Generar</button>
+    </div>
+
+    <!-- 3) Matriu: el container principal -->
+    <div id="grid"></div>
+
+    <!-- 4) Targeta explicativa en ample complet -->
+    <div class="card info">
+      <div class="card-content">
+        <!-- text explicatiu aquí -->
+      </div>
+    </div>
+  </div>
   <script src="./scripts/main.js"></script>
 </body>
 </html>
