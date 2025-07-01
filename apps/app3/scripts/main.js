@@ -13,6 +13,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   const notesToEA = notes => notes.slice(1).map((n,i)=>((n-notes[i]+12)%12)).join(' ');
   const notesToAc = notes => notes.join(' ');
 
+  const toAbsolute = (notes, base) => {
+    const result=[base+notes[0]];
+    for(let i=1;i<notes.length;i++){
+      let next=base+notes[i];
+      while(next<=result[i-1]) next+=12;
+      result.push(next);
+    }
+    return result;
+  };
+
   const buildMatrix = notes => {
     const N=notes.length;
     const m=Array.from({length:N},()=>Array(N).fill(''));
@@ -89,11 +99,15 @@ window.addEventListener('DOMContentLoaded', async () => {
         td.onclick=()=>{
           const size=notes.length;
           if(isDiag){
-            Sound.playChord(notes.map(n=>BASE+n));
+            Sound.playChord(toAbsolute(notes, BASE));
           }else{
             const idx1=c;
             const idx2=size-1-r;
-            Sound.playChord([BASE+notes[idx1],BASE+notes[idx2]]);
+            if(upper){
+              Sound.playChord([BASE+notes[idx1],BASE+notes[idx2]]);
+            }else{
+              Sound.playInterval(BASE+notes[idx1],BASE+notes[idx2]);
+            }
           }
         };
         td.onmouseenter=()=>setHover({r,c});

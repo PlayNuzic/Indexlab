@@ -29,5 +29,12 @@ function playChord(midis){
   synth.triggerAttackRelease(midis.map(n=>Tone.Frequency(n,'midi')),'8n');
 }
 
-window.Sound = { init, playNote, playChord };
+function playInterval(a,b){
+  if(!synth) return;
+  const t=Tone.now();
+  synth.triggerAttackRelease(Tone.Frequency(a,'midi'),'8n',t);
+  synth.triggerAttackRelease(Tone.Frequency(b,'midi'),'8n',t+0.2);
+}
+
+window.Sound = { init, playNote, playChord, playInterval };
 
