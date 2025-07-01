@@ -45,7 +45,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   // -------- state --------
   let mode='eA';
   let notes=eAToNotes([3,4,3]);
-  const BASE=60;
+  // starting MIDI note for Nm(0r3)
+  const BASE=12*3;
+
+  const diagMidis=()=>notes.map((n,i)=>BASE+n+12*i);
   const seqInput=document.getElementById('seq');
   const prefix=document.getElementById('seqPrefix');
   const errorEl=document.getElementById('error');
@@ -98,21 +101,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
         td.onclick=()=>{
           const size=notes.length;
+          const diag=diagMidis();
           if(isDiag){
-            Sound.playChord(notes.map((n,i)=>BASE+n+12*i));
+            Sound.playChord(diag);
           }else{
             const idx1=c;
             const idx2=size-1-r;
-            const midi1=BASE+notes[idx1]+12*idx1;
-            const midi2=BASE+notes[idx2]+12*idx2;
             if(upper){
-              Sound.playChord([midi1,midi2]);
+              Sound.playChord([diag[idx1], diag[idx2]]);
             }else{
-              const high=Math.max(idx1,idx2);
-              const low=Math.min(idx1,idx2);
-              const midiHigh=BASE+notes[high]+12*high;
-              const midiLow=BASE+notes[low]+12*high;
-              Sound.playChord([midiLow,midiHigh]);
+              const low = diag[idx1];
+              const interval = Number(matrix[r][c]);
+              Sound.playChord([low, low + interval]);
             }
           }
         };
