@@ -21,7 +21,6 @@ button#generate:hover{background:#e6a12b;}
 #snapshots{display:flex;gap:.2rem;margin-top:.5rem;flex-wrap:wrap;justify-content:center;}
 .rec-controls{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;justify-content:center;margin-top:.5rem;}
 #togglePlay{background:var(--accent);color:#222;}
-#togglePlay[aria-pressed="true"]{outline:2px solid #fff;}
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}
 .matrix{border-collapse:collapse;margin:0 auto 2rem auto;}
