@@ -19,22 +19,15 @@ async function init(type='piano'){
   }
 }
 
-function playNote(midi){
+function playNote(midi, duration=1.5){
   if(!synth) return;
-  synth.triggerAttackRelease(Tone.Frequency(midi,'midi'),'8n');
+  synth.triggerAttackRelease(Tone.Frequency(midi,'midi'), duration);
 }
 
-function playChord(midis){
+function playChord(midis, duration=1.5){
   if(!synth) return;
-  synth.triggerAttackRelease(midis.map(n=>Tone.Frequency(n,'midi')),'8n');
+  synth.triggerAttackRelease(midis.map(n=>Tone.Frequency(n,'midi')), duration);
 }
 
-function playInterval(a,b){
-  if(!synth) return;
-  const t=Tone.now();
-  synth.triggerAttackRelease(Tone.Frequency(a,'midi'),'8n',t);
-  synth.triggerAttackRelease(Tone.Frequency(b,'midi'),'8n',t+0.2);
-}
-
-window.Sound = { init, playNote, playChord, playInterval };
+window.Sound = { init, playNote, playChord };
 

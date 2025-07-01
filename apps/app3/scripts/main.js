@@ -99,14 +99,20 @@ window.addEventListener('DOMContentLoaded', async () => {
         td.onclick=()=>{
           const size=notes.length;
           if(isDiag){
-            Sound.playChord(toAbsolute(notes, BASE));
+            Sound.playChord(notes.map((n,i)=>BASE+n+12*i));
           }else{
             const idx1=c;
             const idx2=size-1-r;
+            const midi1=BASE+notes[idx1]+12*idx1;
+            const midi2=BASE+notes[idx2]+12*idx2;
             if(upper){
-              Sound.playChord([BASE+notes[idx1],BASE+notes[idx2]]);
+              Sound.playChord([midi1,midi2]);
             }else{
-              Sound.playInterval(BASE+notes[idx1],BASE+notes[idx2]);
+              const high=Math.max(idx1,idx2);
+              const low=Math.min(idx1,idx2);
+              const midiHigh=BASE+notes[high]+12*high;
+              const midiLow=BASE+notes[low]+12*high;
+              Sound.playChord([midiLow,midiHigh]);
             }
           }
         };
