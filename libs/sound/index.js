@@ -29,5 +29,14 @@ function playChord(midis, duration=1.5){
   synth.triggerAttackRelease(midis.map(n=>Tone.Frequency(n,'midi')), duration);
 }
 
-window.Sound = { init, playNote, playChord };
+function playMelody(midis,duration=1.5,gap=0.2){
+  if(!synth) return;
+  midis.forEach((n,i)=>{
+    setTimeout(()=>{
+      synth.triggerAttackRelease(Tone.Frequency(n,'midi'), duration);
+    },i*(duration*1000+gap*1000));
+  });
+}
+
+window.Sound = { init, playNote, playChord, playMelody };
 

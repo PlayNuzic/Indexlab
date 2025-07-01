@@ -21,6 +21,15 @@
       <span>)</span>
     </div>
     <button id="generate">Generar</button>
+    <button id="togglePlay">Interval harmònic (iA)</button>
+    <div id="snapshots" class="snapshots"></div>
+    <div class="rec-controls">
+      <label>BPM <input id="bpm" type="number" value="120"></label>
+      <button id="tapBtn">Tap</button>
+      <button id="recBtn">Gravar</button>
+      <button id="playSeq">Reproduir</button>
+      <button id="midiBtn">MIDI</button>
+    </div>
     <p id="error" class="error"></p>
   </div>
   <div id="grid"></div>
@@ -34,6 +43,7 @@
   </div>
 
   <script src="https://unpkg.com/tone@15.1.22/build/Tone.js"></script>
+  <script src="https://unpkg.com/@tonejs/midi@2.0.27/build/Midi.js"></script>
   <script src="../../libs/sound/index.js"></script>
   <script src="./scripts/main.js"></script>
 </body>
