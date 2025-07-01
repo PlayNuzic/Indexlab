@@ -147,8 +147,10 @@ window.addEventListener('DOMContentLoaded', async () => {
               noteArr=[low, low+interval];
             }
           }
-          if(melodic) Sound.playMelody(noteArr);
-          else Sound.playChord(noteArr);
+          const bpm = parseFloat(bpmInput.value) || 120;
+          const dur = 2 * (60 / bpm);
+          if(melodic) Sound.playMelody(noteArr, dur);
+          else Sound.playChord(noteArr, dur);
           if(recording && Date.now()-recordStart >= 4*(60000/recordBpm)){
             const beat=(Date.now()-recordStart)/(60000/recordBpm);
             recorded.push({beat,notes:noteArr.slice(),melodic});
@@ -276,8 +278,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     playing=true;
     playSeqBtn.textContent='Atura';
     recorded.forEach(ev=>{
-      const t=ev.beat*60000/bpm;
-      const id=setTimeout(()=>{ ev.melodic?Sound.playMelody(ev.notes):Sound.playChord(ev.notes); },t);
+      const t = ev.beat * 60000 / bpm;
+      const id = setTimeout(() => {
+        const dur = 2 * (60 / bpm);
+        ev.melodic ? Sound.playMelody(ev.notes, dur) : Sound.playChord(ev.notes, dur);
+      }, t);
       playTimers.push(id);
     });
     const last=recorded[recorded.length-1];
