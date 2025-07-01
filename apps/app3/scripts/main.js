@@ -203,9 +203,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function updatePlayMode(){
-    const harmonic = playMode==='iA';
-    toggleBtn.textContent = harmonic ? 'Interval harm\xF2nic (iA)' : 'Interval mel\xF2dic (iS)';
-    toggleBtn.setAttribute('aria-pressed', harmonic ? 'false' : 'true');
+    toggleBtn.textContent=playMode==='iA'? 'Interval harm\xF2nic (iA)' : 'Interval mel\xF2dic (iS)';
   }
 
   function setHover(coord){
