@@ -40,7 +40,6 @@ async function startGame(selected){
   document.getElementById('game').style.display='block';
   initButtons();
   await loadInstrument(document.getElementById('instrument').value || 'piano');
-  await Tone.start();
   updateScore();
   nextQuestion();
 }
@@ -171,3 +170,4 @@ function initButtons(){
 function updateScore(){
   document.getElementById('score').textContent=`Encerts: ${correctTotal} · Errors: ${wrongTotal}`;
 }
+
