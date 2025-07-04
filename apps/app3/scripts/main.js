@@ -1,4 +1,4 @@
-import { init, playNote, playChord, playMelody } from '../../libs/sound/index.js';
+import { init, playNote, playChord, playMelody } from '../../../libs/sound/index.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
   await init();
