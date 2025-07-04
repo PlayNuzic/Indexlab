@@ -3,13 +3,13 @@ let synth;
 export async function init(type='piano'){
   if(synth) synth.dispose();
   if(type==='piano'){
+    const urls = {};
+    for(let o=0;o<=8;o++){
+      urls[`C${o}`] = `C${o}.mp3`;
+      urls[`F#${o}`] = `Fs${o}.mp3`;
+    }
     synth = new Tone.Sampler({
-      urls:{
-        "A3":"A3.mp3",
-        "C4":"C4.mp3",
-        "D#4":"Ds4.mp3",
-        "F#4":"Fs4.mp3"
-      },
+      urls,
       release:1,
       baseUrl:"https://tonejs.github.io/audio/salamander/"
     }).toDestination();

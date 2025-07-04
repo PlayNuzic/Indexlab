@@ -1,22 +1,4 @@
-let synth;
-async function loadInstrument(type){
-  if(synth) synth.dispose();
-  if(type==='piano'){
-    synth = new Tone.Sampler({
-      urls:{
-        "A3":"A3.mp3",
-        "C4":"C4.mp3",
-        "D#4":"Ds4.mp3",
-        "F#4":"Fs4.mp3"
-      },
-      release:1,
-      baseUrl:"https://tonejs.github.io/audio/salamander/"
-    }).toDestination();
-    await Tone.loaded();
-  }else{
-    synth = new Tone.PolySynth(Tone.Synth).toDestination();
-  }
-}
+import { init as loadInstrument, playNote, playChord } from '../../../libs/sound/index.js';
 
 let mode = 'iS';
 let level = 1;
@@ -88,12 +70,12 @@ document.getElementById('backBtn').onclick=()=>{
 
 function playNotes(){
   if(mode==='iS'){
-    synth.triggerAttackRelease(Tone.Frequency(note1,'midi'), '8n');
+    playNote(note1, 0.5);
     setTimeout(()=>{
-      synth.triggerAttackRelease(Tone.Frequency(note2,'midi'), '8n');
+      playNote(note2, 0.5);
     },800);
   }else{
-    synth.triggerAttackRelease([note1, note2].map(n=>Tone.Frequency(n,'midi')),'8n');
+    playChord([note1, note2], 0.5);
   }
 }
 
