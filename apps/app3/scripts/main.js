@@ -2,7 +2,13 @@ import { init, playNote, playChord, playMelody } from '../../../libs/sound/index
 
 window.addEventListener('DOMContentLoaded', async () => {
   await init();
-  document.body.addEventListener('click',()=>Tone.start(),{once:true});
+  let audioReady;
+  const ensureAudio = async () => {
+    if(!audioReady){
+      audioReady = Tone.start();
+    }
+    return audioReady;
+  };
   // -------- helpers --------
   const { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute, buildMatrix } = window.Helpers;
 
@@ -105,7 +111,8 @@ window.addEventListener('DOMContentLoaded', async () => {
           td.textContent=matrix[r][c];
           td.classList.add(upper?'upper':'lower');
         }
-        td.onclick=e=>{
+        td.onclick=async e=>{
+          await ensureAudio();
           const size=notes.length;
           const diag=diagMidis();
           const melodic = playMode==='iS' ? !e.shiftKey : e.shiftKey;
@@ -256,7 +263,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
-  recBtn.onclick=()=>{
+  recBtn.onclick=async()=>{
+    await ensureAudio();
     if(recording){
       recording=false;
       recBtn.textContent='Gravar';
@@ -281,7 +289,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     playSeqBtn.textContent='Reproduir';
   }
 
-  playSeqBtn.onclick=()=>{
+  playSeqBtn.onclick=async()=>{
+    await ensureAudio();
     if(playing){
       stopPlayback();
       return;
