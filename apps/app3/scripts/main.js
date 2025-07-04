@@ -1,5 +1,7 @@
+import { init, playNote, playChord, playMelody } from '../../libs/sound/index.js';
+
 window.addEventListener('DOMContentLoaded', async () => {
-  await Sound.init();
+  await init();
   document.body.addEventListener('click',()=>Tone.start(),{once:true});
   // -------- helpers --------
   const { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute, buildMatrix } = window.Helpers;
@@ -124,8 +126,8 @@ window.addEventListener('DOMContentLoaded', async () => {
           const bpm = parseFloat(bpmInput.value) || 120;
           const chordDur = 2 * (60 / bpm);
           const melodicDur = 60 / bpm;
-          if(melodic) Sound.playMelody(noteArr, melodicDur);
-          else Sound.playChord(noteArr, chordDur);
+          if(melodic) playMelody(noteArr, melodicDur);
+          else playChord(noteArr, chordDur);
           if(recording && Date.now()-recordStart >= 4*(60000/recordBpm)){
             const beat=(Date.now()-recordStart)/(60000/recordBpm);
             recorded.push({beat,notes:noteArr.slice(),melodic,coord:{r,c}});
@@ -265,7 +267,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       recordStart=Date.now();
       for(let i=0;i<4;i++){
         recorded.push({beat:i,notes:[84],melodic:false,coord:null});
-        setTimeout(()=>Sound.playNote(84,60/recordBpm),i*interval);
+        setTimeout(()=>playNote(84,60/recordBpm),i*interval);
       }
       recording=true;
       recBtn.textContent='Atura';
@@ -293,7 +295,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const id = setTimeout(() => {
         const chordDur = 2 * (60 / bpm);
         const melodicDur = 60 / bpm;
-        ev.melodic ? Sound.playMelody(ev.notes, melodicDur) : Sound.playChord(ev.notes, chordDur);
+        ev.melodic ? playMelody(ev.notes, melodicDur) : playChord(ev.notes, chordDur);
         if(ev.coord) flashCell(ev.coord);
       }, t);
       playTimers.push(id);

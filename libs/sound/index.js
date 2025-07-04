@@ -1,6 +1,6 @@
 let synth;
 
-async function init(type='piano'){
+export async function init(type='piano'){
   if(synth) synth.dispose();
   if(type==='piano'){
     synth = new Tone.Sampler({
@@ -19,17 +19,17 @@ async function init(type='piano'){
   }
 }
 
-function playNote(midi, duration=1.5){
+export function playNote(midi, duration=1.5){
   if(!synth) return;
   synth.triggerAttackRelease(Tone.Frequency(midi,'midi'), duration);
 }
 
-function playChord(midis, duration=1.5){
+export function playChord(midis, duration=1.5){
   if(!synth) return;
   synth.triggerAttackRelease(midis.map(n=>Tone.Frequency(n,'midi')), duration);
 }
 
-function playMelody(midis,duration=1.5,gap=0.2){
+export function playMelody(midis,duration=1.5,gap=0.2){
   if(!synth) return;
   midis.forEach((n,i)=>{
     setTimeout(()=>{
@@ -37,6 +37,4 @@ function playMelody(midis,duration=1.5,gap=0.2){
     },i*(duration*1000+gap*1000));
   });
 }
-
-window.Sound = { init, playNote, playChord, playMelody };
 
