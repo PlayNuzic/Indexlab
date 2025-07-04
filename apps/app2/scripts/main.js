@@ -1,4 +1,8 @@
 import { init as loadInstrument, playNote, playChord } from '../../../libs/sound/index.js';
+// preload default instrument
+document.addEventListener('DOMContentLoaded', () => {
+  loadInstrument('piano');
+});
 
 let mode = 'iS';
 let level = 1;
@@ -23,7 +27,6 @@ intervals[4] = [...new Set([0, ...intervals[1].slice(1), ...intervals[3].slice(1
 intervals[5] = [...new Set([0, ...intervals[4].slice(1), ...intervals[2].slice(1)])];
 
 async function startGame(selected){
-  await Tone.start();
   mode = selected;
   level = parseInt(document.getElementById('levelSelect').value) || 1;
   question = 0;
@@ -35,8 +38,9 @@ async function startGame(selected){
   document.getElementById('welcome').style.display='none';
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
-  await loadInstrument(document.getElementById('instrument').value || 'sine');
   initButtons();
+  await loadInstrument(document.getElementById('instrument').value || 'piano');
+  await Tone.start();
   updateScore();
   nextQuestion();
 }
@@ -62,7 +66,9 @@ document.getElementById('nextBlock').onclick=()=>{
   updateScore();
   nextQuestion();
 };
-document.getElementById('instrument').onchange=e=>loadInstrument(e.target.value);
+document.getElementById('instrument').onchange=async e=>{
+  await loadInstrument(e.target.value);
+};
 document.getElementById('backBtn').onclick=()=>{
   document.getElementById('game').style.display='none';
   document.getElementById('welcome').style.display='block';
