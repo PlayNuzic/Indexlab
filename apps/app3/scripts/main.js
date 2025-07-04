@@ -1,14 +1,15 @@
 import { init, playNote, playChord, playMelody } from '../../../libs/sound/index.js';
 
+let audioReady;
+const ensureAudio = async () => {
+  if (!audioReady) {
+    audioReady = Tone.start();
+  }
+  return audioReady;
+};
+
 window.addEventListener('DOMContentLoaded', async () => {
   await init();
-  let audioReady;
-  const ensureAudio = async () => {
-    if(!audioReady){
-      audioReady = Tone.start();
-    }
-    return audioReady;
-  };
   // -------- helpers --------
   const { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute, buildMatrix } = window.Helpers;
 
