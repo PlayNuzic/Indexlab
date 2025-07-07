@@ -13,7 +13,8 @@ git config --global user.email "codex@playnuzic.local"
 REMOTE_URL="$(git config --get remote.origin.url || true)"
 if [[ -z "$REMOTE_URL" ]]; then
   REPO_PATH=$(basename "$(pwd)")
-  REMOTE_URL="https://${GITHUB_TOKEN}@github.com/PlayNuzic/${REPO_PATH}.git"
+  # substitueix un PAT antic per GITHUB_TOKEN nou
+  REMOTE_URL="${REMOTE_URL/https:\/\/ghp_[A-Za-z0-9]*/https:\/\/${GITHUB_TOKEN}}"
   git remote add origin "$REMOTE_URL"
 else
   # substitueix token vell (si n’hi havia) pel nou
