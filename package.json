@@ -18,5 +18,8 @@
     "cheerio": "^1.0.0",
     "lodash": "^4.17.21",
     "tone": "^15.1.22"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

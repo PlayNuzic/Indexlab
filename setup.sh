@@ -25,6 +25,6 @@ fi
 corepack enable
 
 # 4. Instal·la les dependències de Node (inclòs Jest) abans que es talli la xarxa
-npm install --ignore-scripts --no-audit --progress=false
+npm ci --ignore-scripts --no-audit --progress=false
 
 echo "✅ Entorn preparat. Pots fer git add / commit / push (HTTPS amb PAT)."
