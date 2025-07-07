@@ -4,7 +4,7 @@ export async function init(type='piano'){
   if(synth) synth.dispose();
   if(type==='piano'){
     const urls = {};
-    for(let o=0;o<=8;o++){
+    for(let o=1;o<=7;o++){
       urls[`C${o}`] = `C${o}.mp3`;
       urls[`F#${o}`] = `Fs${o}.mp3`;
     }
@@ -13,7 +13,11 @@ export async function init(type='piano'){
       release:1,
       baseUrl:"https://tonejs.github.io/audio/salamander/"
     }).toDestination();
-    await Tone.loaded();
+    try{
+      await Tone.loaded();
+    }catch(e){
+      console.error('Error carregant mostres:', e);
+    }
   }else{
     synth = new Tone.PolySynth(Tone.Synth).toDestination();
   }

@@ -1,8 +1,4 @@
 import { init as loadInstrument, playNote, playChord } from '../../../libs/sound/index.js';
-// preload default instrument
-document.addEventListener('DOMContentLoaded', () => {
-  loadInstrument('piano');
-});
 
 let mode = 'iS';
 let level = 1;
@@ -44,10 +40,12 @@ async function startGame(selected){
   nextQuestion();
 }
 
-document.getElementById('startIS').onclick=()=>{
+document.getElementById('startIS').onclick=async ()=>{
+  await Tone.start();
   startGame('iS');
 };
-document.getElementById('startIA').onclick=()=>{
+document.getElementById('startIA').onclick=async ()=>{
+  await Tone.start();
   startGame('iA');
 };
 document.getElementById('playBtn').onclick=()=>playNotes();
