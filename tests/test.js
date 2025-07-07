@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const Tone = require('tone');
+const Tone = require('tone/build/Tone');
 
 describe('basic modules', () => {
   test('lodash random range', () => {
