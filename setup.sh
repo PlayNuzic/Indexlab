@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+# Permet saltar la instal·lació de paquets de sistema amb SKIP_APT=1
+: "${SKIP_APT:=}"
+
 # 0. Instal·lació d’eines de base (molt lleugera)
-apt-get update -qq
-apt-get install -yqq git curl jq make bash-completion
+if [[ -z "$SKIP_APT" ]]; then
+  if ! (apt-get update -qq && apt-get install -yqq git curl jq make bash-completion); then
+    echo "Avis: apt-get ha fallat; continuem sense paquets de sistema" >&2
+  fi
+else
+  echo "SKIP_APT establert; s'omet la instal·lació de paquets de sistema" >&2
+fi
 
 # 1. Config Git amb nom+mail genèrics
 git config --global user.name  "PlayNuzic-Codex"
