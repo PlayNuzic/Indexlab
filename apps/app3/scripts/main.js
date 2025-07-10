@@ -1,5 +1,5 @@
 import { init, playNote, playChord, playMelody } from '../../../libs/sound/index.js';
-import { initSnapshots, saveSnapshot as saveSnapData, loadSnapshot as loadSnapData, resetSnapshots as resetSnapData } from './snapshotUtils.js';
+const { initSnapshots, saveSnapshot: saveSnapData, loadSnapshot: loadSnapData, resetSnapshots: resetSnapData } = window.SnapUtils;
 
 let audioReady;
 const ensureAudio = async () => {
