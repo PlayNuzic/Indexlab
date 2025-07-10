@@ -168,6 +168,16 @@ window.addEventListener('DOMContentLoaded', async () => {
       table.appendChild(tr);
     }
     gridWrap.appendChild(table);
+    resizeMatrix();
+  }
+
+  function resizeMatrix(){
+    const size = notes.length;
+    if(!size) return;
+    const margin = 40;
+    const avail = Math.min(window.innerWidth, window.innerHeight) - margin;
+    const px = Math.max(30, Math.floor(avail / size));
+    document.documentElement.style.setProperty('--cell-size', px + 'px');
   }
 
   function saveSnapshot(idx){
@@ -372,4 +382,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     a.download='sequence.mid';
     a.click();
   };
+
+  window.addEventListener('resize', resizeMatrix);
 });

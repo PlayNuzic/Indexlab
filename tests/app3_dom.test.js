@@ -1,5 +1,7 @@
 /** @jest-environment jsdom */
 const { buildMatrix, notesToEA, notesToAc } = require('../apps/app3/scripts/helpers');
+const fs = require('fs');
+const path = require('path');
 
 describe('renderGrid diagonal input', () => {
   function setup() {
@@ -49,6 +51,7 @@ describe('renderGrid diagonal input', () => {
     const { gridWrap, seqInput, renderGrid, notes, mode } = setup();
     seqInput.value = notesToEA(notes);
     renderGrid();
+    document.body.appendChild(gridWrap);
 
     const inp = gridWrap.querySelector('td input');
     inp.value = '11';
@@ -56,5 +59,35 @@ describe('renderGrid diagonal input', () => {
 
     const expected = mode === 'eA' ? notesToEA(notes) : notesToAc(notes);
     expect(seqInput.value).toBe(expected);
+  });
+
+  test('resizeMatrix adjusts cell size', () => {
+    const { gridWrap, renderGrid, notes } = setup();
+    const css = fs.readFileSync(path.join(__dirname, '../apps/app3/styles/main.css'), 'utf8');
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 600 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 600 });
+
+    function resizeMatrix() {
+      const size = notes.length;
+      const margin = 40;
+      const avail = Math.min(window.innerWidth, window.innerHeight) - margin;
+      const px = Math.max(30, Math.floor(avail / size));
+      document.documentElement.style.setProperty('--cell-size', px + 'px');
+    }
+
+    renderGrid();
+    resizeMatrix();
+    let expected = Math.max(30, Math.floor((600 - 40) / notes.length)) + 'px';
+    expect(document.documentElement.style.getPropertyValue('--cell-size')).toBe(expected);
+
+    notes.push(10, 2);
+    renderGrid();
+    resizeMatrix();
+    expected = Math.max(30, Math.floor((600 - 40) / notes.length)) + 'px';
+    expect(document.documentElement.style.getPropertyValue('--cell-size')).toBe(expected);
   });
 });

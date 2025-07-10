@@ -3,6 +3,7 @@
   --bg-card:#2e2e2e;
   --txt-main:#f0f0f0;
   --txt-sec:#cccccc;
+  --cell-size:6rem;
 }
 body{font-family:'Ubuntu',sans-serif;display:block;background:var(--bg-body);color:var(--txt-main);text-align:center;padding:2rem;}
 h1{margin-bottom:1rem;}
@@ -28,10 +29,26 @@ button#generate:hover{background:#e6a12b;}
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}
 .matrix{border-collapse:collapse;margin:0 auto 2rem auto;}
-.matrix td{border:1px solid #555;width:8rem;height:6rem;text-align:center;font-weight:bold;font-size:1.4rem;}
+.matrix td{
+  border:1px solid #555;
+  width:var(--cell-size,6rem);
+  height:var(--cell-size,6rem);
+  text-align:center;
+  font-weight:bold;
+  font-size:calc(var(--cell-size,6rem)*0.23);
+}
 .matrix td.upper{background:rgba(99,102,241,0.1);color:#c7d2fe;}
 .matrix td.lower{background:rgba(251,191,36,0.1);color:#fde68a;}
-.matrix td.diag input{width:100%;background:transparent;border:none;color:#6ee7b7;text-align:center;font-weight:bold;font-size: 2.1rem;line-height: 8rem;}
+.matrix td.diag input{
+  width:100%;
+  background:transparent;
+  border:none;
+  color:#6ee7b7;
+  text-align:center;
+  font-weight:bold;
+  font-size:calc(var(--cell-size,6rem)*0.35);
+  line-height:var(--cell-size,6rem);
+}
 .matrix td.highlight-diag{background:rgba(16,185,129,0.4)!important;}
 .matrix td.highlight-pair{background:rgba(244,114,182,0.4)!important;}
 .card.info{
