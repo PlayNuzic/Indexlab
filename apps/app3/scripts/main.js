@@ -1,4 +1,5 @@
 import { init, playNote, playChord, playMelody } from '../../../libs/sound/index.js';
+import { initSnapshots, saveSnapshot as saveSnapData, loadSnapshot as loadSnapData, resetSnapshots as resetSnapData } from './snapshotUtils.js';
 
 let audioReady;
 const ensureAudio = async () => {
@@ -17,10 +18,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let mode='eA';
   let notes=eAToNotes([3,4,3]);
   let playMode='iA';
-  let snapshots = JSON.parse(localStorage.getItem('app3Snapshots')||'null');
-  if(!Array.isArray(snapshots) || snapshots.length!==10){
-    snapshots = Array(10).fill(null);
-  }
+  let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app3Snapshots')||'null'));
   let activeSnapshot=null;
   let recording=false;
   let recordStart=0;
@@ -65,6 +63,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   const recBtn=document.getElementById('recBtn');
   const playSeqBtn=document.getElementById('playSeq');
   const midiBtn=document.getElementById('midiBtn');
+  const transposeControls=document.getElementById('transposeControls');
+  const transposeUp=document.getElementById('transposeUp');
+  const transposeDown=document.getElementById('transposeDown');
   seqInput.value=notesToEA(notes);
 
   function switchMode(m){
@@ -74,10 +75,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     prefix.textContent=m+'(';
     seqInput.placeholder=m==='eA'?'3 4 3':'0 3 7';
     seqInput.value=m==='eA'?notesToEA(notes):notesToAc(notes);
+    transposeControls.style.display=m==='Ac'? 'flex' : 'none';
   }
 
   document.getElementById('tabEA').onclick=()=>switchMode('eA');
   document.getElementById('tabAc').onclick=()=>switchMode('Ac');
+
+  function transpose(delta){
+    const nums=parseNums(seqInput.value);
+    if(!nums.length) return;
+    const transposed=nums.map(n=>n+delta);
+    seqInput.value=transposed.join(' ');
+    notes=transposed.map(x=>((x%12)+12)%12);
+    renderGrid();
+    notesChanged();
+  }
+
+  transposeUp.onclick=()=>transpose(1);
+  transposeDown.onclick=()=>transpose(-1);
 
   document.getElementById('generate').onclick=()=>{
     const nums=parseNums(seqInput.value);
@@ -106,7 +121,12 @@ window.addEventListener('DOMContentLoaded', async () => {
           const inp=document.createElement('input');
           inp.type='number';
           inp.value=matrix[r][c];
-          inp.oninput=()=>{notes[c]=((parseInt(inp.value,10)||0)%12+12)%12;renderGrid();notesChanged();};
+          inp.oninput=()=>{
+            notes[c]=((parseInt(inp.value,10)||0)%12+12)%12;
+            renderGrid();
+            seqInput.value=mode==='eA'?notesToEA(notes):notesToAc(notes);
+            notesChanged();
+          };
           td.appendChild(inp);
         }else{
           td.textContent=matrix[r][c];
@@ -151,15 +171,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function saveSnapshot(idx){
-    snapshots[idx]=[...notes];
+    saveSnapData(snapshots, idx, notes, baseMidi);
     localStorage.setItem('app3Snapshots',JSON.stringify(snapshots));
     activeSnapshot=null;
     renderSnapshots();
   }
 
   function loadSnapshot(idx){
-    if(snapshots[idx]){
-      notes=[...snapshots[idx]];
+    const data=loadSnapData(snapshots,idx);
+    if(data){
+      notes=[...data.notes];
+      baseMidi=data.baseMidi;
+      baseSelect.value=String(baseMidi);
       seqInput.value=mode==='eA'?notesToEA(notes):notesToAc(notes);
       renderGrid();
       activeSnapshot=idx;
@@ -187,7 +210,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function resetSnapshots(){
-    snapshots = Array(10).fill(null);
+    snapshots = resetSnapData();
     localStorage.setItem('app3Snapshots', JSON.stringify(snapshots));
     activeSnapshot = null;
     renderSnapshots();
@@ -247,6 +270,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   renderGrid();
   renderSnapshots();
   updatePlayMode();
+  switchMode(mode);
   resetSnapsBtn.onclick=resetSnapshots;
 
   toggleBtn.onclick=()=>{ playMode= playMode==='iA'?'iS':'iA'; updatePlayMode(); };
@@ -321,14 +345,26 @@ window.addEventListener('DOMContentLoaded', async () => {
     const midi=new Midi();
     const bpm=parseFloat(bpmInput.value)||120;
     midi.header.setTempo(bpm);
+    // use fixed PPQ and ticks for note placement
+    const ppq = 480;
+    midi.header.ppq = ppq;
     const track=midi.addTrack();
     recorded.forEach(ev=>{
+      const baseTick = Math.round(ev.beat * ppq);
       if(ev.melodic){
         ev.notes.forEach((n,i)=>{
-          track.addNote({midi:n,time:ev.beat+i,duration:1});
+          track.addNote({
+            midi:n,
+            ticks: baseTick + i * ppq,
+            durationTicks: ppq
+          });
         });
       }else{
-        ev.notes.forEach(n=>track.addNote({midi:n,time:ev.beat,duration:1}));
+        ev.notes.forEach(n=>track.addNote({
+          midi:n,
+          ticks: baseTick,
+          durationTicks: ppq
+        }));
       }
     });
     const blob=new Blob([midi.toArray()],{type:'audio/midi'});
