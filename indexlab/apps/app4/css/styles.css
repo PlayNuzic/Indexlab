@@ -1,0 +1,47 @@
+    :root { --bg:#43433B; --fg:#EEE8D8; --accent:#E76F68; --accent2:#F28AAD;
+      --yellow:#FFBB33; --blue:#7BB4CD; --green:#7CD683; font-size:16px; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); color:var(--fg); font-family:'Ubuntu',sans-serif;
+      display:flex; flex-direction:column; align-items:center; padding:1rem; gap:1rem; }
+    h1 { font-weight:700; }
+    .toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:.6rem; }
+    button, select, input { font-family:inherit; border:none; padding:.45rem .8rem;
+      border-radius:6px; cursor:pointer; font-size:1rem; }
+    button { background:var(--accent); color:var(--bg); transition:.2s; }
+    button:hover { background:var(--accent2); }
+    select, input { background:var(--fg); color:var(--bg); }
+    .main-content { display:flex; gap:1rem; align-items:flex-start; }
+    table { border-collapse:collapse; margin-top:.8rem; }
+    th, td { border:1px solid #ffffff35; padding:.55rem 1rem; text-align:center;
+      min-width:4rem; font-size:1.2rem; }
+    td:first-child, th:first-child { position:sticky; left:0; background:#00000028;
+      backdrop-filter:blur(3px); }
+    td[contenteditable] { outline:2px solid var(--accent); }
+    #presetBar { display:flex; gap:.45rem; margin:1rem 0; }
+    #presetBar button { width:2.6rem; height:2.6rem; font-weight:700; color:var(--bg);
+      transition:.2s; }
+    #presetBar button.empty { background:#555; }
+    #presetBar button.filled { background:var(--blue); }
+    #presetBar button.selected { background:var(--yellow); color:#000; font-weight:900; }
+    .slider-wrapper { display:flex; align-items:center; gap:.4rem; }
+    .slider-wrapper label { font-size:.95rem; }
+    .interval-legend-box { font-size:1rem; background:rgba(255,187,51,0.1);
+      border:1px solid var(--yellow); padding:0.5rem; margin-top:1rem; align-self:flex-start;
+      max-width:600px; }
+.row-op-cell { min-width:6rem; }
+.row-op-cell select { width:100%; }
+.midi-btn { margin-left:.4rem; }
+
+.global-params {
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+}
+
+.speech-bubble {
+  background:white;
+  color:black;
+  padding:0.5rem 1rem;
+  border-radius:8px;
+  margin-left:0.5rem;
+

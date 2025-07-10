@@ -1,0 +1,25 @@
+{
+  "name": "aleatorizador",
+  "version": "1.0.0",
+  "description": "Abans de fer servir Codex per generar codi o fer `git push`, cal executar:",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PlayNuzic/aleatorizador.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/PlayNuzic/aleatorizador/issues"
+  },
+  "homepage": "https://github.com/PlayNuzic/aleatorizador#readme"
+  ,
+  "devDependencies": {
+    "jest": "^29.6.0"
+  }
+}
