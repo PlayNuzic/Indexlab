@@ -84,9 +84,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   function transpose(delta){
     const nums=parseNums(seqInput.value);
     if(!nums.length) return;
-    const transposed=nums.map(n=>n+delta);
+    const transposed=nums.map(n=>((n+delta)%12+12)%12);
     seqInput.value=transposed.join(' ');
-    notes=transposed.map(x=>((x%12)+12)%12);
+    notes=transposed;
     renderGrid();
     notesChanged();
   }
