@@ -346,8 +346,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const bpm=parseFloat(bpmInput.value)||120;
     midi.header.setTempo(bpm);
     // use fixed PPQ and ticks for note placement
-    const ppq = 480;
-    midi.header.ppq = ppq;
+    const ppq = 480; // Midi.js defaults to 480 and the property is read-only
     const track=midi.addTrack();
     recorded.forEach(ev=>{
       const baseTick = Math.round(ev.beat * ppq);
