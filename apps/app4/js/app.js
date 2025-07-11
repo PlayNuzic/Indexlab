@@ -1,3 +1,5 @@
+import { init as initSound, playNote } from '../../../libs/sound/index.js';
+
 const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const clamp=(x,min,max)=>x<min?min:x>max?max:x;
 const wrapSym=(n,m)=>{const h=Math.floor(m/2);n=((n+h)%m+m)%m-h;return n===h?-h:n;};
@@ -241,28 +243,19 @@ function renderGrid(){
 }
 
 // AUDIO PLAYBACK via Tone.js
-let sampler=null;
+let audioReady=false;
+let playTimers=[];
 const playingRow={idx:null};
 async function ensureSampler(){
-  if(!sampler){
-    sampler=new Tone.Sampler({
-      urls:{
-        A1:"A1.mp3", C2:"C2.mp3", "D#2":"Ds2.mp3", "F#2":"Fs2.mp3",
-        A2:"A2.mp3", C3:"C3.mp3", "D#3":"Ds3.mp3", "F#3":"Fs3.mp3",
-        A3:"A3.mp3", C4:"C4.mp3", "D#4":"Ds4.mp3", "F#4":"Fs4.mp3",
-        A4:"A4.mp3", C5:"C5.mp3", "D#5":"Ds5.mp3", "F#5":"Fs5.mp3",
-        A5:"A5.mp3", C6:"C6.mp3", "D#6":"Ds6.mp3", "F#6":"Fs6.mp3",
-        A6:"A6.mp3", C7:"C7.mp3"
-      },
-      release:1,
-      baseUrl:"https://tonejs.github.io/audio/salamander/"
-    }).toDestination();
-    await Tone.loaded();
+  if(!audioReady){
+    await initSound('piano');
+    audioReady=true;
   }
 }
 
 function stopCurrent(){
-  Tone.Transport.stop();
+  playTimers.forEach(clearTimeout);
+  playTimers=[];
   playingRow.idx=null;
 }
 
@@ -270,11 +263,11 @@ async function playRow(r){
   if(playingRow.idx===r){ stopCurrent(); return; }
   await ensureSampler();
   stopCurrent();
-  const row=state.naRows[r], beat=60/state.bpm;
-  let t=0;
-  row.forEach(n=>{
-    sampler.triggerAttackRelease(Tone.Frequency(n+12,'midi'), beat, Tone.now()+t);
-    t+=beat;
+  const row=state.naRows[r];
+  const beat=60/state.bpm;
+  row.forEach((n,i)=>{
+    const id=setTimeout(()=>playNote(n+12,beat), i*beat*1000);
+    playTimers.push(id);
   });
   playingRow.idx=r;
 }
@@ -308,7 +301,7 @@ function genRows(){
 // EVENTS
 btnRoll.onclick=()=>{ genRows(); currentPreset=-1; buildPresetBar();};
 viewSel.onchange=e=>{ state.view=e.target.value; renderGrid();};
-bpmInp.onchange=e=>{ state.bpm=clamp(+bpmInp.value,20,300); ensureCtx()&&audioCtx.resume();};
+bpmInp.onchange=e=>{ state.bpm=clamp(+bpmInp.value,20,300); };
 octProb.oninput=e=>{ state.octProb=parseFloat(octProb.value); octProbVal.textContent=state.octProb.toFixed(2);};
 scaleSel.onchange=e=>{ state.scale.id=e.target.value; refreshRot(); renderGrid();};
 rotSel.onchange=e=>{ state.scale.rot=+rotSel.value; renderGrid();};
