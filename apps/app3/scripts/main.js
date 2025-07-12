@@ -169,6 +169,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len=scaleSemis(scale.id).length;
     const matrix=showNm ? buildMatrix(notes.map(n=>degToSemi(n)),12) : buildMatrix(notes,len);
     const size=notes.length;
+    const diagArr=diagMidis();
     gridWrap.innerHTML='';
     const table=document.createElement('table');
     table.className='matrix';
@@ -206,7 +207,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         td.onclick=async e=>{
           await ensureAudio();
           const size=notes.length;
-          const diagArr=diagMidis();
           const melodic = playMode==='iS' ? !e.shiftKey : e.shiftKey;
           let noteArr;
           if(isDiag){
