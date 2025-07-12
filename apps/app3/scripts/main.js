@@ -1,5 +1,6 @@
 import { init, playNote, playChord, playMelody } from '../../../libs/sound/index.js';
 const { initSnapshots, saveSnapshot: saveSnapData, loadSnapshot: loadSnapData, resetSnapshots: resetSnapData } = window.SnapUtils;
+const Presets = window.Presets;
 
 let audioReady;
 const ensureAudio = async () => {
@@ -230,34 +231,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function downloadSnapshots(){
-    const blob=new Blob([JSON.stringify(snapshots)],{type:'application/json'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='app3-presets.json';
-    a.click();
+    Presets.exportPresets(snapshots, 'app3-presets.json');
   }
 
   function promptLoadSnapshots(){
-    snapsFileInput.click();
+    Presets.importPresets(snapsFileInput, data=>{
+      snapshots=initSnapshots(data);
+      localStorage.setItem('app3Snapshots', JSON.stringify(snapshots));
+      activeSnapshot=null;
+      renderSnapshots();
+    });
   }
-
-  snapsFileInput.onchange=e=>{
-    const file=e.target.files[0];
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      try{
-        snapshots=initSnapshots(JSON.parse(ev.target.result));
-        localStorage.setItem('app3Snapshots', JSON.stringify(snapshots));
-        activeSnapshot=null;
-        renderSnapshots();
-      }catch(err){
-        alert('Fitxer inv\xE0lid');
-      }
-    };
-    reader.readAsText(file);
-    snapsFileInput.value='';
-  };
 
   function updatePlayMode(){
     toggleBtn.textContent=playMode==='iA'? 'Interval harm\xF2nic (iA)' : 'Interval mel\xF2dic (iS)';
