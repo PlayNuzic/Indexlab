@@ -1,5 +1,5 @@
 import { init as initSound, playNote } from '../../../libs/sound/index.js';
-import { rowToMidi } from '../../../shared/midi.js';
+import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 
 const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const clamp=(x,min,max)=>x<min?min:x>max?max:x;
