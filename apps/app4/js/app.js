@@ -48,6 +48,9 @@ const octProb=document.getElementById('octProb');
 const octProbVal=document.getElementById('octProbVal');
 const grid=document.getElementById('grid');
 const presetBar=document.getElementById('presetBar');
+const downloadPresetsBtn=document.getElementById('downloadPresets');
+const uploadPresetsBtn=document.getElementById('uploadPresets');
+const presetsFileInput=document.getElementById('presetsFile');
 const irSel=document.getElementById('irSel');
 const cadifInp=document.getElementById('cadifInp');
 const rangoInp=document.getElementById('rangoInp');
@@ -278,6 +281,18 @@ function downloadRow(r){ const data=rowToMidi(state.naRows[r],state.bpm); const 
 // PRESETS
 function buildPresetBar(){ presetBar.innerHTML=''; presets.forEach((p,i)=>{ const b=document.createElement('button'); b.textContent=i+1; b.className=p?'filled':'empty'; if(i===currentPreset)b.classList.add('selected'); b.onclick=e=>{ if(e.altKey){ presets[i]=null; currentPreset=-1; buildPresetBar(); return;} if(e.shiftKey){ presets[i]=JSON.parse(JSON.stringify(state)); currentPreset=i; buildPresetBar(); return;} if(presets[i]){ state=JSON.parse(JSON.stringify(presets[i])); applyState();}}; presetBar.appendChild(b);});}
 
+function downloadPresets(){
+  Presets.exportPresets(presets, 'app4-presets.json');
+}
+
+function promptLoadPresets(){
+  Presets.importPresets(presetsFileInput, data=>{
+    presets=data;
+    currentPreset=-1;
+    buildPresetBar();
+  });
+}
+
 // MAIN GENERATE
 function genRows(){
   state.naRows=[];
@@ -312,6 +327,8 @@ rangoInp.onchange=e=>{ state.params.rango=+rangoInp.value; genRows(); };
 dupChk.onchange=e=>{ state.params.duplicates=dupChk.checked; genRows(); };
 startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.value; genRows(); };
 btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); renderGrid(); return;} state.naRows.forEach(r=>r.fill(null)); renderGrid();};
+downloadPresetsBtn.onclick=downloadPresets;
+uploadPresetsBtn.onclick=promptLoadPresets;
 
 // INIT
 (function(){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); applyState(); })();

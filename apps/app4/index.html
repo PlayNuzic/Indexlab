@@ -13,6 +13,7 @@
   <script src="../../libs/vendor/Midi.js"></script>
   <script src="../app3/scripts/snapshotUtils.js"></script>
   <script src="../../shared/midi.js"></script>
+  <script src="../../shared/presets.js"></script>
 </head>
 
 <body>
@@ -39,6 +40,9 @@
     <label>Modo/Rot. <select id="rotSel"></select></label>
     <label>Raíz Nm <select id="rootSel"></select></label>
     <div id="presetBar"></div>
+    <button id="downloadPresets" title="Descarrega presets">&#x2B07;</button>
+    <button id="uploadPresets" title="Carrega presets">&#x2B06;</button>
+    <input type="file" id="presetsFile" accept="application/json" style="display:none" />
     <details class="global-params">
       <summary>Parámetros</summary>
       <label>iR

@@ -27,3 +27,30 @@ The following table summarises key helpers and UI utilities found in `apps/app3`
 | `loadSnapshot` (SnapUtils) | Retrieve notes and base MIDI from snapshot data. |
 | `resetSnapshots` (SnapUtils) | Produce a fresh snapshot array. |
 
+## Shared functions
+
+Several helpers live in the `shared` directory and are used by multiple apps.
+
+| Function | Description |
+| -------- | ----------- |
+| `rowToMidi(row, bpm)` | Convert an array of MIDI numbers into a simple MIDI file. |
+| `exportPresets(data, filename)` | Download preset data as a JSON file. |
+| `importPresets(inputEl, callback)` | Open a file picker and parse the selected preset JSON. |
+
+### Usage examples
+
+```javascript
+// App3 - export or import snapshot presets
+btnDownload.onclick = () => Presets.exportPresets(snapshots, 'app3-presets.json');
+btnUpload.onclick = () => Presets.importPresets(snapsFileInput, data => {
+  snapshots = initSnapshots(data);
+});
+```
+
+```javascript
+// App4 - export a generated row as a MIDI file
+function downloadRow(i) {
+  const data = rowToMidi(state.naRows[i], state.bpm);
+  // create Blob and trigger download...
+}
+```
