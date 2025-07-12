@@ -111,12 +111,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     const matrix = buildMatrix(notes);
     const size = notes.length;
     const diag = diagMidis();
-    const formatVal = (val, midi) => {
-      const shift = Math.floor((midi - baseMidi) / 12);
-      if (shift === 0) return String(val);
-      const sign = shift > 0 ? '+' : '-';
-      return String(val) + sign.repeat(Math.abs(shift));
-    };
     gridWrap.innerHTML='';
     const table=document.createElement('table');
     table.className='matrix';
@@ -147,13 +141,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             td.appendChild(span);
           }
         }else{
-          let midi;
-          if(upper){
-            midi = diag[size-1-r];
-          }else{
-            midi = diag[c] + Number(matrix[r][c]);
-          }
-          td.textContent = formatVal(matrix[r][c], midi);
+          td.textContent = matrix[r][c];
           td.classList.add(upper?'upper':'lower');
         }
         td.onclick=async e=>{
