@@ -4,10 +4,20 @@
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
     a.download=filename;
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(a.href);
-    a.remove();
+    if(document.body && typeof document.body.appendChild==='function'){
+      try{
+        document.body.appendChild(a);
+        a.click();
+        if(typeof URL.revokeObjectURL==='function') URL.revokeObjectURL(a.href);
+        a.remove();
+      }catch(e){
+        a.click();
+        if(typeof URL.revokeObjectURL==='function') URL.revokeObjectURL(a.href);
+      }
+    }else{
+      a.click();
+      if(typeof URL.revokeObjectURL==='function') URL.revokeObjectURL(a.href);
+    }
   }
 
   function importPresets(inputEl, callback){
@@ -27,7 +37,9 @@
       inputEl.value='';
       inputEl.removeEventListener('change',handler);
     }
-    inputEl.addEventListener('change',handler);
+    if(inputEl && typeof inputEl.addEventListener==='function'){
+      inputEl.addEventListener('change',handler);
+    }
     inputEl.click();
   }
 

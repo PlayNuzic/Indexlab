@@ -1,4 +1,4 @@
-const { rowToMidi } = require('../../../shared/midi');
+const { rowToMidi } = require('../../../shared/midi.js');
 
 test('rowToMidi creates a valid MIDI header and track', () => {
   const data = rowToMidi([60, 62, 64], 120);
