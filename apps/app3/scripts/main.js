@@ -58,6 +58,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   const toggleBtn=document.getElementById('togglePlay');
   const snapWrap=document.getElementById('snapshots');
   const resetSnapsBtn=document.getElementById('resetSnaps');
+  const downloadSnapsBtn=document.getElementById('downloadSnaps');
+  const uploadSnapsBtn=document.getElementById('uploadSnaps');
+  const snapsFileInput=document.getElementById('snapsFile');
   const bpmInput=document.getElementById('bpm');
   const tapBtn=document.getElementById('tapBtn');
   const recBtn=document.getElementById('recBtn');
@@ -226,6 +229,36 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderSnapshots();
   }
 
+  function downloadSnapshots(){
+    const blob=new Blob([JSON.stringify(snapshots)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='app3-presets.json';
+    a.click();
+  }
+
+  function promptLoadSnapshots(){
+    snapsFileInput.click();
+  }
+
+  snapsFileInput.onchange=e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        snapshots=initSnapshots(JSON.parse(ev.target.result));
+        localStorage.setItem('app3Snapshots', JSON.stringify(snapshots));
+        activeSnapshot=null;
+        renderSnapshots();
+      }catch(err){
+        alert('Fitxer inv\xE0lid');
+      }
+    };
+    reader.readAsText(file);
+    snapsFileInput.value='';
+  };
+
   function updatePlayMode(){
     toggleBtn.textContent=playMode==='iA'? 'Interval harm\xF2nic (iA)' : 'Interval mel\xF2dic (iS)';
   }
@@ -282,6 +315,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   updatePlayMode();
   switchMode(mode);
   resetSnapsBtn.onclick=resetSnapshots;
+  downloadSnapsBtn.onclick=downloadSnapshots;
+  uploadSnapsBtn.onclick=promptLoadSnapshots;
 
   toggleBtn.onclick=()=>{ playMode= playMode==='iA'?'iS':'iA'; updatePlayMode(); };
 
