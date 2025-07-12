@@ -3,14 +3,14 @@
     .map(n => parseInt(n.replace(/[^0-9-]/g, ''), 10))
     .filter(n => !isNaN(n));
 
-  const eAToNotes = intervals => {
+  const eAToNotes = (intervals, len=12) => {
     const notes = [0];
-    intervals.forEach(i => notes.push((notes.at(-1) + i) % 12));
+    intervals.forEach(i => notes.push(((notes.at(-1) + i) % len + len) % len));
     return notes;
   };
 
-  const notesToEA = notes =>
-    notes.slice(1).map((n, i) => ((n - notes[i] + 12) % 12)).join(' ');
+  const notesToEA = (notes, len=12) =>
+    notes.slice(1).map((n, i) => ((n - notes[i] + len) % len)).join(' ');
 
   const notesToAc = notes => notes.join(' ');
 
@@ -24,7 +24,7 @@
     return result;
   };
 
-  const buildMatrix = notes => {
+  const buildMatrix = (notes, len=12) => {
     const N = notes.length;
     const m = Array.from({ length: N }, () => Array(N).fill(''));
     notes.forEach((note, idx) => {
@@ -34,8 +34,8 @@
     });
     for (let i = 0; i < N; i++) {
       for (let j = i + 1; j < N; j++) {
-        const asc = (notes[j] - notes[i] + 12) % 12;
-        const desc = (12 - asc) % 12;
+        const asc = (notes[j] - notes[i] + len) % len;
+        const desc = (len - asc) % len;
         m[N - 1 - j][i] = asc;
         m[N - 1 - i][j] = desc;
       }

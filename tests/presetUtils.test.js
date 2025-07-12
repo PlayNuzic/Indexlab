@@ -2,7 +2,7 @@
 const { exportPresets, importPresets } = require('../shared/presets');
 
 describe('preset utilities', () => {
-  test('exportPresets triggers file download', () => {
+  test('exportPresets triggers file download', async () => {
     const anchor = document.createElement('a');
     anchor.click = jest.fn();
     Object.defineProperty(anchor, 'download', { writable: true, value: '' });
@@ -12,7 +12,8 @@ describe('preset utilities', () => {
     global.URL.createObjectURL = createObjectURL;
     global.URL.revokeObjectURL = revokeObjectURL;
 
-    exportPresets({ a: 1 }, 'my.json');
+    const presetData = { a: 1, scale:{id:'DIAT', rot:3, root:7} };
+    exportPresets(presetData, 'my.json');
 
     expect(createObjectURL).toHaveBeenCalled();
     const blob = createObjectURL.mock.calls[0][0];
@@ -42,7 +43,7 @@ describe('preset utilities', () => {
 
   test('importPresets reads selected file and calls callback', () => {
     const input = document.createElement('input');
-    const data = { foo: 'bar' };
+    const data = { foo: 'bar', scale:{id:'DIAT',rot:1,root:4} };
     const callback = jest.fn();
 
     class MockFileReader {

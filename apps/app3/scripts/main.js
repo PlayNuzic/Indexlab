@@ -1,4 +1,5 @@
 import { init, playNote, playChord, playMelody } from '../../../libs/sound/index.js';
+import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 const { initSnapshots, saveSnapshot: saveSnapData, loadSnapshot: loadSnapData, resetSnapshots: resetSnapData } = window.SnapUtils;
 const Presets = window.Presets;
 
@@ -17,7 +18,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // -------- state --------
   let mode='eA';
-  let notes=eAToNotes([3,4,3]);
+  let scale={id:'CROM', rot:0, root:0};
+  let notes=eAToNotes([3,4,3], scaleSemis(scale.id).length);
   let playMode='iA';
   let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app3Snapshots')||'null'));
   let activeSnapshot=null;
@@ -27,6 +29,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   let recordBpm=120;
   let playing=false;
   let playTimers=[];
+  let showNm=false;
+
+  function fitNotes(){
+    const len = scaleSemis(scale.id).length;
+    notes = notes.map(n => ((n % len) + len) % len);
+  }
 
   function notesChanged(){
     if(activeSnapshot!==null){
@@ -40,13 +48,31 @@ window.addEventListener('DOMContentLoaded', async () => {
   baseSelect.value=String(baseMidi);
   baseSelect.onchange=()=>{baseMidi=parseInt(baseSelect.value,10);renderGrid();};
 
+  const degToSemi = d => {
+    const sems = scaleSemis(scale.id);
+    const len = sems.length;
+    return (sems[(d + scale.rot) % len] + scale.root) % 12;
+  };
+
+  const degDiffToSemi = (start, diff) => {
+    const sems = scaleSemis(scale.id);
+    const len = sems.length;
+    const startIdx = (start + scale.rot) % len;
+    const targetIdx = (start + diff + scale.rot) % len;
+    const sem1 = (sems[startIdx] + scale.root) % 12;
+    const sem2 = (sems[targetIdx] + scale.root) % 12;
+    let out = sem2 - sem1;
+    if (out < 0) out += 12;
+    return out;
+  };
+
   const diagMidis = () => {
     const result = [];
-    let current = baseMidi + notes[0];
+    let current = baseMidi + degToSemi(notes[0]);
     result.push(current);
     for (let i = 1; i < notes.length; i++) {
-      let diff = notes[i] - notes[i - 1];
-      if (diff <= 0) diff += 12;
+      let diff = degToSemi(notes[i]) - degToSemi(notes[i - 1]);
+      while (diff <= 0) diff += 12;
       current += diff;
       result.push(current);
     }
@@ -70,7 +96,35 @@ window.addEventListener('DOMContentLoaded', async () => {
   const transposeControls=document.getElementById('transposeControls');
   const transposeUp=document.getElementById('transposeUp');
   const transposeDown=document.getElementById('transposeDown');
-  seqInput.value=notesToEA(notes);
+  const scaleSel=document.getElementById('scaleSel');
+  const rotSel=document.getElementById('rotSel');
+  const rootSel=document.getElementById('rootSel');
+  const showNmBtn=document.getElementById('showNm');
+  seqInput.value=notesToEA(notes, scaleSemis(scale.id).length);
+
+  const scaleIDs = Object.keys(motherScalesData);
+  scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
+  [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
+  function refreshRot(){
+    rotSel.innerHTML='';
+    motherScalesData[scale.id].rotNames.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
+    rotSel.value=scale.rot;
+  }
+  refreshRot();
+  scaleSel.value=scale.id;
+  rootSel.value=scale.root;
+
+  scaleSel.onchange=()=>{
+    scale.id=scaleSel.value;
+    refreshRot();
+    fitNotes();
+    renderGrid();
+    seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes);
+  };
+  rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderGrid(); };
+  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderGrid(); };
+  showNmBtn.onmousedown=()=>{ showNm=true; showNmBtn.classList.add('active'); renderGrid(); };
+  showNmBtn.onmouseup=showNmBtn.onmouseleave=()=>{ showNm=false; showNmBtn.classList.remove('active'); renderGrid(); };
 
   function switchMode(m){
     mode=m;
@@ -78,7 +132,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('tabAc').classList.toggle('active',m==='Ac');
     prefix.textContent=m+'(';
     seqInput.placeholder=m==='eA'?'3 4 3':'0 3 7';
-    seqInput.value=m==='eA'?notesToEA(notes):notesToAc(notes);
+    const len=scaleSemis(scale.id).length;
+    seqInput.value=m==='eA'?notesToEA(notes, len):notesToAc(notes);
     transposeControls.style.display=m==='Ac'? 'flex' : 'none';
   }
 
@@ -88,9 +143,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   function transpose(delta){
     const nums=parseNums(seqInput.value);
     if(!nums.length) return;
-    const transposed=nums.map(n=>((n+delta)%12+12)%12);
+    const len=scaleSemis(scale.id).length;
+    const transposed=nums.map(n=>((n+delta)%len+len)%len);
     seqInput.value=transposed.join(' ');
     notes=transposed;
+    fitNotes();
     renderGrid();
     notesChanged();
   }
@@ -101,16 +158,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('generate').onclick=()=>{
     const nums=parseNums(seqInput.value);
     if(!nums.length){errorEl.textContent='Introduce números separados por espacios';return;}
-    notes= mode==='eA'? eAToNotes(nums) : nums.map(x=>((x%12)+12)%12);
+    const len=scaleSemis(scale.id).length;
+    notes= mode==='eA'? eAToNotes(nums, len) : nums.map(x=>((x%len)+len)%len);
     errorEl.textContent='';
     renderGrid();
     notesChanged();
   };
 
   function renderGrid(){
-    const matrix = buildMatrix(notes);
-    const size = notes.length;
-    const diag = diagMidis();
+    const len=scaleSemis(scale.id).length;
+    const matrix=showNm ? buildMatrix(notes.map(n=>degToSemi(n)),12) : buildMatrix(notes,len);
+    const size=notes.length;
     gridWrap.innerHTML='';
     const table=document.createElement('table');
     table.className='matrix';
@@ -126,10 +184,11 @@ window.addEventListener('DOMContentLoaded', async () => {
           const inp=document.createElement('input');
           inp.type='number';
           inp.value=matrix[r][c];
+          inp.readOnly=showNm;
           inp.oninput=()=>{
-            notes[c]=((parseInt(inp.value,10)||0)%12+12)%12;
+            notes[c]=((parseInt(inp.value,10)||0)%len+len)%len;
             renderGrid();
-            seqInput.value=mode==='eA'?notesToEA(notes):notesToAc(notes);
+            seqInput.value=mode==='eA'?notesToEA(notes, len):notesToAc(notes);
             notesChanged();
           };
           td.appendChild(inp);
@@ -159,7 +218,8 @@ window.addEventListener('DOMContentLoaded', async () => {
               noteArr=[diag[idx1], diag[idx2]];
             }else{
               const low=diag[idx1];
-              const interval=Number(matrix[r][c]);
+              let interval=Number(matrix[r][c]);
+              if(!showNm) interval=degDiffToSemi(notes[idx1], interval);
               noteArr=[low, low+interval];
             }
           }
@@ -188,7 +248,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(!size) return;
     const margin = 40;
     const avail = Math.min(window.innerWidth, window.innerHeight) - margin;
-    const px = Math.max(30, Math.floor(avail / size));
+    const px = Math.max(30, Math.floor((avail / size) * 0.66));
     document.documentElement.style.setProperty('--cell-size', px + 'px');
   }
 
@@ -205,7 +265,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       notes=[...data.notes];
       baseMidi=data.baseMidi;
       baseSelect.value=String(baseMidi);
-      seqInput.value=mode==='eA'?notesToEA(notes):notesToAc(notes);
+      fitNotes();
+      const len=scaleSemis(scale.id).length;
+      seqInput.value=mode==='eA'?notesToEA(notes, len):notesToAc(notes);
       renderGrid();
       activeSnapshot=idx;
       renderSnapshots();
