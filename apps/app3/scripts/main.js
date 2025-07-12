@@ -206,18 +206,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         td.onclick=async e=>{
           await ensureAudio();
           const size=notes.length;
-          const diag=diagMidis();
+          const diagArr=diagMidis();
           const melodic = playMode==='iS' ? !e.shiftKey : e.shiftKey;
           let noteArr;
           if(isDiag){
-            noteArr = diag;
+            noteArr = diagArr;
           }else{
             const idx1=c;
             const idx2=size-1-r;
             if(upper){
-              noteArr=[diag[idx1], diag[idx2]];
+              noteArr=[diagArr[idx1], diagArr[idx2]];
             }else{
-              const low=diag[idx1];
+              const low=diagArr[idx1];
               let interval=Number(matrix[r][c]);
               if(!showNm) interval=degDiffToSemi(notes[idx1], interval);
               noteArr=[low, low+interval];
