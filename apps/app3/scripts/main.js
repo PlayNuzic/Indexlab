@@ -108,8 +108,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
 
   function renderGrid(){
-    const matrix=buildMatrix(notes);
-    const size=notes.length;
+    const matrix = buildMatrix(notes);
+    const size = notes.length;
+    const diag = diagMidis();
+    const formatVal = (val, midi) => {
+      const shift = Math.floor((midi - baseMidi) / 12);
+      if (shift === 0) return String(val);
+      const sign = shift > 0 ? '+' : '-';
+      return String(val) + sign.repeat(Math.abs(shift));
+    };
     gridWrap.innerHTML='';
     const table=document.createElement('table');
     table.className='matrix';
@@ -132,8 +139,21 @@ window.addEventListener('DOMContentLoaded', async () => {
             notesChanged();
           };
           td.appendChild(inp);
+          const shift=Math.floor((diag[c]-baseMidi)/12);
+          if(shift!==0){
+            const span=document.createElement('span');
+            span.className='oct-shift';
+            span.textContent=(shift>0?'+':'-').repeat(Math.abs(shift));
+            td.appendChild(span);
+          }
         }else{
-          td.textContent=matrix[r][c];
+          let midi;
+          if(upper){
+            midi = diag[size-1-r];
+          }else{
+            midi = diag[c] + Number(matrix[r][c]);
+          }
+          td.textContent = formatVal(matrix[r][c], midi);
           td.classList.add(upper?'upper':'lower');
         }
         td.onclick=async e=>{

@@ -39,6 +39,9 @@ button#generate:hover{background:#e6a12b;}
 }
 .matrix td.upper{background:rgba(99,102,241,0.1);color:#c7d2fe;}
 .matrix td.lower{background:rgba(251,191,36,0.1);color:#fde68a;}
+.matrix td.diag{
+  position:relative;
+}
 .matrix td.diag input{
   width:100%;
   background:transparent;
@@ -48,6 +51,14 @@ button#generate:hover{background:#e6a12b;}
   font-weight:bold;
   font-size:calc(var(--cell-size,6rem)*0.35);
   line-height:var(--cell-size,6rem);
+}
+.matrix td.diag .oct-shift{
+  position:absolute;
+  bottom:2px;
+  right:4px;
+  font-size:calc(var(--cell-size,6rem)*0.18);
+  pointer-events:none;
+  color:#6ee7b7;
 }
 .matrix td.highlight-diag{background:rgba(16,185,129,0.4)!important;}
 .matrix td.highlight-pair{background:rgba(244,114,182,0.4)!important;}
