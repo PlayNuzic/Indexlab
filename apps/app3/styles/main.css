@@ -32,12 +32,13 @@ button#generate:hover{background:#e6a12b;}
 #togglePlay{background:var(--accent);color:#222;}
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}
-.matrix{border-collapse:collapse;margin:0 auto 2rem auto;}
+.matrix{border-collapse:collapse;margin:0 auto 2rem auto;user-select:none;}
 .matrix td{
   border:1px solid #555;
   width:var(--cell-size,6rem);
   height:var(--cell-size,6rem);
   text-align:center;
+  user-select:none;
   font-weight:bold;
   font-size:calc(var(--cell-size,6rem)*0.23);
 }
@@ -52,6 +53,7 @@ button#generate:hover{background:#e6a12b;}
   border:none;
   color:#6ee7b7;
   text-align:center;
+  user-select:none;
   font-weight:bold;
   font-size:calc(var(--cell-size,6rem)*0.35);
   line-height:var(--cell-size,6rem);
