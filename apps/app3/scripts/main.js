@@ -67,16 +67,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
 
   const diagMidis = () => {
-    const result = [];
-    let current = baseMidi + degToSemi(notes[0]);
-    result.push(current);
-    for (let i = 1; i < notes.length; i++) {
-      let diff = degToSemi(notes[i]) - degToSemi(notes[i - 1]);
-      while (diff <= 0) diff += 12;
-      current += diff;
-      result.push(current);
-    }
-    return result;
+    const sems = notes.map(degToSemi);
+    return toAbsolute(sems, baseMidi);
   };
   const seqInput=document.getElementById('seq');
   const prefix=document.getElementById('seqPrefix');
@@ -253,7 +245,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function saveSnapshot(idx){
-    saveSnapData(snapshots, idx, notes, baseMidi);
+    saveSnapData(snapshots, idx, notes, baseMidi, scale);
     localStorage.setItem('app3Snapshots',JSON.stringify(snapshots));
     activeSnapshot=null;
     renderSnapshots();
@@ -265,6 +257,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       notes=[...data.notes];
       baseMidi=data.baseMidi;
       baseSelect.value=String(baseMidi);
+      scale = { ...data.scale };
+      scaleSel.value=scale.id;
+      rootSel.value=scale.root;
+      refreshRot();
+      rotSel.value=scale.rot;
       fitNotes();
       const len=scaleSemis(scale.id).length;
       seqInput.value=mode==='eA'?notesToEA(notes, len):notesToAc(notes);
