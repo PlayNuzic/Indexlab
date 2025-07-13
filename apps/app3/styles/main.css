@@ -27,13 +27,15 @@ button#generate:hover{background:#e6a12b;}
 #snapshots button.saved{background:var(--accent);color:#222;}
 #snapshots button.active{background:#16a34a;color:#fff;}
 .action-buttons {
-  display: flex: none;
+  display: flex;
   flex-direction: row;       /* elements en línia */
   justify-content: center;   /* centrat horitzontalment */
   align-items: center;       /* centrat verticalment */
   gap: 1rem;                 /* espai entre botons */
   margin-bottom: 2rem;       /* separació sobre la matriu */
 }
+.action-buttons button {
+  flex: none;}
 .matrix td.playing-diag{background:rgba(16,185,129,0.6)!important;}
 .matrix td.playing-pair{background:rgba(244,114,182,0.6)!important;}
 .rec-controls{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;justify-content:center;margin-top:.5rem;}
