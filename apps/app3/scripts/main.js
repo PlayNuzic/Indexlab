@@ -193,7 +193,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             notesChanged();
           };
           td.appendChild(inp);
-          const shift=Math.floor((diag[c]-baseMidi)/12);
+          const shift = Math.floor((diagArr[c] - baseMidi) / 12);
           if(shift!==0){
             const span=document.createElement('span');
             span.className='oct-shift';
