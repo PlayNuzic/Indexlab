@@ -31,7 +31,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let playTimers=[];
   let showNm=false;
   // cache of diagonal MIDI notes for the currently rendered grid
-  let diag=[];
+  let diagArr=[];
 
   function fitNotes(){
     const len = scaleSemis(scale.id).length;
@@ -165,7 +165,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len=scaleSemis(scale.id).length;
     const matrix=showNm ? buildMatrix(notes.map(n=>degToSemi(n)),12) : buildMatrix(notes,len);
     const size=notes.length;
-    diag = diagMidis();
+    diagArr = diagMidis();
     gridWrap.innerHTML='';
     const table=document.createElement('table');
     table.className='matrix';
@@ -210,14 +210,14 @@ window.addEventListener('DOMContentLoaded', async () => {
           const melodic = playMode==='iS' ? !e.shiftKey : e.shiftKey;
           let noteArr;
           if(isDiag){
-          noteArr = diag;
+          noteArr = diagArr;
           }else{
             const idx1=c;
             const idx2=size-1-r;
             if(upper){
               noteArr=[diagArr[idx1], diagArr[idx2]];
             }else{
-              const low=diag[idx1];
+              const low=diagArr[idx1];
               let interval=Number(matrix[r][c]);
               if(!showNm) interval=degDiffToSemi(notes[idx1], interval);
               noteArr=[low, low+interval];
