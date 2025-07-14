@@ -188,7 +188,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             if(['ArrowUp','ArrowDown','Tab','Shift','Control','Alt'].includes(e.key)) return;
             e.preventDefault();
           });
-          inp.addEventListener('beforeinput',e=>e.preventDefault());
+          inp.addEventListener('beforeinput',e=>{
+            if(e.inputType==='insertReplacementText') return;
+            e.preventDefault();
+          });
           inp.addEventListener('wheel',e=>e.preventDefault());
           inp.oninput=()=>{
             notes[c]=((parseInt(inp.value,10)||0)%len+len)%len;
