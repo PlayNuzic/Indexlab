@@ -43,7 +43,37 @@
     inputEl.click();
   }
 
-  const Presets={exportPresets,importPresets};
+  function saveLocal(key, data){
+    if(!key) return;
+    try{
+      localStorage.setItem(key, JSON.stringify(data));
+    }catch(e){}
+  }
+
+  function loadLocal(key){
+    if(!key) return null;
+    try{
+      const txt = localStorage.getItem(key);
+      return txt? JSON.parse(txt) : null;
+    }catch(e){
+      return null;
+    }
+  }
+
+  function createSaveButton(onSave, label='Guardar'){
+    const btn=document.createElement('button');
+    btn.textContent=label;
+    const handler=()=>{
+      onSave();
+      btn.classList.add('active');
+      setTimeout(()=>btn.classList.remove('active'),150);
+    };
+    btn.onmousedown=handler;
+    btn.ontouchstart=handler;
+    return btn;
+  }
+
+  const Presets={exportPresets,importPresets,saveLocal,loadLocal,createSaveButton};
   if(typeof module!=='undefined' && module.exports){
     module.exports=Presets;
   }else{

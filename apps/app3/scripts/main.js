@@ -182,10 +182,9 @@ window.addEventListener('DOMContentLoaded', async () => {
           inp.type='number';
           inp.value=matrix[r][c];
           inp.readOnly=showNm;
-          inp.addEventListener('keydown',e=>{
-            if(['ArrowUp','ArrowDown','Tab','Shift','Control','Alt'].includes(e.key)) return;
-            e.preventDefault();
-          });
+          inp.addEventListener('keydown',e=>{ e.preventDefault(); });
+          inp.addEventListener('beforeinput',e=>e.preventDefault());
+          inp.addEventListener('wheel',e=>e.preventDefault());
           inp.oninput=()=>{
             notes[c]=((parseInt(inp.value,10)||0)%len+len)%len;
             renderGrid();

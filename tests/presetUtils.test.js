@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-const { exportPresets, importPresets } = require('../shared/presets');
+const { exportPresets, importPresets, saveLocal, loadLocal, createSaveButton } = require('../shared/presets');
 
 describe('preset utilities', () => {
   test('exportPresets triggers file download', async () => {
@@ -74,5 +74,25 @@ describe('preset utilities', () => {
     const input = { click: jest.fn() };
     expect(() => importPresets(input, jest.fn())).not.toThrow();
     expect(input.click).toHaveBeenCalled();
+  });
+
+  test('saveLocal and loadLocal round trip', () => {
+    saveLocal('foo', { bar: 1 });
+    expect(JSON.parse(localStorage.getItem('foo'))).toEqual({ bar: 1 });
+    expect(loadLocal('foo')).toEqual({ bar: 1 });
+  });
+
+  test('createSaveButton triggers callback', () => {
+    jest.useFakeTimers();
+    const cb = jest.fn();
+    const btn = createSaveButton(cb, 'save');
+    document.body.appendChild(btn);
+    btn.dispatchEvent(new Event('mousedown'));
+    expect(cb).toHaveBeenCalled();
+    expect(btn.classList.contains('active')).toBe(true);
+    jest.runAllTimers();
+    expect(btn.classList.contains('active')).toBe(false);
+    btn.remove();
+    jest.useRealTimers();
   });
 });
