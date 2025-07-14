@@ -32,10 +32,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   let showNm=false;
   // cache of diagonal MIDI notes for the currently rendered grid
   let diagArr=[];
+  let octShifts=Array(notes.length).fill(0);
 
   function fitNotes(){
     const len = scaleSemis(scale.id).length;
     notes = notes.map(n => ((n % len) + len) % len);
+    while(octShifts.length < notes.length) octShifts.push(0);
+    if(octShifts.length > notes.length) octShifts = octShifts.slice(0, notes.length);
   }
 
   function notesChanged(){
@@ -48,7 +51,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let baseMidi = 60;
   const baseSelect=document.getElementById('baseNote');
   baseSelect.value=String(baseMidi);
-  baseSelect.onchange=()=>{baseMidi=parseInt(baseSelect.value,10);renderGrid();};
+  baseSelect.onchange=()=>{baseMidi=parseInt(baseSelect.value,10);renderAll();};
 
   const degToSemi = d => {
     const sems = scaleSemis(scale.id);
@@ -70,7 +73,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const diagMidis = () => {
     const sems = notes.map(degToSemi);
-    return toAbsolute(sems, baseMidi);
+    const abs = toAbsolute(sems, baseMidi);
+    return abs.map((n,i)=>n + 12*(octShifts[i]||0));
   };
   const seqInput=document.getElementById('seq');
   const prefix=document.getElementById('seqPrefix');
@@ -89,6 +93,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   const midiBtn=document.getElementById('midiBtn');
   const infoToggle=document.getElementById('infoToggle');
   const infoCard=document.getElementById('infoCard');
+  const componentsWrap=document.getElementById('components-wrap');
+  const rotLeft=document.getElementById('rotLeft');
+  const rotRight=document.getElementById('rotRight');
+  const globUp=document.getElementById('globUp');
+  const globDown=document.getElementById('globDown');
   const transposeControls=document.getElementById('transposeControls');
   const transposeUp=document.getElementById('transposeUp');
   const transposeDown=document.getElementById('transposeDown');
@@ -116,13 +125,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     scale.id=scaleSel.value;
     refreshRot();
     fitNotes();
-    renderGrid();
+    renderAll();
     seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes);
   };
-  rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderGrid(); };
-  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderGrid(); };
-  showNmBtn.onmousedown=()=>{ showNm=true; showNmBtn.classList.add('active'); renderGrid(); };
-  showNmBtn.onmouseup=showNmBtn.onmouseleave=()=>{ showNm=false; showNmBtn.classList.remove('active'); renderGrid(); };
+  rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderAll(); };
+  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderAll(); };
+  showNmBtn.onmousedown=()=>{ showNm=true; showNmBtn.classList.add('active'); renderAll(); };
+  showNmBtn.onmouseup=showNmBtn.onmouseleave=()=>{ showNm=false; showNmBtn.classList.remove('active'); renderAll(); };
 
   function switchMode(m){
     mode=m;
@@ -146,7 +155,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     seqInput.value=transposed.join(' ');
     notes=transposed;
     fitNotes();
-    renderGrid();
+    renderAll();
     notesChanged();
   }
 
@@ -158,8 +167,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(!nums.length){errorEl.textContent='Introduce números separados por espacios';return;}
     const len=scaleSemis(scale.id).length;
     notes= mode==='eA'? eAToNotes(nums, len) : nums.map(x=>((x%len)+len)%len);
+    octShifts = Array(notes.length).fill(0);
     errorEl.textContent='';
-    renderGrid();
+    renderAll();
     notesChanged();
   };
 
@@ -168,6 +178,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const matrix=showNm ? buildMatrix(notes.map(n=>degToSemi(n)),12) : buildMatrix(notes,len);
     const size=notes.length;
     diagArr = diagMidis();
+    const comps = computeComponents();
     gridWrap.innerHTML='';
     const table=document.createElement('table');
     table.className='matrix';
@@ -181,6 +192,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         if(isDiag){
           td.classList.add('diag');
           td.textContent = matrix[r][c];
+          const compSpan=document.createElement('span');
+          compSpan.className='comp-id';
+          compSpan.textContent=comps[c];
+          td.appendChild(compSpan);
           const shift = Math.floor((diagArr[c] - baseMidi) / 12);
           if(shift!==0){
             const span=document.createElement('span');
@@ -241,6 +256,57 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.style.setProperty('--cell-size', px + 'px');
   }
 
+  const letters = 'abcdefghijklmnopqrstuvwxyz';
+  function computeComponents(){
+    const map=new Map();
+    let idx=0;
+    return notes.map(n=>{
+      const key=n;
+      if(!map.has(key)) map.set(key, letters[idx++]||'?');
+      return map.get(key);
+    });
+  }
+
+  function renderComponents(){
+    componentsWrap.innerHTML='';
+    const comps=computeComponents();
+    diagArr.forEach((midi,i)=>{
+      const card=document.createElement('div');
+      card.className='component-card';
+      const up=document.createElement('button');
+      up.className='up';
+      up.innerHTML='&#9650;';
+      up.onclick=()=>{octShifts[i]++;renderAll();};
+      const down=document.createElement('button');
+      down.className='down';
+      down.innerHTML='&#9660;';
+      down.onclick=()=>{octShifts[i]--;renderAll();};
+      const close=document.createElement('div');
+      close.className='close';
+      close.textContent='x';
+      close.onclick=()=>{notes.splice(i,1);octShifts.splice(i,1);renderAll();};
+      const note=document.createElement('div');
+      note.className='note';
+      note.textContent=midi;
+      const label=document.createElement('div');
+      label.className='label';
+      label.textContent=comps[i];
+      card.appendChild(up);
+      card.appendChild(down);
+      card.appendChild(close);
+      card.appendChild(note);
+      card.appendChild(label);
+      componentsWrap.appendChild(card);
+    });
+  }
+
+  function renderAll(){
+    renderGrid();
+    renderComponents();
+    const len=scaleSemis(scale.id).length;
+    seqInput.value=mode==='eA'?notesToEA(notes,len):notesToAc(notes);
+  }
+
   function saveSnapshot(idx){
     saveSnapData(snapshots, idx, notes, baseMidi, scale);
     localStorage.setItem('app3Snapshots',JSON.stringify(snapshots));
@@ -259,10 +325,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       rootSel.value=scale.root;
       refreshRot();
       rotSel.value=scale.rot;
+      octShifts = Array(notes.length).fill(0);
       fitNotes();
       const len=scaleSemis(scale.id).length;
       seqInput.value=mode==='eA'?notesToEA(notes, len):notesToAc(notes);
-      renderGrid();
+      renderAll();
       activeSnapshot=idx;
       renderSnapshots();
     }
@@ -362,7 +429,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     },200);
   }
 
-  renderGrid();
+  renderAll();
   renderSnapshots();
   updatePlayMode();
   switchMode(mode);
@@ -370,6 +437,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;
+  rotLeft.onclick=()=>{notes.push(notes.shift());octShifts.push(octShifts.shift());renderAll();};
+  rotRight.onclick=()=>{notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());renderAll();};
+  globUp.onclick=()=>{transpose(1);};
+  globDown.onclick=()=>{transpose(-1);};
 
   toggleBtn.onclick=()=>{ playMode= playMode==='iA'?'iS':'iA'; updatePlayMode(); };
 

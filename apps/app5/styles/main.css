@@ -82,6 +82,14 @@ button#generate:hover{background:#e6a12b;}
   pointer-events:none;
   color:#6ee7b7;
 }
+  .matrix td.diag .comp-id{
+    position:absolute;
+    bottom:2px;
+    left:4px;
+    font-size:calc(var(--cell-size,6rem)*0.18);
+    pointer-events:none;
+    color:#6ee7b7;
+  }
 .matrix td.highlight-diag{background:rgba(16,185,129,0.4)!important;}
 .matrix td.highlight-pair{background:rgba(244,114,182,0.4)!important;}
 .card.info{
@@ -111,3 +119,58 @@ button#generate:hover{background:#e6a12b;}
 .card.info .asc{color:#c7d2fe;}
 .card.info .desc{color:#fde68a;}
 .feature-list{text-align:left;margin:0.5rem auto;max-width:40rem;}
+/* Component boxes */
+#components-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.4rem;
+  margin-left:1rem;
+}
+.component-card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  background:#444;
+  padding:.3rem;
+  border-radius:4px;
+  width:3rem;
+  position:relative;
+  user-select:none;
+}
+.component-card .note{font-weight:bold;}
+.component-card .label{font-size:.8rem;color:#ccc;}
+.component-card button{
+  position:absolute;
+  left:0;
+  width:100%;
+  background:transparent;
+  border:none;
+  color:#ccc;
+  cursor:pointer;
+}
+.component-card .up{top:-0.8rem;}
+.component-card .down{bottom:-0.8rem;}
+.component-card .close{
+  position:absolute;
+  top:-0.8rem;
+  right:-0.4rem;
+  background:#922;
+  color:#fff;
+  width:1rem;
+  height:1rem;
+  border-radius:50%;
+  font-size:.7rem;
+  line-height:1rem;
+  text-align:center;
+  cursor:pointer;
+}
+#components-controls{display:flex;gap:.4rem;margin-top:.5rem;}
+#components-controls button{
+  padding:.3rem;
+  background:#555;
+  color:#fff;
+  border:none;
+  border-radius:4px;
+  cursor:pointer;
+}
