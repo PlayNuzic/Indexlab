@@ -87,6 +87,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const recBtn=document.getElementById('recBtn');
   const playSeqBtn=document.getElementById('playSeq');
   const midiBtn=document.getElementById('midiBtn');
+  const infoToggle=document.getElementById('infoToggle');
+  const infoCard=document.getElementById('infoCard');
   const transposeControls=document.getElementById('transposeControls');
   const transposeUp=document.getElementById('transposeUp');
   const transposeDown=document.getElementById('transposeDown');
@@ -470,6 +472,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     a.click();
     URL.revokeObjectURL(a.href);
     a.remove();
+  };
+
+  infoToggle.onclick=()=>{
+    const hidden = infoCard.hasAttribute('hidden');
+    if(hidden){
+      infoCard.removeAttribute('hidden');
+      infoToggle.textContent='Amaga informació';
+    }else{
+      infoCard.setAttribute('hidden','');
+      infoToggle.textContent='Mostra informació';
+    }
   };
 
   window.addEventListener('resize', resizeMatrix);
