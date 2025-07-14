@@ -219,7 +219,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           else playChord(noteArr, chordDur);
           if(recording && Date.now()-recordStart >= 4*(60000/recordBpm)){
             const beat=(Date.now()-recordStart)/(60000/recordBpm);
-            recorded.push({beat,notes:noteArr.slice(),melodic,coord:{r,c}});
+            recorded.push({beat,notes:noteArr.slice(),melodic,fast:fastMelodic,coord:{r,c}});
           }
         };
         td.onmouseenter=()=>setHover({r,c});
@@ -426,7 +426,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const t = ev.beat * 60000 / bpm;
       const id = setTimeout(() => {
         const chordDur = 2 * (60 / bpm);
-        const melodicDur = 60 / bpm;
+        const melodicDur = (60 / bpm) * (ev.fast ? 0.5 : 1);
         ev.melodic ? playMelody(ev.notes, melodicDur) : playChord(ev.notes, chordDur);
         if(ev.coord) flashCell(ev.coord);
       }, t);
@@ -449,11 +449,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     recorded.forEach(ev=>{
       const baseTick = Math.round(ev.beat * ppq);
       if(ev.melodic){
+        const step = ev.fast ? ppq / 2 : ppq;
         ev.notes.forEach((n,i)=>{
           track.addNote({
             midi:n,
-            ticks: baseTick + i * ppq,
-            durationTicks: ppq
+            ticks: baseTick + i * step,
+            durationTicks: step
           });
         });
       }else{

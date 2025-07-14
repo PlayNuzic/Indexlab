@@ -41,6 +41,6 @@ npm test
 ## Keyboard modifiers
 
 While clicking on matrix cells you can hold **Shift** to switch between harmonic
-(iA) and melodic (iS) playback. Holding **Alt** makes melodic intervals play at
-double speed. In harmonic mode you need to press **Shift + Alt** for the faster
-melodic playback.
+(iA) and melodic (iS) playback. Each melodic note lasts one quarter note. Holding
+**Alt** shortens them to eighth notes, effectively playing the interval twice as
+fast. In harmonic mode press **Shift + Alt** for this accelerated playback.
