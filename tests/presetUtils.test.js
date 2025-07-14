@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-const { exportPresets, importPresets, saveLocal, loadLocal, createSaveButton, createHoldSaveButton, isHoldSave } = require('../shared/presets');
+const { exportPresets, importPresets, saveLocal, loadLocal, createSaveButton, onLongPress } = require('../shared/presets');
 
 describe('preset utilities', () => {
   test('exportPresets triggers file download', async () => {
@@ -96,15 +96,20 @@ describe('preset utilities', () => {
     jest.useRealTimers();
   });
 
-  test('createHoldSaveButton toggles hold flag', () => {
-    const btn = createHoldSaveButton('hold');
+  test('onLongPress calls callback after duration', () => {
+    jest.useFakeTimers();
+    const btn = document.createElement('button');
+    let called = 0;
+    onLongPress(btn, () => { called++; }, 1000);
     document.body.appendChild(btn);
-    expect(isHoldSave()).toBe(false);
     btn.dispatchEvent(new Event('mousedown'));
-    expect(isHoldSave()).toBe(true);
-    document.dispatchEvent(new Event('mouseup'));
-    expect(isHoldSave()).toBe(false);
+    jest.advanceTimersByTime(999);
+    expect(called).toBe(0);
+    jest.advanceTimersByTime(1);
+    expect(called).toBe(1);
+    btn.dispatchEvent(new Event('mouseup'));
     btn.remove();
+    jest.useRealTimers();
   });
 
   test('hold button enables saving on slot activation', () => {

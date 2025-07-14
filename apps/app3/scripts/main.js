@@ -81,7 +81,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const resetSnapsBtn=document.getElementById('resetSnaps');
   const downloadSnapsBtn=document.getElementById('downloadSnaps');
   const uploadSnapsBtn=document.getElementById('uploadSnaps');
-  let saveSnapsBtn=document.getElementById('saveSnaps');
   const snapsFileInput=document.getElementById('snapsFile');
   const bpmInput=document.getElementById('bpm');
   const tapBtn=document.getElementById('tapBtn');
@@ -273,13 +272,16 @@ window.addEventListener('DOMContentLoaded', async () => {
       b.textContent=i+1;
       b.classList.toggle('saved',!!snapshots[i]);
       b.classList.toggle('active',activeSnapshot===i);
-      b.onclick=e=>{
-        if(e.shiftKey || Presets.isHoldSave()){
-          saveSnapshot(i);
-          Presets.saveLocal('app3Snapshots', snapshots);
-        }else{
-          loadSnapshot(i);
-        }
+      let long=false;
+      Presets.onLongPress(b, () => {
+        saveSnapshot(i);
+        Presets.saveLocal('app3Snapshots', snapshots);
+        long=true;
+        renderSnapshots();
+      });
+      b.onclick=()=>{
+        if(long){ long=false; return; }
+        loadSnapshot(i);
         renderSnapshots();
       };
       snapWrap.appendChild(b);
@@ -361,11 +363,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   renderSnapshots();
   updatePlayMode();
   switchMode(mode);
-  const saveBtn = Presets.createHoldSaveButton('💾');
-  saveBtn.id = 'saveSnaps';
-  saveSnapsBtn.replaceWith(saveBtn);
-  saveSnapsBtn = saveBtn;
-  window.addEventListener('beforeunload', () => saveBtn.remove());
+  // removed dedicated save button; hold any snapshot button for 2s to save
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;

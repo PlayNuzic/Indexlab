@@ -36,7 +36,6 @@ const grid=document.getElementById('grid');
 const presetBar=document.getElementById('presetBar');
 const downloadPresetsBtn=document.getElementById('downloadPresets');
 const uploadPresetsBtn=document.getElementById('uploadPresets');
-const savePresetsBtn=document.getElementById('savePresets');
 const presetsFileInput=document.getElementById('presetsFile');
 const irSel=document.getElementById('irSel');
 const cadifInp=document.getElementById('cadifInp');
@@ -273,17 +272,19 @@ function buildPresetBar(){
     b.textContent=i+1;
     b.className=p?'filled':'empty';
     if(i===currentPreset) b.classList.add('selected');
+    let long=false;
+    Presets.onLongPress(b, () => {
+      presets[i]=JSON.parse(JSON.stringify(state));
+      currentPreset=i;
+      Presets.saveLocal('app4Presets', presets);
+      long=true;
+      buildPresetBar();
+    });
     b.onclick=e=>{
       if(e.altKey){
         presets[i]=null; currentPreset=-1; buildPresetBar(); return;
       }
-      if(e.shiftKey || Presets.isHoldSave()){
-        presets[i]=JSON.parse(JSON.stringify(state));
-        currentPreset=i;
-        Presets.saveLocal('app4Presets', presets);
-        buildPresetBar();
-        return;
-      }
+      if(long){ long=false; return; }
       if(presets[i]){
         state=JSON.parse(JSON.stringify(presets[i]));
         applyState();
@@ -341,10 +342,6 @@ startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.val
 btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); renderGrid(); return;} state.naRows.forEach(r=>r.fill(null)); renderGrid();};
 downloadPresetsBtn.onclick=downloadPresets;
 uploadPresetsBtn.onclick=promptLoadPresets;
-const saveBtn = Presets.createHoldSaveButton('💾');
-saveBtn.id = 'savePresets';
-savePresetsBtn.replaceWith(saveBtn);
-window.addEventListener('beforeunload', () => saveBtn.remove());
 
 // INIT
 (function(){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); applyState(); })();
@@ -366,4 +363,5 @@ function applyState(){
   renderGrid();
   buildPresetBar();
 }
+
 

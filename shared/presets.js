@@ -73,37 +73,32 @@
     return btn;
   }
 
-  let holdSave=false;
-  function createHoldSaveButton(label='Guardar'){
-    const btn=document.createElement('button');
-    btn.textContent=label;
-    let touchId=null;
-    const startMouse=()=>{ holdSave=true; btn.classList.add('active'); };
-    const startTouch=e=>{ touchId=e.changedTouches[0].identifier; startMouse(); };
-    const stopMouse=()=>{ holdSave=false; btn.classList.remove('active'); touchId=null; };
-    const stopTouch=e=>{
-      for(const t of e.changedTouches){
-        if(t.identifier===touchId){ stopMouse(); break; }
-      }
+  function onLongPress(el, cb, duration=2000){
+    let timer=null;
+    const start=e=>{
+      if(timer!==null) clearTimeout(timer);
+      timer=setTimeout(()=>{ timer=null; cb(e); }, duration);
     };
-    btn.addEventListener('mousedown',startMouse);
-    btn.addEventListener('touchstart',startTouch);
-    document.addEventListener('mouseup',stopMouse);
-    document.addEventListener('touchend',stopTouch);
-    document.addEventListener('touchcancel',stopTouch);
-    const origRemove=btn.remove.bind(btn);
-    btn.remove=()=>{
-      document.removeEventListener('mouseup',stopMouse);
-      document.removeEventListener('touchend',stopTouch);
-      document.removeEventListener('touchcancel',stopTouch);
-      btn.removeEventListener('mousedown',startMouse);
-      btn.removeEventListener('touchstart',startTouch);
+    const cancel=()=>{ if(timer!==null){ clearTimeout(timer); timer=null; } };
+    el.addEventListener('mousedown', start);
+    el.addEventListener('touchstart', start);
+    el.addEventListener('mouseup', cancel);
+    el.addEventListener('mouseleave', cancel);
+    el.addEventListener('touchend', cancel);
+    el.addEventListener('touchcancel', cancel);
+    const origRemove=el.remove.bind(el);
+    el.remove=()=>{
+      cancel();
+      el.removeEventListener('mousedown', start);
+      el.removeEventListener('touchstart', start);
+      el.removeEventListener('mouseup', cancel);
+      el.removeEventListener('mouseleave', cancel);
+      el.removeEventListener('touchend', cancel);
+      el.removeEventListener('touchcancel', cancel);
       origRemove();
     };
-    return btn;
+    return el;
   }
-
-  function isHoldSave(){ return holdSave; }
 
   const Presets={
     exportPresets,
@@ -111,8 +106,7 @@
     saveLocal,
     loadLocal,
     createSaveButton,
-    createHoldSaveButton,
-    isHoldSave
+    onLongPress
   };
   if(typeof module!=='undefined' && module.exports){
     module.exports=Presets;
