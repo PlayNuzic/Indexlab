@@ -72,6 +72,7 @@ button#generate:hover{background:#e6a12b;}
 .matrix td.diag input.spin-only{
   caret-color: transparent;
   cursor: ns-resize;
+  user-select: none;
 }
 .matrix td.diag .oct-shift{
   position:absolute;
