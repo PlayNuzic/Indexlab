@@ -34,6 +34,7 @@ const presetBar=document.getElementById('presetBar');
 const downloadPresetsBtn=document.getElementById('downloadPresets');
 const uploadPresetsBtn=document.getElementById('uploadPresets');
 const presetsFileInput=document.getElementById('presetsFile');
+const resetPresetsBtn=document.getElementById('resetPresets');
 const irSel=document.getElementById('irSel');
 const cadifInp=document.getElementById('cadifInp');
 const rangoInp=document.getElementById('rangoInp');
@@ -303,6 +304,13 @@ function promptLoadPresets(){
   });
 }
 
+function resetPresets(){
+  presets = Array(8).fill(null);
+  currentPreset = -1;
+  Presets.saveLocal('app4Presets', presets);
+  buildPresetBar();
+}
+
 // MAIN GENERATE
 function genRows(){
   state.naRows=[];
@@ -339,6 +347,7 @@ startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.val
 btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); renderGrid(); return;} state.naRows.forEach(r=>r.fill(null)); renderGrid();};
 downloadPresetsBtn.onclick=downloadPresets;
 uploadPresetsBtn.onclick=promptLoadPresets;
+resetPresetsBtn.onclick=resetPresets;
 
 // INIT
 (function(){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); applyState(); })();
