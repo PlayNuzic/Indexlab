@@ -25,3 +25,19 @@ npx http-server
 
 A continuació obre al navegador l'URL que indiqui la comanda (habitualment
 `http://localhost:8080`).
+
+## Apps
+
+Aquest repositori conté quatre demos dins `apps/`:
+
+- **app1** – Fraccions rítmiques i patrons cíclics.
+- **app2** – Joc senzill d'entrenament auditiu amb notació Nuzic.
+- **app3** – Generador d'arranjaments d'acords en notació Nuzic.
+- **app4** – Aleatoritzador modular de melodies publicat a GitHub Pages.
+
+Totes comparteixen els components i utilitats comuns que es troben a `libs/`
+i al directori `shared/`.
+
+## Tests
+
+Run `npm test` from the repository root.

@@ -131,79 +131,6 @@
     };
     return el;
   }
-  let holdActive=false;
-  let holdId=null;
-
-  function isHoldSave(){
-    return holdActive;
-  }
-
-  function createHoldSaveButton(label='Hold'){
-    const btn=document.createElement('button');
-    btn.textContent=label;
-    const start=e=>{
-      holdActive=true;
-      if(e.type==='touchstart' && e.changedTouches && e.changedTouches[0]){
-        holdId=e.changedTouches[0].identifier;
-      }else{
-        holdId=null;
-      }
-    };
-    const stop=e=>{
-      if(e.type==='touchend' && holdId!==null){
-        let match=false;
-        for(const t of e.changedTouches){
-          if(t.identifier===holdId){ match=true; break; }
-        }
-        if(!match) return;
-      }
-      holdActive=false;
-      holdId=null;
-    };
-    btn.addEventListener('mousedown', start);
-    btn.addEventListener('touchstart', start);
-    document.addEventListener('mouseup', stop);
-    document.addEventListener('touchend', stop);
-    const origRemove=btn.remove.bind(btn);
-    btn.remove=()=>{
-      document.removeEventListener('mouseup', stop);
-      document.removeEventListener('touchend', stop);
-      origRemove();
-    };
-    return btn;
-  }
-
-  let holdSave=false;
-  function createHoldSaveButton(label='Guardar'){
-    const btn=document.createElement('button');
-    btn.textContent=label;
-    let touchId=null;
-    const startMouse=()=>{ holdSave=true; btn.classList.add('active'); };
-    const startTouch=e=>{ touchId=e.changedTouches[0].identifier; startMouse(); };
-    const stopMouse=()=>{ holdSave=false; btn.classList.remove('active'); touchId=null; };
-    const stopTouch=e=>{
-      for(const t of e.changedTouches){
-        if(t.identifier===touchId){ stopMouse(); break; }
-      }
-    };
-    btn.addEventListener('mousedown',startMouse);
-    btn.addEventListener('touchstart',startTouch);
-    document.addEventListener('mouseup',stopMouse);
-    document.addEventListener('touchend',stopTouch);
-    document.addEventListener('touchcancel',stopTouch);
-    const origRemove=btn.remove.bind(btn);
-    btn.remove=()=>{
-      document.removeEventListener('mouseup',stopMouse);
-      document.removeEventListener('touchend',stopTouch);
-      document.removeEventListener('touchcancel',stopTouch);
-      btn.removeEventListener('mousedown',startMouse);
-      btn.removeEventListener('touchstart',startTouch);
-      origRemove();
-    };
-    return btn;
-  }
-
-  function isHoldSave(){ return holdSave; }
 
   const Presets={
     exportPresets,
@@ -213,9 +140,7 @@
     createSaveButton,
     createHoldSaveButton,
     isHoldSave,
-    onLongPress,
-    createHoldSaveButton,
-    isHoldSave
+    onLongPress
   };
   if(typeof module!=='undefined' && module.exports){
     module.exports=Presets;
