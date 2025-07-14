@@ -30,8 +30,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   let playing=false;
   let playTimers=[];
   let showNm=false;
-  // cache of diagonal MIDI notes for the currently rendered grid
+  // cache of diagonal MIDI notes and numbers for the currently rendered grid
   let diagArr=[];
+  let diagNumsArr=[];
   let octShifts=Array(notes.length).fill(0);
 
   function fitNotes(){
@@ -76,6 +77,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const abs = toAbsolute(sems, baseMidi);
     return abs.map((n,i)=>n + 12*(octShifts[i]||0));
   };
+  const diagNums = () => showNm ? notes.map(degToSemi) : notes.slice();
   const seqInput=document.getElementById('seq');
   const prefix=document.getElementById('seqPrefix');
   const errorEl=document.getElementById('error');
@@ -178,6 +180,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const matrix=showNm ? buildMatrix(notes.map(n=>degToSemi(n)),12) : buildMatrix(notes,len);
     const size=notes.length;
     diagArr = diagMidis();
+    diagNumsArr = diagNums();
     const comps = computeComponents();
     gridWrap.innerHTML='';
     const table=document.createElement('table');
@@ -257,22 +260,46 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   const letters = 'abcdefghijklmnopqrstuvwxyz';
+  const componentMap=new Map();
+  let nextCompIdx=0;
   function computeComponents(){
-    const map=new Map();
-    let idx=0;
-    return notes.map(n=>{
-      const key=n;
-      if(!map.has(key)) map.set(key, letters[idx++]||'?');
-      return map.get(key);
+    notes.forEach(n=>{
+      if(!componentMap.has(n)){
+        componentMap.set(n, letters[nextCompIdx++]||'?');
+      }
     });
+    return notes.map(n=>componentMap.get(n));
   }
 
+  function moveCards(indices, target){
+    indices.sort((a,b)=>a-b);
+    const vals=indices.map(i=>notes[i]);
+    const shifts=indices.map(i=>octShifts[i]);
+    for(let j=indices.length-1;j>=0;j--){
+      notes.splice(indices[j],1);
+      octShifts.splice(indices[j],1);
+    }
+    let insert=target;
+    indices.forEach(i=>{ if(i<target) insert--; });
+    notes.splice(insert,0,...vals);
+    octShifts.splice(insert,0,...shifts);
+    selectedCards=new Set(indices.map((_,k)=>insert+k));
+    renderAll();
+  }
+
+  let selectedCards=new Set();
   function renderComponents(){
     componentsWrap.innerHTML='';
     const comps=computeComponents();
-    diagArr.forEach((midi,i)=>{
+    diagNumsArr.forEach((num,i)=>{
       const card=document.createElement('div');
       card.className='component-card';
+      if(selectedCards.has(i)) card.classList.add('selected');
+      card.draggable=true;
+      card.onclick=e=>{ if(e.shiftKey){ if(selectedCards.has(i)) selectedCards.delete(i); else selectedCards.add(i); renderComponents(); } };
+      card.ondragstart=e=>{ const grp=selectedCards.has(i)?Array.from(selectedCards).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
+      card.ondragover=e=>e.preventDefault();
+      card.ondrop=e=>{ e.preventDefault(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); moveCards(grp,i); };
       const up=document.createElement('button');
       up.className='up';
       up.innerHTML='&#9650;';
@@ -284,10 +311,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       const close=document.createElement('div');
       close.className='close';
       close.textContent='x';
-      close.onclick=()=>{notes.splice(i,1);octShifts.splice(i,1);renderAll();};
+      close.onclick=()=>{notes.splice(i,1);octShifts.splice(i,1);selectedCards.clear();renderAll();};
       const note=document.createElement('div');
       note.className='note';
-      note.textContent=midi;
+      note.textContent=num;
       const label=document.createElement('div');
       label.className='label';
       label.textContent=comps[i];
@@ -298,6 +325,12 @@ window.addEventListener('DOMContentLoaded', async () => {
       card.appendChild(label);
       componentsWrap.appendChild(card);
     });
+    componentsWrap.ondragover=e=>e.preventDefault();
+    componentsWrap.ondrop=e=>{
+      e.preventDefault();
+      const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
+      moveCards(grp, notes.length);
+    };
   }
 
   function renderAll(){
@@ -437,10 +470,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;
-  rotLeft.onclick=()=>{notes.push(notes.shift());octShifts.push(octShifts.shift());renderAll();};
-  rotRight.onclick=()=>{notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());renderAll();};
-  globUp.onclick=()=>{transpose(1);};
-  globDown.onclick=()=>{transpose(-1);};
+  rotLeft.onclick=()=>{notes.push(notes.shift());octShifts.push(octShifts.shift());selectedCards.clear();renderAll();};
+  rotRight.onclick=()=>{notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());selectedCards.clear();renderAll();};
+  globUp.onclick=()=>{selectedCards.clear();transpose(1);};
+  globDown.onclick=()=>{selectedCards.clear();transpose(-1);};
 
   toggleBtn.onclick=()=>{ playMode= playMode==='iA'?'iS':'iA'; updatePlayMode(); };
 
