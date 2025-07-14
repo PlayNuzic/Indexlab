@@ -194,6 +194,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           await ensureAudio();
           const size=notes.length;
           const melodic = playMode==='iS' ? !e.shiftKey : e.shiftKey;
+          const fastMelodic = e.altKey && melodic;
           let noteArr;
           if(isDiag){
           noteArr = diagArr;
@@ -211,7 +212,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           }
           const bpm = parseFloat(bpmInput.value) || 120;
           const chordDur = 2 * (60 / bpm);
-          const melodicDur = 60 / bpm;
+          const melodicDur = (60 / bpm) * (fastMelodic ? 0.5 : 1);
           if(melodic) playMelody(noteArr, melodicDur);
           else playChord(noteArr, chordDur);
           if(recording && Date.now()-recordStart >= 4*(60000/recordBpm)){
