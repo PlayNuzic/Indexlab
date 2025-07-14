@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acordes y transformaciones</title>
+  <link rel="stylesheet" href="../../libs/shared-ui/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+  <h1>Acordes y transformaciones</h1>
+  <div class="controls">
+    <div class="scale-controls">
+      <label>Escala <select id="scaleSel"></select></label>
+      <label>Mode/Rot. <select id="rotSel"></select></label>
+      <label>Arrel Nm <select id="rootSel"></select></label>
+    </div>
+    <div class="tabs">
+      <button id="tabEA" class="active">eA</button>
+      <button id="tabAc">Ac</button>
+    </div>
+    <div class="seqInput">
+      <span id="seqPrefix">eA(</span>
+      <input id="seq" type="text" placeholder="3 4 3">
+      <span>)</span>
+      <div id="transposeControls" class="transpose-controls">
+        <button id="transposeUp" title="Puja">&#9650;</button>
+        <button id="transposeDown" title="Baixa">&#9660;</button>
+      </div>
+    </div>
+    <div class="action-buttons">
+        <button id="togglePlay">interval harmònic (iA)</button>
+        <button id="generate">Generar</button>
+        <button id="showNm" title="Mostra Nm">Nm</button>
+    </div>
+    <div class="preset-row">
+      <button id="downloadSnaps" title="Descarrega presets">&#x2B07;</button>
+      <button id="uploadSnaps" title="Carrega presets">&#x2B06;</button>
+      <input type="file" id="snapsFile" accept="application/json" style="display:none">
+      <button id="resetSnaps" title="Reset presets">&times;</button>
+      <div id="snapshots" class="snapshots"></div>
+      <select id="baseNote">
+        <option value="60" selected>C4</option>
+        <option value="48">C3</option>
+      </select>
+    </div>
+    <div class="rec-controls">
+      <label>BPM <input id="bpm" type="number" value="120"></label>
+      <button id="tapBtn">Tap</button>
+      <button id="recBtn">Gravar</button>
+      <button id="playSeq">Reproduir</button>
+      <button id="midiBtn">MIDI</button>
+    </div>
+    <p id="error" class="error"></p>
+  </div>
+  <div id="grid"></div>
+  <button id="infoToggle" class="info-toggle">Mostra informació</button>
+  <div id="infoCard" class="card info" hidden>
+    <div class="card-content">
+      <p><strong>Matriz:</strong> La diagonal contiene las <span class="nm">Nm</span> (notas modulares) de cada voz empezando por la esquina izquierda inferior (v0) hasta la última voz en la esquina superior derecha.</p>
+      <p>Sobre la diagonal (<span class="asc">azul</span>) aparece el triángulo de <em>iA</em>  entre las voces; bajo ella (<span class="desc">ámbar</span>) el triángulo de los <em>iA</em> complementarios. Cada pareja de <em>iA</em> y su complementario suma el módulo 12.</p>
+      <p><span class="hover-diag">Hover verde</span> = resalta el <em>Ac</em> en Nm en la diagonal. <span class="hover-pair">Hover rosa</span> = resalta un <em>iA</em> entre voces (triángulo superior) y su <em>iA</em> complementario (triángulo inferior).</p>
+      <h3>Características</h3>
+      <ul class="feature-list">
+        <li>Select a <strong>scale</strong>, its <strong>rotation</strong> and <strong>root</strong> from the drop-downs.</li>
+        <li>Switch between <strong>eA</strong> (relative) or <strong>Ac</strong> (absolute) input using the tabs. In Ac mode you can transpose the sequence with the arrow buttons.</li>
+        <li>Enter a sequence and press <strong>Generar</strong> to update the matrix.</li>
+        <li>Use <strong>Interval harmònic (iA)</strong> to toggle melodic/harmonic playback of the cells.</li>
+        <li>Hold <strong>Shift</strong> while clicking cells to invert the playback mode and <strong>Alt</strong> to play melodic intervals twice as fast.</li>
+        <li>Ten <strong>snapshot</strong> slots store progress (long press to save, click to load). Snapshots can be reset, downloaded or uploaded.</li>
+        <li>Set a tempo with <strong>Tap</strong> and <strong>BPM</strong>, then <strong>Gravar</strong> to record cell clicks. Use <strong>Reproduir</strong> to hear the sequence or <strong>MIDI</strong> to download it.</li>
+        <li>Hold the <strong>Nm</strong> button to display the modular notes on the diagonal.</li>
+      </ul>
+      <p style="text-align:center"><a href="../../index.html">&larr; Torna a l'índex</a></p>
+      </div>
+    </div>
+
+  <script src="../../libs/vendor/Tone.js"></script>
+  <script src="../../libs/vendor/Midi.js"></script>
+  <script src="../../shared/presets.js"></script>
+  <script src="./scripts/snapshotUtils.js"></script>
+  <script src="./scripts/helpers.js"></script>
+  <script type="module" src="./scripts/main.js"></script>
+</body>
+</html>
