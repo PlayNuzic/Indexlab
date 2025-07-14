@@ -385,6 +385,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   saveBtn.id = 'saveSnaps';
   saveSnapsBtn.replaceWith(saveBtn);
   saveSnapsBtn = saveBtn;
+  window.addEventListener('beforeunload', () => saveBtn.remove());
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;

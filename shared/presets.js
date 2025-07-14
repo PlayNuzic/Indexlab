@@ -79,11 +79,21 @@
     btn.textContent=label;
     const start=()=>{ holdSave=true; btn.classList.add('active'); };
     const stop=()=>{ holdSave=false; btn.classList.remove('active'); };
+    const docStop=()=>stop();
     btn.addEventListener('mousedown',start);
     btn.addEventListener('touchstart',start);
-    document.addEventListener('mouseup',stop);
-    document.addEventListener('touchend',stop);
-    document.addEventListener('touchcancel',stop);
+    document.addEventListener('mouseup',docStop);
+    document.addEventListener('touchend',docStop);
+    document.addEventListener('touchcancel',docStop);
+    const origRemove=btn.remove.bind(btn);
+    btn.remove=()=>{
+      document.removeEventListener('mouseup',docStop);
+      document.removeEventListener('touchend',docStop);
+      document.removeEventListener('touchcancel',docStop);
+      btn.removeEventListener('mousedown',start);
+      btn.removeEventListener('touchstart',start);
+      origRemove();
+    };
     return btn;
   }
 

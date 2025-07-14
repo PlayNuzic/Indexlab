@@ -106,4 +106,20 @@ describe('preset utilities', () => {
     expect(isHoldSave()).toBe(false);
     btn.remove();
   });
+
+  test('hold button enables saving on slot activation', () => {
+    const holdBtn = createHoldSaveButton('hold');
+    document.body.appendChild(holdBtn);
+    const slotBtn = document.createElement('button');
+    let saved = false;
+    slotBtn.onclick = () => { if(isHoldSave()) saved = true; };
+    document.body.appendChild(slotBtn);
+    holdBtn.dispatchEvent(new Event('mousedown'));
+    slotBtn.click();
+    expect(saved).toBe(true);
+    document.dispatchEvent(new Event('mouseup'));
+    expect(isHoldSave()).toBe(false);
+    holdBtn.remove();
+    slotBtn.remove();
+  });
 });

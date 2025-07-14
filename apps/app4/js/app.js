@@ -344,6 +344,7 @@ uploadPresetsBtn.onclick=promptLoadPresets;
 const saveBtn = Presets.createHoldSaveButton('💾');
 saveBtn.id = 'savePresets';
 savePresetsBtn.replaceWith(saveBtn);
+window.addEventListener('beforeunload', () => saveBtn.remove());
 
 // INIT
 (function(){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); applyState(); })();
