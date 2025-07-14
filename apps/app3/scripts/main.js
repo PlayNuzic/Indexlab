@@ -179,27 +179,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const upper=r+c<size-1;
         if(isDiag){
           td.classList.add('diag');
-          const inp=document.createElement('input');
-          inp.type='number';
-          inp.value=matrix[r][c];
-          inp.readOnly=showNm;
-          inp.classList.add('spin-only');
-          inp.addEventListener('keydown',e=>{
-            if(['ArrowUp','ArrowDown','Tab','Shift','Control','Alt'].includes(e.key)) return;
-            e.preventDefault();
-          });
-          inp.addEventListener('beforeinput',e=>{
-            if(e.inputType==='insertReplacementText') return;
-            e.preventDefault();
-          });
-          inp.addEventListener('wheel',e=>e.preventDefault());
-          inp.oninput=()=>{
-            notes[c]=((parseInt(inp.value,10)||0)%len+len)%len;
-            renderGrid();
-            seqInput.value=mode==='eA'?notesToEA(notes, len):notesToAc(notes);
-            notesChanged();
-          };
-          td.appendChild(inp);
+          td.textContent = matrix[r][c];
           const shift = Math.floor((diagArr[c] - baseMidi) / 12);
           if(shift!==0){
             const span=document.createElement('span');
