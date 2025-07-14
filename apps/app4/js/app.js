@@ -1,9 +1,6 @@
 import { init as initSound, playNote } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
-
-const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const clamp=(x,min,max)=>x<min?min:x>max?max:x;
-const wrapSym=(n,m)=>{const h=Math.floor(m/2);n=((n+h)%m+m)%m-h;return n===h?-h:n;};
+import { randInt, clamp, wrapSym } from '../../../libs/utils/index.js';
 
 // SCALE DATA
 const scaleIDs=Object.keys(motherScalesData);

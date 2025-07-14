@@ -10,11 +10,11 @@ export const motherScalesData = {
 };
 
 export function scaleSemis(id){
-  if(!scaleSemis.cache) scaleSemis.cache = {};
-  if(scaleSemis.cache[id]) return scaleSemis.cache[id];
+  if(!scaleSemis.cache) scaleSemis.cache = new Map();
+  if(scaleSemis.cache.has(id)) return scaleSemis.cache.get(id);
   let acc = 0, arr = [0];
   motherScalesData[id].ee.forEach(v => { acc += v; arr.push(acc % 12); });
   arr.pop();
-  scaleSemis.cache[id] = arr;
+  scaleSemis.cache.set(id, arr);
   return arr;
 }

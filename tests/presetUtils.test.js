@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-const { exportPresets, importPresets, saveLocal, loadLocal, createSaveButton, onLongPress } = require('../shared/presets');
+const { exportPresets, importPresets, saveLocal, loadLocal, createSaveButton, onLongPress, createHoldSaveButton, isHoldSave } = require('../shared/presets');
 
 describe('preset utilities', () => {
   test('exportPresets triggers file download', async () => {
