@@ -185,7 +185,7 @@ button#generate:hover{background:#e6a12b;}
 }
 #ia-wrap{
   display:flex;
-  align-items:center;
+  align-items:flex-end;
   gap:.4rem;
 }
 .ia-field{
