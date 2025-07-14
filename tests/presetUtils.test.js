@@ -122,4 +122,22 @@ describe('preset utilities', () => {
     holdBtn.remove();
     slotBtn.remove();
   });
+
+  test('hold button persists until originating touch ends', () => {
+    const btn = createHoldSaveButton('hold');
+    document.body.appendChild(btn);
+    const startEvent = new Event('touchstart');
+    startEvent.changedTouches = [{ identifier: 1 }];
+    btn.dispatchEvent(startEvent);
+    expect(isHoldSave()).toBe(true);
+    const unrelatedEnd = new Event('touchend');
+    unrelatedEnd.changedTouches = [{ identifier: 2 }];
+    document.dispatchEvent(unrelatedEnd);
+    expect(isHoldSave()).toBe(true);
+    const relatedEnd = new Event('touchend');
+    relatedEnd.changedTouches = [{ identifier: 1 }];
+    document.dispatchEvent(relatedEnd);
+    expect(isHoldSave()).toBe(false);
+    btn.remove();
+  });
 });

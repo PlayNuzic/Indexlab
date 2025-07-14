@@ -77,21 +77,27 @@
   function createHoldSaveButton(label='Guardar'){
     const btn=document.createElement('button');
     btn.textContent=label;
-    const start=()=>{ holdSave=true; btn.classList.add('active'); };
-    const stop=()=>{ holdSave=false; btn.classList.remove('active'); };
-    const docStop=()=>stop();
-    btn.addEventListener('mousedown',start);
-    btn.addEventListener('touchstart',start);
-    document.addEventListener('mouseup',docStop);
-    document.addEventListener('touchend',docStop);
-    document.addEventListener('touchcancel',docStop);
+    let touchId=null;
+    const startMouse=()=>{ holdSave=true; btn.classList.add('active'); };
+    const startTouch=e=>{ touchId=e.changedTouches[0].identifier; startMouse(); };
+    const stopMouse=()=>{ holdSave=false; btn.classList.remove('active'); touchId=null; };
+    const stopTouch=e=>{
+      for(const t of e.changedTouches){
+        if(t.identifier===touchId){ stopMouse(); break; }
+      }
+    };
+    btn.addEventListener('mousedown',startMouse);
+    btn.addEventListener('touchstart',startTouch);
+    document.addEventListener('mouseup',stopMouse);
+    document.addEventListener('touchend',stopTouch);
+    document.addEventListener('touchcancel',stopTouch);
     const origRemove=btn.remove.bind(btn);
     btn.remove=()=>{
-      document.removeEventListener('mouseup',docStop);
-      document.removeEventListener('touchend',docStop);
-      document.removeEventListener('touchcancel',docStop);
-      btn.removeEventListener('mousedown',start);
-      btn.removeEventListener('touchstart',start);
+      document.removeEventListener('mouseup',stopMouse);
+      document.removeEventListener('touchend',stopTouch);
+      document.removeEventListener('touchcancel',stopTouch);
+      btn.removeEventListener('mousedown',startMouse);
+      btn.removeEventListener('touchstart',startTouch);
       origRemove();
     };
     return btn;
