@@ -81,6 +81,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const resetSnapsBtn=document.getElementById('resetSnaps');
   const downloadSnapsBtn=document.getElementById('downloadSnaps');
   const uploadSnapsBtn=document.getElementById('uploadSnaps');
+  let saveSnapsBtn=document.getElementById('saveSnaps');
   const snapsFileInput=document.getElementById('snapsFile');
   const bpmInput=document.getElementById('bpm');
   const tapBtn=document.getElementById('tapBtn');
@@ -182,7 +183,11 @@ window.addEventListener('DOMContentLoaded', async () => {
           inp.type='number';
           inp.value=matrix[r][c];
           inp.readOnly=showNm;
-          inp.addEventListener('keydown',e=>{ e.preventDefault(); });
+          inp.classList.add('spin-only');
+          inp.addEventListener('keydown',e=>{
+            if(['ArrowUp','ArrowDown','Tab','Shift','Control','Alt'].includes(e.key)) return;
+            e.preventDefault();
+          });
           inp.addEventListener('beforeinput',e=>e.preventDefault());
           inp.addEventListener('wheel',e=>e.preventDefault());
           inp.oninput=()=>{
@@ -372,6 +377,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   renderSnapshots();
   updatePlayMode();
   switchMode(mode);
+  const saveBtn = Presets.createSaveButton(
+    () => localStorage.setItem('app3Snapshots', JSON.stringify(snapshots)),
+    '💾'
+  );
+  saveBtn.id = 'saveSnaps';
+  saveSnapsBtn.replaceWith(saveBtn);
+  saveSnapsBtn = saveBtn;
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;

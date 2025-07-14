@@ -19,6 +19,8 @@ let state={
   naRows:[]
 };
 let presets=Array(8).fill(null), currentPreset=-1;
+const storedPresets = Presets.loadLocal('app4Presets');
+if(storedPresets) presets = storedPresets;
 
 // DOM REFERENCES
 const scaleSel=document.getElementById('scaleSel');
@@ -34,6 +36,7 @@ const grid=document.getElementById('grid');
 const presetBar=document.getElementById('presetBar');
 const downloadPresetsBtn=document.getElementById('downloadPresets');
 const uploadPresetsBtn=document.getElementById('uploadPresets');
+const savePresetsBtn=document.getElementById('savePresets');
 const presetsFileInput=document.getElementById('presetsFile');
 const irSel=document.getElementById('irSel');
 const cadifInp=document.getElementById('cadifInp');
@@ -313,6 +316,9 @@ startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.val
 btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); renderGrid(); return;} state.naRows.forEach(r=>r.fill(null)); renderGrid();};
 downloadPresetsBtn.onclick=downloadPresets;
 uploadPresetsBtn.onclick=promptLoadPresets;
+const saveBtn = Presets.createSaveButton(() => Presets.saveLocal('app4Presets', presets), '💾');
+saveBtn.id = 'savePresets';
+savePresetsBtn.replaceWith(saveBtn);
 
 // INIT
 (function(){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); applyState(); })();
