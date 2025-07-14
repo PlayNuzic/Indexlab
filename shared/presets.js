@@ -73,7 +73,31 @@
     return btn;
   }
 
-  const Presets={exportPresets,importPresets,saveLocal,loadLocal,createSaveButton};
+  let holdSave=false;
+  function createHoldSaveButton(label='Guardar'){
+    const btn=document.createElement('button');
+    btn.textContent=label;
+    const start=()=>{ holdSave=true; btn.classList.add('active'); };
+    const stop=()=>{ holdSave=false; btn.classList.remove('active'); };
+    btn.addEventListener('mousedown',start);
+    btn.addEventListener('touchstart',start);
+    document.addEventListener('mouseup',stop);
+    document.addEventListener('touchend',stop);
+    document.addEventListener('touchcancel',stop);
+    return btn;
+  }
+
+  function isHoldSave(){ return holdSave; }
+
+  const Presets={
+    exportPresets,
+    importPresets,
+    saveLocal,
+    loadLocal,
+    createSaveButton,
+    createHoldSaveButton,
+    isHoldSave
+  };
   if(typeof module!=='undefined' && module.exports){
     module.exports=Presets;
   }else{

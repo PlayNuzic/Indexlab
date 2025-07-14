@@ -291,8 +291,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       b.classList.toggle('saved',!!snapshots[i]);
       b.classList.toggle('active',activeSnapshot===i);
       b.onclick=e=>{
-        if(e.shiftKey){
+        if(e.shiftKey || Presets.isHoldSave()){
           saveSnapshot(i);
+          Presets.saveLocal('app3Snapshots', snapshots);
         }else{
           loadSnapshot(i);
         }
@@ -377,10 +378,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   renderSnapshots();
   updatePlayMode();
   switchMode(mode);
-  const saveBtn = Presets.createSaveButton(
-    () => localStorage.setItem('app3Snapshots', JSON.stringify(snapshots)),
-    '💾'
-  );
+  const saveBtn = Presets.createHoldSaveButton('💾');
   saveBtn.id = 'saveSnaps';
   saveSnapsBtn.replaceWith(saveBtn);
   saveSnapsBtn = saveBtn;

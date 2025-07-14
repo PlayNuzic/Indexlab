@@ -266,7 +266,32 @@ async function playRow(r){
 function downloadRow(r){ const data=rowToMidi(state.naRows[r],state.bpm); const blob=new Blob([data],{type:'audio/midi'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`row-${r+1}.mid`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},100); }
 
 // PRESETS
-function buildPresetBar(){ presetBar.innerHTML=''; presets.forEach((p,i)=>{ const b=document.createElement('button'); b.textContent=i+1; b.className=p?'filled':'empty'; if(i===currentPreset)b.classList.add('selected'); b.onclick=e=>{ if(e.altKey){ presets[i]=null; currentPreset=-1; buildPresetBar(); return;} if(e.shiftKey){ presets[i]=JSON.parse(JSON.stringify(state)); currentPreset=i; buildPresetBar(); return;} if(presets[i]){ state=JSON.parse(JSON.stringify(presets[i])); applyState();}}; presetBar.appendChild(b);});}
+function buildPresetBar(){
+  presetBar.innerHTML='';
+  presets.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.textContent=i+1;
+    b.className=p?'filled':'empty';
+    if(i===currentPreset) b.classList.add('selected');
+    b.onclick=e=>{
+      if(e.altKey){
+        presets[i]=null; currentPreset=-1; buildPresetBar(); return;
+      }
+      if(e.shiftKey || Presets.isHoldSave()){
+        presets[i]=JSON.parse(JSON.stringify(state));
+        currentPreset=i;
+        Presets.saveLocal('app4Presets', presets);
+        buildPresetBar();
+        return;
+      }
+      if(presets[i]){
+        state=JSON.parse(JSON.stringify(presets[i]));
+        applyState();
+      }
+    };
+    presetBar.appendChild(b);
+  });
+}
 
 function downloadPresets(){
   Presets.exportPresets(presets, 'app4-presets.json');
@@ -316,7 +341,7 @@ startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.val
 btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); renderGrid(); return;} state.naRows.forEach(r=>r.fill(null)); renderGrid();};
 downloadPresetsBtn.onclick=downloadPresets;
 uploadPresetsBtn.onclick=promptLoadPresets;
-const saveBtn = Presets.createSaveButton(() => Presets.saveLocal('app4Presets', presets), '💾');
+const saveBtn = Presets.createHoldSaveButton('💾');
 saveBtn.id = 'savePresets';
 savePresetsBtn.replaceWith(saveBtn);
 

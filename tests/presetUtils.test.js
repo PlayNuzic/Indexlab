@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-const { exportPresets, importPresets, saveLocal, loadLocal, createSaveButton } = require('../shared/presets');
+const { exportPresets, importPresets, saveLocal, loadLocal, createSaveButton, createHoldSaveButton, isHoldSave } = require('../shared/presets');
 
 describe('preset utilities', () => {
   test('exportPresets triggers file download', async () => {
@@ -94,5 +94,16 @@ describe('preset utilities', () => {
     expect(btn.classList.contains('active')).toBe(false);
     btn.remove();
     jest.useRealTimers();
+  });
+
+  test('createHoldSaveButton toggles hold flag', () => {
+    const btn = createHoldSaveButton('hold');
+    document.body.appendChild(btn);
+    expect(isHoldSave()).toBe(false);
+    btn.dispatchEvent(new Event('mousedown'));
+    expect(isHoldSave()).toBe(true);
+    document.dispatchEvent(new Event('mouseup'));
+    expect(isHoldSave()).toBe(false);
+    btn.remove();
   });
 });
