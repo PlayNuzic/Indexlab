@@ -34,6 +34,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   let diagArr=[];
   let diagNumsArr=[];
   let octShifts=Array(notes.length).fill(0);
+  function getIntervals(){
+    const len=scaleSemis(scale.id).length;
+    return notes.slice(1).map((n,i)=>((n-notes[i]+len)%len));
+  }
 
   function fitNotes(){
     const len = scaleSemis(scale.id).length;
@@ -150,12 +154,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('tabAc').onclick=()=>switchMode('Ac');
 
   function transpose(delta){
-    const nums=parseNums(seqInput.value);
-    if(!nums.length) return;
     const len=scaleSemis(scale.id).length;
-    const transposed=nums.map(n=>((n+delta)%len+len)%len);
-    seqInput.value=transposed.join(' ');
-    notes=transposed;
+    notes = notes.map(n=>((n+delta)%len+len)%len);
+    seqInput.value = mode==='eA' ? notesToEA(notes,len) : notesToAc(notes);
     fitNotes();
     renderAll();
     notesChanged();
@@ -260,15 +261,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   const letters = 'abcdefghijklmnopqrstuvwxyz';
-  const componentMap=new Map();
-  let nextCompIdx=0;
   function computeComponents(){
+    const map=new Map();
+    let idx=0;
     notes.forEach(n=>{
-      if(!componentMap.has(n)){
-        componentMap.set(n, letters[nextCompIdx++]||'?');
-      }
+      if(!map.has(n)) map.set(n, letters[idx++]||'?');
     });
-    return notes.map(n=>componentMap.get(n));
+    return notes.map(n=>map.get(n));
   }
 
   function moveCards(indices, target){
@@ -291,12 +290,22 @@ window.addEventListener('DOMContentLoaded', async () => {
   function renderComponents(){
     componentsWrap.innerHTML='';
     const comps=computeComponents();
+    const intervals=getIntervals();
     diagNumsArr.forEach((num,i)=>{
       const card=document.createElement('div');
       card.className='component-card';
       if(selectedCards.has(i)) card.classList.add('selected');
       card.draggable=true;
-      card.onclick=e=>{ if(e.shiftKey){ if(selectedCards.has(i)) selectedCards.delete(i); else selectedCards.add(i); renderComponents(); } };
+      let pressTimer;
+      card.onmousedown=e=>{
+        if(e.shiftKey){
+          if(selectedCards.has(i)) selectedCards.delete(i); else selectedCards.add(i);
+          renderComponents();
+        }else{
+          pressTimer=setTimeout(()=>{ if(selectedCards.has(i)) selectedCards.delete(i); else selectedCards.add(i); renderComponents(); },1000);
+        }
+      };
+      card.onmouseup=card.onmouseleave=()=>clearTimeout(pressTimer);
       card.ondragstart=e=>{ const grp=selectedCards.has(i)?Array.from(selectedCards).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
       card.ondragover=e=>e.preventDefault();
       card.ondrop=e=>{ e.preventDefault(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); moveCards(grp,i); };
@@ -324,6 +333,24 @@ window.addEventListener('DOMContentLoaded', async () => {
       card.appendChild(note);
       card.appendChild(label);
       componentsWrap.appendChild(card);
+      if(i<notes.length-1){
+        const ia=document.createElement('input');
+        ia.className='ia-field';
+        ia.value=intervals[i];
+        ia.onchange=()=>{
+          const len=scaleSemis(scale.id).length;
+          let ints=getIntervals();
+          const val=parseInt(ia.value,10);
+          if(!isNaN(val)) ints[i]=((val%len)+len)%len;
+          const base=notes[0];
+          const rel=eAToNotes(ints,len);
+          notes=rel.map(n=>((n+base)%len+len)%len);
+          fitNotes();
+          renderAll();
+          notesChanged();
+        };
+        componentsWrap.appendChild(ia);
+      }
     });
     componentsWrap.ondragover=e=>e.preventDefault();
     componentsWrap.ondrop=e=>{
@@ -474,6 +501,31 @@ window.addEventListener('DOMContentLoaded', async () => {
   rotRight.onclick=()=>{notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());selectedCards.clear();renderAll();};
   globUp.onclick=()=>{selectedCards.clear();transpose(1);};
   globDown.onclick=()=>{selectedCards.clear();transpose(-1);};
+  document.getElementById('dupBtn').onclick=()=>{
+    if(!selectedCards.size) return;
+    const idx=Array.from(selectedCards).sort((a,b)=>a-b);
+    const vals=idx.map(i=>notes[i]);
+    const shifts=idx.map(i=>octShifts[i]);
+    notes.push(...vals);
+    octShifts.push(...shifts);
+    selectedCards=new Set(idx.map((_,k)=>notes.length-vals.length+k));
+    renderAll();
+    notesChanged();
+  };
+  document.getElementById('reduceBtn').onclick=()=>{
+    const mids=diagMidis();
+    const order=[...mids.keys()].sort((a,b)=>mids[a]-mids[b]);
+    notes=order.map(i=>notes[i]);
+    octShifts=order.map(()=>0);
+    selectedCards.clear();
+    renderAll();
+    notesChanged();
+  };
+  document.body.addEventListener('click',e=>{
+    if(!e.target.closest('.component-card') && !e.target.classList.contains('ia-field')){
+      if(selectedCards.size){selectedCards.clear();renderComponents();}
+    }
+  });
 
   toggleBtn.onclick=()=>{ playMode= playMode==='iA'?'iS':'iA'; updatePlayMode(); };
 
