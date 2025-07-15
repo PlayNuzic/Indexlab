@@ -281,6 +281,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           const melodicDur = (60 / bpm) * (fastMelodic ? 0.5 : 1);
           if(melodic) playMelody(noteArr, melodicDur);
           else playChord(noteArr, chordDur);
+          flashCell({r,c}, (melodic ? melodicDur : chordDur) * 1000, false);
           if(recording && Date.now()-recordStart >= 4*(60000/recordBpm)){
             const beat=(Date.now()-recordStart)/(60000/recordBpm);
             recorded.push({beat,notes:noteArr.slice(),melodic,fast:fastMelodic,coord:{r,c}});
@@ -487,50 +488,65 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function setHover(coord){
-    const size=notes.length;
-    document.querySelectorAll('.matrix td').forEach(td=>{
-      td.classList.remove('highlight-diag','highlight-pair');
+    const size = notes.length;
+    document.querySelectorAll('.matrix td').forEach(td => {
+      td.classList.remove('highlight-diag', 'highlight-pair');
     });
     if(!coord) return;
-    const {r,c}=coord;
-    const hoverIsDiag = r+c===size-1;
+    const { r, c } = coord;
+    const hoverIsDiag = r + c === size - 1;
     if(hoverIsDiag){
-      document.querySelectorAll('.matrix td').forEach(td=>{
-        const rr=+td.dataset.r, cc=+td.dataset.c;
-        if(rr+cc===size-1) td.classList.add('highlight-diag');
+      document.querySelectorAll('.matrix td').forEach(td => {
+        const rr = +td.dataset.r, cc = +td.dataset.c;
+        if(rr + cc === size - 1) td.classList.add('highlight-diag');
       });
     }else{
-      const compR=size-1-c, compC=size-1-r;
-      document.querySelectorAll('.matrix td').forEach(td=>{
-        const rr=+td.dataset.r, cc=+td.dataset.c;
-        if((rr===r&&cc===c)||(rr===compR&&cc===compC)) td.classList.add('highlight-pair');
+      const compR = size - 1 - c, compC = size - 1 - r;
+      const d1R = size - 1 - c, d1C = c;
+      const d2R = r, d2C = size - 1 - r;
+      document.querySelectorAll('.matrix td').forEach(td => {
+        const rr = +td.dataset.r, cc = +td.dataset.c;
+        if((rr === r && cc === c) || (rr === compR && cc === compC)) {
+          td.classList.add('highlight-pair');
+        }
+        if((rr === d1R && cc === d1C) || (rr === d2R && cc === d2C)) {
+          td.classList.add('highlight-diag');
+        }
       });
     }
   }
 
-  function flashCell(coord){
+  function flashCell(coord, duration = 200, playback = false){
     if(!coord) return;
-    const size=notes.length;
-    const {r,c}=coord;
-    const cells=[];
-    const isDiag=r+c===size-1;
+    const size = notes.length;
+    const { r, c } = coord;
+    const pairCells = [];
+    const diagCells = [];
+    const isDiag = r + c === size - 1;
+
     if(isDiag){
-      document.querySelectorAll('.matrix td').forEach(td=>{
-        const rr=+td.dataset.r, cc=+td.dataset.c;
-        if(rr+cc===size-1){cells.push(td);}
+      document.querySelectorAll('.matrix td').forEach(td => {
+        const rr = +td.dataset.r, cc = +td.dataset.c;
+        if(rr + cc === size - 1) diagCells.push(td);
       });
-      cells.forEach(td=>td.classList.add('playing-diag'));
     }else{
-      const compR=size-1-c, compC=size-1-r;
-      document.querySelectorAll('.matrix td').forEach(td=>{
-        const rr=+td.dataset.r, cc=+td.dataset.c;
-        if((rr===r&&cc===c)||(rr===compR&&cc===compC)) cells.push(td);
+      const compR = size - 1 - c, compC = size - 1 - r;
+      const d1R = size - 1 - c, d1C = c;
+      const d2R = r, d2C = size - 1 - r;
+      document.querySelectorAll('.matrix td').forEach(td => {
+        const rr = +td.dataset.r, cc = +td.dataset.c;
+        if(rr === r && cc === c) pairCells.push(td);
+        if(!playback && rr === compR && cc === compC) pairCells.push(td);
+        if((rr === d1R && cc === d1C) || (rr === d2R && cc === d2C)) diagCells.push(td);
       });
-      cells.forEach(td=>td.classList.add('playing-pair'));
     }
-    setTimeout(()=>{
-      cells.forEach(td=>td.classList.remove('playing-diag','playing-pair'));
-    },200);
+
+    diagCells.forEach(td => td.classList.add('playing-diag'));
+    pairCells.forEach(td => td.classList.add('playing-pair'));
+    setTimeout(() => {
+      diagCells.forEach(td => td.classList.remove('playing-diag'));
+      pairCells.forEach(td => td.classList.remove('playing-pair'));
+    }, duration);
   }
 
   renderAll();
@@ -637,7 +653,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const chordDur = 2 * (60 / bpm);
         const melodicDur = (60 / bpm) * (ev.fast ? 0.5 : 1);
         ev.melodic ? playMelody(ev.notes, melodicDur) : playChord(ev.notes, chordDur);
-        if(ev.coord) flashCell(ev.coord);
+        if(ev.coord) flashCell(ev.coord, (ev.melodic ? melodicDur : chordDur) * 1000, true);
       }, t);
       playTimers.push(id);
     });
