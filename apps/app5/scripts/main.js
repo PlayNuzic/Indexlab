@@ -1,5 +1,8 @@
 import { init, playNote, playChord, playMelody } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
+import { generateComponents, ensureDuplicateComponents, transposeNotes,
+  rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
+  duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
 const { initSnapshots, saveSnapshot: saveSnapData, loadSnapshot: loadSnapData, resetSnapshots: resetSnapData } = window.SnapUtils;
 const Presets = window.Presets;
 
@@ -36,30 +39,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let diagArr=[];
   let diagNumsArr=[];
   let octShifts=Array(notes.length).fill(0);
-  const letters='abcdefghijklmnopqrstuvwxyz';
-  let components=[];
-  let nextLetterIdx=0;
-  generateComponents();
-
-  function generateComponents(){
-    const map=new Map();
-    nextLetterIdx=0;
-    components=notes.map(n=>{
-      if(map.has(n)) return map.get(n);
-      const l=letters[nextLetterIdx++]||'?';
-      map.set(n,l);
-      return l;
-    });
-  }
-
-  function ensureDuplicateComponents(){
-    const map=new Map();
-    components.forEach((comp,i)=>{
-      const val=notes[i];
-      if(map.has(val)) components[i]=map.get(val);
-      else { map.set(val, comp); }
-    });
-  }
+  let components = generateComponents(notes);
 
   function pushUndo(){
     undoStack.push({
@@ -216,10 +196,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   function transpose(delta){
     pushUndo();
     const len=scaleSemis(scale.id).length;
-    notes = notes.map(n=>((n+delta)%len+len)%len);
+    notes = transposeNotes(notes, len, delta);
     seqInput.value = mode==='eA' ? notesToEA(notes,len) : notesToAc(notes);
     fitNotes();
-    ensureDuplicateComponents();
+    ensureDuplicateComponents(notes, components);
     renderAll();
     notesChanged();
   }
@@ -234,7 +214,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len=scaleSemis(scale.id).length;
     notes= mode==='eA'? eAToNotes(nums, len) : nums.map(x=>((x%len)+len)%len);
     octShifts = Array(notes.length).fill(0);
-    generateComponents();
+    components = generateComponents(notes);
     errorEl.textContent='';
     renderAll();
     notesChanged();
@@ -325,28 +305,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function computeComponents(){
-    ensureDuplicateComponents();
+    ensureDuplicateComponents(notes, components);
     return components.slice();
   }
 
   function moveCards(indices, target){
     pushUndo();
-    indices.sort((a,b)=>a-b);
-    const vals=indices.map(i=>notes[i]);
-    const shifts=indices.map(i=>octShifts[i]);
-    const comps=indices.map(i=>components[i]);
-    for(let j=indices.length-1;j>=0;j--){
-      notes.splice(indices[j],1);
-      octShifts.splice(indices[j],1);
-      components.splice(indices[j],1);
-    }
-    let insert=target;
-    indices.forEach(i=>{ if(i<target) insert--; });
-    notes.splice(insert,0,...vals);
-    octShifts.splice(insert,0,...shifts);
-    components.splice(insert,0,...comps);
-    ensureDuplicateComponents();
-    selectedCards=new Set(indices.map((_,k)=>insert+k));
+    const newIdx = moveCardsLib({notes, octShifts, components}, indices, target);
+    selectedCards = new Set(newIdx);
     renderAll();
   }
 
@@ -376,15 +342,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       const up=document.createElement('button');
       up.className='up';
       up.innerHTML='&#9650;';
-      up.onclick=()=>{pushUndo();octShifts[i]++;renderAll();};
+      up.onclick=()=>{pushUndo();shiftOct(octShifts, i, 1);renderAll();};
       const down=document.createElement('button');
       down.className='down';
       down.innerHTML='&#9660;';
-      down.onclick=()=>{pushUndo();octShifts[i]--;renderAll();};
+      down.onclick=()=>{pushUndo();shiftOct(octShifts, i, -1);renderAll();};
       const close=document.createElement('div');
       close.className='close';
       close.textContent='x';
-      close.onclick=()=>{pushUndo();notes.splice(i,1);octShifts.splice(i,1);components.splice(i,1);selectedCards.clear();ensureDuplicateComponents();renderAll();};
+      close.onclick=()=>{pushUndo();omitCards({notes, octShifts, components}, [i]);selectedCards.clear();renderAll();};
       const note=document.createElement('div');
       note.className='note';
       note.textContent=num;
@@ -416,7 +382,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           const rel=eAToNotes(ints,len);
           notes=rel.map(n=>((n+base)%len+len)%len);
           fitNotes();
-          ensureDuplicateComponents();
+          ensureDuplicateComponents(notes, components);
           renderAll();
           notesChanged();
         };
@@ -457,7 +423,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       refreshRot();
       rotSel.value=scale.rot;
       octShifts = Array(notes.length).fill(0);
-      generateComponents();
+      components = generateComponents(notes);
       fitNotes();
       const len=scaleSemis(scale.id).length;
       seqInput.value=mode==='eA'?notesToEA(notes, len):notesToAc(notes);
@@ -569,21 +535,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;
-  rotLeft.onclick=()=>{pushUndo();notes.push(notes.shift());octShifts.push(octShifts.shift());components.push(components.shift());selectedCards.clear();renderAll();};
-  rotRight.onclick=()=>{pushUndo();notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());components.unshift(components.pop());selectedCards.clear();renderAll();};
+  rotLeft.onclick=()=>{pushUndo();rotateLeft(notes, octShifts, components);selectedCards.clear();renderAll();};
+  rotRight.onclick=()=>{pushUndo();rotateRight(notes, octShifts, components);selectedCards.clear();renderAll();};
   globUp.onclick=()=>{selectedCards.clear();transpose(1);};
   globDown.onclick=()=>{selectedCards.clear();transpose(-1);};
   document.getElementById('dupBtn').onclick=()=>{
     if(!selectedCards.size) return;
     pushUndo();
     const idx=Array.from(selectedCards).sort((a,b)=>a-b);
-    const vals=idx.map(i=>notes[i]);
-    const shifts=idx.map(i=>octShifts[i]);
-    const comps=idx.map(i=>components[i]);
-    notes.push(...vals);
-    octShifts.push(...shifts);
-    components.push(...comps);
-    selectedCards=new Set(idx.map((_,k)=>notes.length-vals.length+k));
+    const newIdx = duplicateCards({notes, octShifts, components}, idx);
+    selectedCards=new Set(newIdx);
     renderAll();
     notesChanged();
   };
@@ -599,6 +560,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     notes=arr.map(o=>o.note);
     components=arr.map(o=>o.comp);
     octShifts=Array(notes.length).fill(0);
+    ensureDuplicateComponents(notes, components);
     fitNotes();
     selectedCards.clear();
     renderAll();

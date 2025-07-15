@@ -37,6 +37,8 @@ Aquest repositori conté quatre demos dins `apps/`:
 
 Totes comparteixen els components i utilitats comuns que es troben a `libs/`
 i al directori `shared/`.
+La manipulació de cartes (parell component-nota) es documenta a
+[`docs/cards-transformations.md`](docs/cards-transformations.md).
 
 ## Tests
 
