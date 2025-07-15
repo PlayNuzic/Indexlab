@@ -10,6 +10,7 @@
 </head>
 <body>
   <h1>Acordes y transformaciones</h1>
+  <div id="top-area">
   <div class="controls">
     <div class="scale-controls">
       <label>Escala <select id="scaleSel"></select></label>
@@ -54,23 +55,6 @@
     </div>
     <p id="error" class="error"></p>
   </div>
-  <div id="components-area">
-    <div id="components-row">
-      <button id="rotLeft" title="Rotar esquerra">&#x25C0;</button>
-      <div id="components-wrap"></div>
-      <button id="rotRight" title="Rotar dreta">&#x25B6;</button>
-      <div id="transp-controls">
-        <button id="globUp" title="Transposa amunt">&#9650;</button>
-        <button id="globDown" title="Transposa avall">&#9660;</button>
-      </div>
-    </div>
-    <div id="comp-actions">
-      <button id="dupBtn">Duplicar</button>
-      <button id="reduceBtn">Reducir</button>
-      <button id="undoBtn" title="Deshacer">&#8634;</button>
-      <button id="redoBtn" title="Rehacer">&#8635;</button>
-    </div>
-  </div>
   <div id="grid"></div>
   <button id="infoToggle" class="info-toggle">Mostra informació</button>
   <div id="infoCard" class="card info" hidden>
@@ -92,6 +76,24 @@
       <p style="text-align:center"><a href="../../index.html">&larr; Torna a l'índex</a></p>
       </div>
     </div>
+</div>
+  <div id="components-area">
+    <div id="components-row">
+      <button id="rotLeft" title="Rotar esquerra">&#x25C0;</button>
+      <div id="components-wrap"></div>
+      <button id="rotRight" title="Rotar dreta">&#x25B6;</button>
+      <div id="transp-controls">
+        <button id="globUp" title="Transposa amunt">&#9650;</button>
+        <button id="globDown" title="Transposa avall">&#9660;</button>
+      </div>
+    </div>
+    <div id="comp-actions">
+      <button id="dupBtn">Duplicar</button>
+      <button id="reduceBtn">Reducir</button>
+      <button id="undoBtn" title="Deshacer">&#8634;</button>
+      <button id="redoBtn" title="Rehacer">&#8635;</button>
+    </div>
+  </div>
 
   <script src="../../libs/vendor/Tone.js"></script>
   <script src="../../libs/vendor/Midi.js"></script>
