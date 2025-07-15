@@ -122,9 +122,15 @@ button#generate:hover{background:#e6a12b;}
 /* Component boxes */
 #components-area{
   display:flex;
-  align-items:flex-start;
+  flex-direction:column;
+  align-items:center;
   gap:.4rem;
   margin-left:1rem;
+}
+#components-row{
+  display:flex;
+  align-items:flex-start;
+  gap:.4rem;
 }
 #components-wrap{
   display:flex;
@@ -160,15 +166,15 @@ button#generate:hover{background:#e6a12b;}
 .component-card .down{bottom:-0.8rem;}
 .component-card .close{
   position:absolute;
-  top:-0.8rem;
-  right:-0.4rem;
+  top:0.1rem;
+  right:0.1rem;
   background:#922;
   color:#fff;
-  width:1rem;
-  height:1rem;
+  width:0.8rem;
+  height:0.8rem;
   border-radius:50%;
-  font-size:.7rem;
-  line-height:1rem;
+  font-size:.6rem;
+  line-height:0.8rem;
   text-align:center;
   cursor:pointer;
 }
@@ -185,7 +191,7 @@ button#generate:hover{background:#e6a12b;}
 }
 #ia-wrap{
   display:flex;
-  align-items:flex-end;
+  align-items:center;
   gap:.4rem;
 }
 .ia-field{
