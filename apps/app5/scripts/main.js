@@ -34,18 +34,40 @@ window.addEventListener('DOMContentLoaded', async () => {
   let diagArr=[];
   let diagNumsArr=[];
   let octShifts=Array(notes.length).fill(0);
+  generateComponents(); 
+  const letters='abcdefghijklmnopqrstuvwxyz';
+  let components=[];
+  let nextLetterIdx=0;
+      
+  function generateComponents(){
+    const map=new Map();
+    nextLetterIdx=0;
+    components=notes.map(n=>{
+      if(map.has(n)) return map.get(n);
+      const l=letters[nextLetterIdx++]||'?';
+      map.set(n,l);
+      return l;
+    });
+  }
+    
+  function ensureDuplicateComponents(){
+    const map=new Map();
+    components.forEach((comp,i)=>{
+      const val=notes[i]; 
+      if(map.has(val)) components[i]=map.get(val);
+      else { map.set(val, comp); }
+    });
+  }
   function getIntervals(){
     const len=scaleSemis(scale.id).length;
     return notes.slice(1).map((n,i)=>((n-notes[i]+len)%len));
   }
-
   function fitNotes(){
     const len = scaleSemis(scale.id).length;
     notes = notes.map(n => ((n % len) + len) % len);
     while(octShifts.length < notes.length) octShifts.push(0);
     if(octShifts.length > notes.length) octShifts = octShifts.slice(0, notes.length);
-  }
-
+   }
   function notesChanged(){
     if(activeSnapshot!==null){
       activeSnapshot=null;
@@ -57,7 +79,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const baseSelect=document.getElementById('baseNote');
   baseSelect.value=String(baseMidi);
   baseSelect.onchange=()=>{baseMidi=parseInt(baseSelect.value,10);renderAll();};
-
   const degToSemi = d => {
     const sems = scaleSemis(scale.id);
     const len = sems.length;
@@ -172,6 +193,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     notes= mode==='eA'? eAToNotes(nums, len) : nums.map(x=>((x%len)+len)%len);
     octShifts = Array(notes.length).fill(0);
     errorEl.textContent='';
+    ensureDuplicateComponents(); 
     renderAll();
     notesChanged();
   };
