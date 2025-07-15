@@ -1,4 +1,4 @@
-import { Renderer, Stave, StaveNote, Voice, Formatter } from 'vexflow';
+import { Renderer, Stave, StaveNote, Voice, Formatter } from '../vendor/vexflow/entry/vexflow.js';
 
 function midiToVexflow(midi){
   const pcs = ['c','c#','d','d#','e','f','f#','g','g#','a','a#','b'];
