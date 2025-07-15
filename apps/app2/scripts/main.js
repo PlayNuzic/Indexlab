@@ -3,6 +3,13 @@ import EarTrainingGame from '../../../libs/ear-training/index.js';
 import { randInt } from '../../../libs/utils/index.js';
 
 const game = new EarTrainingGame({ randInt });
+const levelNames = {
+  1: 'Intervals dissonants',
+  2: 'Intervals resonants',
+  3: 'Intervals consonants',
+  4: 'Mix dissonants i consonants',
+  5: 'Tots els intervals'
+};
 
 async function startGame(selected){
   game.start(selected, parseInt(document.getElementById('levelSelect').value) || 1);
@@ -56,7 +63,7 @@ function playNotes(){
 function nextQuestion(){
   const q = game.next();
   playNotes();
-  document.getElementById('question').textContent=`Pregunta ${q.question} · Nivell ${q.level}`;
+  document.getElementById('question').textContent=`Pregunta ${q.question} · Nivell ${q.level} – ${levelNames[q.level]}`;
   document.getElementById('feedback').textContent='';
   initButtons();
 }
@@ -89,7 +96,7 @@ function showSummary(){
   const total = game.correctLevel + game.wrongLevel;
   const percent = total ? Math.round(game.correctLevel*100/total) : 0;
   document.getElementById("result").textContent=`Encerts en aquest nivell: ${game.correctLevel} · Errors: ${game.wrongLevel}`;
-  document.getElementById("totals").textContent=`Totals sessió · Enc.: ${game.correctTotal} · Err.: ${game.wrongTotal} · Percentatge: ${percent}% · Nivell ${game.level}`;
+  document.getElementById("totals").textContent=`Totals sessió · Enc.: ${game.correctTotal} · Err.: ${game.wrongTotal} · Percentatge: ${percent}% · Nivell ${game.level} – ${levelNames[game.level]}`;
   const list=document.getElementById('attempts');
   list.innerHTML='';
   game.history.forEach(a=>{
