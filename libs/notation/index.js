@@ -10,9 +10,9 @@ function midiToVexflow(midi){
 export function drawInterval(container, note1, note2, mode='iS'){
   container.innerHTML = '';
   const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(180, 120);
+  renderer.resize(360, 240);
   const context = renderer.getContext();
-  const stave = new Stave(10, 40, 160);
+  const stave = new Stave(10, 80, 320);
   stave.addClef('treble');
   stave.setContext(context).draw();
 
@@ -21,13 +21,13 @@ export function drawInterval(container, note1, note2, mode='iS'){
       new StaveNote({ keys:[midiToVexflow(note1)], duration:'q' }),
       new StaveNote({ keys:[midiToVexflow(note2)], duration:'q' })
     ];
-    const voice = new Voice({ num_beats:2, beat_value:4 });
+    const voice = new Voice({ numBeats:2, beatValue:4 });
     voice.addTickables(notes);
     new Formatter().joinVoices([voice]).format([voice], 120);
     voice.draw(context, stave);
   }else{
     const chord = new StaveNote({ keys:[midiToVexflow(note1), midiToVexflow(note2)], duration:'h' });
-    const voice = new Voice({ num_beats:2, beat_value:4 });
+    const voice = new Voice({ numBeats:2, beatValue:4 });
     voice.addTickables([chord]);
     new Formatter().joinVoices([voice]).format([voice], 120);
     voice.draw(context, stave);

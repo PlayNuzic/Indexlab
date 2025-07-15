@@ -90,7 +90,7 @@ function genIStepRow(){
     let diff=randInt(-Math.floor(sems.length/2), Math.floor(sems.length/2));
     if(Math.random()<state.octProb)
       diff+=(Math.random()<0.5?-sems.length:sems.length);
-    idx=(idx+diff+sems.length)%sems.length;
+    idx=((idx + diff) % sems.length + sems.length) % sems.length;
     sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12;
     oct+=Math.round(diff / sems.length);
     v=clamp(oct*12+sem,0,96);
