@@ -1,7 +1,6 @@
 import { init as initSound, playNote } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { randInt, clamp, wrapSym } from '../../../libs/utils/index.js';
-import { absToDegInfo } from '../../../shared/utils.js';
 
 // SCALE DATA
 const scaleIDs=Object.keys(motherScalesData);
