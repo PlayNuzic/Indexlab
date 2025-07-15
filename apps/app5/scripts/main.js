@@ -1,4 +1,4 @@
-import { init, playNote, playChord, playMelody } from '../../../libs/sound/index.js';
+import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
@@ -6,13 +6,6 @@ import { generateComponents, ensureDuplicateComponents, transposeNotes,
 const { initSnapshots, saveSnapshot: saveSnapData, loadSnapshot: loadSnapData, resetSnapshots: resetSnapData } = window.SnapUtils;
 const Presets = window.Presets;
 
-let audioReady;
-const ensureAudio = async () => {
-  if (!audioReady) {
-    audioReady = Tone.start();
-  }
-  return audioReady;
-};
 
 window.addEventListener('DOMContentLoaded', async () => {
   await init();

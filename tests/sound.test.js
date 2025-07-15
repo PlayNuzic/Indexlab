@@ -6,7 +6,7 @@ function loadSound(Tone) {
   const transformed = code
     .replace(/export async function/g, 'async function')
     .replace(/export function/g, 'function') +
-    '\nmodule.exports = { init, playNote, playChord, playMelody, getSynth: () => synth };';
+    '\nmodule.exports = { init, playNote, playChord, playMelody, ensureAudio, getSynth: () => synth };';
   const mod = { exports: {} };
   const fn = new Function('module', 'exports', 'Tone', 'console', transformed);
   fn(mod, mod.exports, Tone, console);
@@ -32,7 +32,8 @@ describe('sound module', () => {
       PolySynth: jest.fn(() => polyInstance),
       Synth: {},
       Frequency: jest.fn(n => `F${n}`),
-      loaded: jest.fn(() => Promise.resolve())
+      loaded: jest.fn(() => Promise.resolve()),
+      start: jest.fn(() => Promise.resolve())
     };
   });
 
@@ -75,5 +76,14 @@ describe('sound module', () => {
     jest.runAllTimers();
     expect(polyInstance.triggerAttackRelease).toHaveBeenCalledTimes(2);
     jest.useRealTimers();
+  });
+
+  test('ensureAudio starts Tone only once', async () => {
+    const sound = loadSound(ToneMock);
+    const p1 = sound.ensureAudio();
+    const p2 = sound.ensureAudio();
+    await Promise.all([p1, p2]);
+    expect(ToneMock.start).toHaveBeenCalledTimes(1);
+    expect(p1).toBe(p2);
   });
 });

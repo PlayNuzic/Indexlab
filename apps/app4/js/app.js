@@ -43,6 +43,8 @@ const cadifInp=document.getElementById('cadifInp');
 const rangoInp=document.getElementById('rangoInp');
 const dupChk=document.getElementById('dupChk');
 const startSel=document.getElementById('startSel');
+const infoToggle=document.getElementById('infoToggle');
+const infoCard=document.getElementById('infoCard');
 baseSelect.value=String(state.baseMidi);
 
 // INITIALIZE SELECTORS
@@ -376,6 +378,16 @@ btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>A
 downloadPresetsBtn.onclick=downloadPresets;
 uploadPresetsBtn.onclick=promptLoadPresets;
 resetPresetsBtn.onclick=resetPresets;
+infoToggle.onclick=()=>{
+  const hidden=infoCard.hasAttribute('hidden');
+  if(hidden){
+    infoCard.removeAttribute('hidden');
+    infoToggle.textContent='Amaga informació';
+  }else{
+    infoCard.setAttribute('hidden','');
+    infoToggle.textContent='Mostra informació';
+  }
+};
 
 // INIT
 (function(){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); applyState(); })();

@@ -1,4 +1,4 @@
-import { init as loadInstrument, playNote, playChord } from '../../../libs/sound/index.js';
+import { init as loadInstrument, playNote, playChord, ensureAudio } from '../../../libs/sound/index.js';
 
 let mode = 'iS';
 let level = 1;
@@ -41,11 +41,11 @@ async function startGame(selected){
 }
 
 document.getElementById('startIS').onclick=async ()=>{
-  await Tone.start();
+  await ensureAudio();
   startGame('iS');
 };
 document.getElementById('startIA').onclick=async ()=>{
-  await Tone.start();
+  await ensureAudio();
   startGame('iA');
 };
 document.getElementById('playBtn').onclick=()=>playNotes();
@@ -89,8 +89,8 @@ function nextQuestion(){
     if(mode==='iA'){
       opts = opts.filter(n=>n>=0);
     }
-    currentInterval = opts[Math.floor(Math.random()*opts.length)];
-    note1 = 60 + Math.floor(Math.random()*12);
+    currentInterval = opts[randInt(0, opts.length - 1)];
+    note1 = 60 + randInt(0, 11);
     note2 = note1 + currentInterval;
   }
   playNotes();

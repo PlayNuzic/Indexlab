@@ -1,4 +1,12 @@
 let synth;
+let audioReady;
+
+export function ensureAudio(){
+  if(!audioReady){
+    audioReady = Tone.start();
+  }
+  return audioReady;
+}
 
 export async function init(type='piano'){
   if(synth) synth.dispose();

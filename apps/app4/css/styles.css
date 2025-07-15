@@ -28,6 +28,8 @@
     .interval-legend-box { font-size:1rem; background:rgba(255,187,51,0.1);
       border:1px solid var(--yellow); padding:0.5rem; margin-top:1rem; align-self:flex-start;
       max-width:600px; }
+    .interval-legend-box[hidden]{ display:none; }
+    #infoToggle{ margin-top:1rem; padding:.4rem 1rem; border:none; border-radius:4px; background:#555; color:#fff; cursor:pointer; }
 .row-op-cell { min-width:6rem; }
 .row-op-cell select { width:100%; }
 .midi-btn { margin-left:.4rem; }
