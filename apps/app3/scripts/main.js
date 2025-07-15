@@ -120,8 +120,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderGrid();
     seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes);
   };
-  rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderGrid(); };
-  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderGrid(); };
+  rotSel.onchange=()=>{
+    scale.rot=parseInt(rotSel.value,10);
+    fitNotes();
+    renderGrid();
+  };
+  rootSel.onchange=()=>{
+    scale.root=parseInt(rootSel.value,10);
+    fitNotes();
+    renderGrid();
+  };
   showNmBtn.onmousedown=()=>{ showNm=true; showNmBtn.classList.add('active'); renderGrid(); };
   showNmBtn.onmouseup=showNmBtn.onmouseleave=()=>{ showNm=false; showNmBtn.classList.remove('active'); renderGrid(); };
 

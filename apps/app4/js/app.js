@@ -1,6 +1,7 @@
 import { init as initSound, playNote } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { randInt, clamp, wrapSym } from '../../../libs/utils/index.js';
+import { absToDegInfo } from '../../../shared/utils.js';
 
 // SCALE DATA
 const scaleIDs=Object.keys(motherScalesData);
@@ -10,6 +11,7 @@ const ROWS=8, COLS=8;
 let state={
   bpm:90,
   view:'Na',
+  baseMidi:60,
   octProb:0.15,
   scale:{id:'CROM', rot:0, root:0},
   params:{iR:null, caDif:null, rango:24, duplicates:true, start:null},
@@ -24,6 +26,7 @@ if(storedPresets) presets = storedPresets;
 const scaleSel=document.getElementById('scaleSel');
 const rotSel=document.getElementById('rotSel');
 const rootSel=document.getElementById('rootSel');
+const baseSelect=document.getElementById('baseNote');
 const viewSel=document.getElementById('viewSel');
 const btnRoll=document.getElementById('btnRoll');
 const btnClear=document.getElementById('btnClear');
@@ -41,6 +44,7 @@ const cadifInp=document.getElementById('cadifInp');
 const rangoInp=document.getElementById('rangoInp');
 const dupChk=document.getElementById('dupChk');
 const startSel=document.getElementById('startSel');
+baseSelect.value=String(state.baseMidi);
 
 // INITIALIZE SELECTORS
 scaleIDs.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
@@ -60,7 +64,7 @@ refreshRot();
 function absToDegInfo(abs){
   const {id, rot, root}=state.scale;
   const sems=scaleSemis(id).map(s=> (s+root)%12 );
-  const mod=(abs-root+1200)%12;
+  const mod=(abs-state.baseMidi+1200)%12;
   let best=0, diff=12;
   sems.forEach((v,i)=>{const d=Math.abs(mod-v); if(d<diff){diff=d; best=i;}});
   const len=sems.length;
@@ -71,14 +75,32 @@ function absToDegInfo(abs){
 
 // ROW GENERATORS
 function genNaRow(){ return Array.from({length:COLS}, ()=>randInt(0,96)); }
-function genNmRow(){ return Array.from({length:COLS}, ()=>{ let n=randInt(0,11), d=Math.random()<state.octProb?(Math.random()<0.5?12:-12):0; return clamp(4*12+n+d,0,96); }); }
-function genScaleDegreeRow(){ const sems=scaleSemis(state.scale.id); return Array.from({length:COLS}, ()=>{ let deg=randInt(0,sems.length-1), sem=(sems[(deg+state.scale.rot)%sems.length]+state.scale.root)%12, d=Math.random()<state.octProb?(Math.random()<0.5?12:-12):0; return clamp(4*12+sem+d,0,96); }); }
+function genNmRow(){ return Array.from({length:COLS}, ()=>{ let n=randInt(0,11), d=Math.random()<state.octProb?(Math.random()<0.5?12:-12):0; return clamp(state.baseMidi+n+d,0,96); }); }
+function genScaleDegreeRow(){ const sems=scaleSemis(state.scale.id); return Array.from({length:COLS}, ()=>{ let deg=randInt(0,sems.length-1), sem=(sems[(deg+state.scale.rot)%sems.length]+state.scale.root)%12, d=Math.random()<state.octProb?(Math.random()<0.5?12:-12):0; return clamp(state.baseMidi+sem+d,0,96); }); }
 function genISmRow(){ let v=randInt(0,96); return Array.from({length:COLS},(_,i)=>{ if(i===0) return v; let iv=randInt(-6,6); if(Math.random()<state.octProb) iv+=(Math.random()<0.5?12:-12); v=clamp(v+iv,0,96); return v; }); }
-function genIStepRow(){ const sems=scaleSemis(state.scale.id); let idx=randInt(0,sems.length-1), oct=4, sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12, v=clamp(oct*12+sem,0,96); return Array.from({length:COLS},(_,i)=>{ if(i===0) return v; let diff=randInt(-Math.floor(sems.length/2),Math.floor(sems.length/2)); if(Math.random()<state.octProb) diff+=(Math.random()<0.5?-sems.length:sems.length); idx=(idx+diff+sems.length)%sems.length; sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12; oct+=Math.sign(diff); v=clamp(oct*12+sem,0,96); return v; }); }
+function genIStepRow(){
+  const sems=scaleSemis(state.scale.id);
+  let idx=randInt(0,sems.length-1),
+      oct=4,
+      sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12,
+      v=clamp(oct*12+sem,0,96);
+  return Array.from({length:COLS},(_,i)=>{
+    if(i===0) return v;
+    let diff=randInt(-Math.floor(sems.length/2), Math.floor(sems.length/2));
+    if(Math.random()<state.octProb)
+      diff+=(Math.random()<0.5?-sems.length:sems.length);
+    idx=(idx+diff+sems.length)%sems.length;
+    sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12;
+    oct+=Math.round(diff / sems.length);
+    v=clamp(oct*12+sem,0,96);
+    oct=Math.floor(v/12);
+    return v;
+  });
+}
 
 function applyGlobalParams(row){
   const p=state.params;
-  if(p.start!=null) row[0]=clamp(4*12+wrapSym(p.start,12),0,96);
+  if(p.start!=null) row[0]=clamp(state.baseMidi+wrapSym(p.start,12),0,96);
   const base=row[0];
   const range=p.rango??24;
   for(let i=0;i<row.length;i++) row[i]=clamp(row[i], base-range, base+range);
@@ -345,6 +367,7 @@ octProb.oninput=e=>{ state.octProb=parseFloat(octProb.value); octProbVal.textCon
 scaleSel.onchange=e=>{ state.scale.id=e.target.value; refreshRot(); renderGrid();};
 rotSel.onchange=e=>{ state.scale.rot=+rotSel.value; renderGrid();};
 rootSel.onchange=e=>{ state.scale.root=+rootSel.value; renderGrid();};
+baseSelect.onchange=e=>{ state.baseMidi=parseInt(baseSelect.value,10); renderGrid();};
 irSel.onchange=e=>{ state.params.iR=irSel.value===''?null:+irSel.value; genRows(); };
 cadifInp.onchange=e=>{ const v=cadifInp.value; state.params.caDif=v?+v:null; genRows(); };
 rangoInp.onchange=e=>{ state.params.rango=+rangoInp.value; genRows(); };
@@ -363,6 +386,7 @@ function applyState(){
   refreshRot();
   rotSel.value=state.scale.rot;
   rootSel.value=state.scale.root;
+  baseSelect.value=String(state.baseMidi);
   viewSel.value=state.view;
   octProb.value=state.octProb;
   octProbVal.textContent=state.octProb.toFixed(2);

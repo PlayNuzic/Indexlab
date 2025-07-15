@@ -175,8 +175,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderAll();
     seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes);
   };
-  rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderAll(); };
-  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderAll(); };
+  rotSel.onchange=()=>{
+    scale.rot=parseInt(rotSel.value,10);
+    fitNotes();
+    renderAll();
+  };
+  rootSel.onchange=()=>{
+    scale.root=parseInt(rootSel.value,10);
+    fitNotes();
+    renderAll();
+  };
   showNmBtn.onmousedown=()=>{ showNm=true; showNmBtn.classList.add('active'); renderAll(); };
   showNmBtn.onmouseup=showNmBtn.onmouseleave=()=>{ showNm=false; showNmBtn.classList.remove('active'); renderAll(); };
 
