@@ -109,7 +109,12 @@
     let timer=null;
     const start=e=>{
       if(timer!==null) clearTimeout(timer);
-      timer=setTimeout(()=>{ timer=null; cb(e); }, duration);
+      timer=setTimeout(()=>{
+        timer=null;
+        cb(e);
+        el.classList.add('lp-complete');
+        setTimeout(()=>el.classList.remove('lp-complete'),300);
+      }, duration);
     };
     const cancel=()=>{ if(timer!==null){ clearTimeout(timer); timer=null; } };
     el.addEventListener('mousedown', start);

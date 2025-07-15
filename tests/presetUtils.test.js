@@ -107,6 +107,9 @@ describe('preset utilities', () => {
     expect(called).toBe(0);
     jest.advanceTimersByTime(1);
     expect(called).toBe(1);
+    expect(btn.classList.contains('lp-complete')).toBe(true);
+    jest.advanceTimersByTime(300);
+    expect(btn.classList.contains('lp-complete')).toBe(false);
     btn.dispatchEvent(new Event('mouseup'));
     btn.remove();
     jest.useRealTimers();

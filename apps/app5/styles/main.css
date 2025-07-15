@@ -236,3 +236,7 @@ button#generate:hover{background:#e6a12b;}
 }
 #comp-actions{display:flex;gap:.4rem;margin-top:.4rem;justify-content:center;}
 #comp-actions button{padding:.3rem .6rem;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;}
+
+button.lp-complete{
+  outline:2px solid var(--accent);
+}

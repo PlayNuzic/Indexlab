@@ -44,4 +44,8 @@
   padding:0.5rem 1rem;
   border-radius:8px;
   margin-left:0.5rem;
+}
 
+button.lp-complete{
+  outline:2px solid var(--accent);
+}
