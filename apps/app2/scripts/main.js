@@ -75,14 +75,19 @@ function submitAnswer(value){
   updateScore();
   if(res.correct){
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${(game.note2%12)} - ${(game.note1%12)} = ${game.currentInterval} => ${game.mode}(${game.currentInterval})`;
-    drawInterval(document.getElementById('notation'), game.note1, game.note2, game.mode);
-    setTimeout(()=>{
+    const notationEl = document.getElementById('notation');
+    drawInterval(notationEl, game.note1, game.note2, game.mode);
+    const proceed = () => {
+      notationEl.removeEventListener('click', proceed);
+      clearTimeout(timer);
       if(res.levelUp){
         showSummary();
       }else{
         nextQuestion();
       }
-    },1500);
+    };
+    const timer = setTimeout(proceed, 4000);
+    notationEl.addEventListener('click', proceed, { once:true });
   }else{
     if(res.retry){
       document.getElementById('feedback').textContent='\u274C Incorrecte. Torna-ho a provar!';
