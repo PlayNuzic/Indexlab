@@ -1,6 +1,6 @@
 import { init as initSound, playNote } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
-import { randInt, clamp, wrapSym } from '../../../libs/utils/index.js';
+import { randInt, clamp, wrapSym, applyGlobalParams, absToDegInfo } from '../../../shared/utils.js';
 
 // SCALE DATA
 const scaleIDs=Object.keys(motherScalesData);
@@ -61,18 +61,7 @@ function refreshRot(){
 }
 refreshRot();
 
-// CONVERSION UTILITY
-function absToDegInfo(abs){
-  const {id, rot, root}=state.scale;
-  const sems=scaleSemis(id).map(s=> (s+root)%12 );
-  const mod=(abs-state.baseMidi+1200)%12;
-  let best=0, diff=12;
-  sems.forEach((v,i)=>{const d=Math.abs(mod-v); if(d<diff){diff=d; best=i;}});
-  const len=sems.length;
-  const deg=(best-rot+len)%len;
-  const off=wrapSym(mod-sems[best],12);
-  return {deg, off};
-}
+// CONVERSION UTILITY (imported from shared/utils.js)
 
 // ROW GENERATORS
 function genNaRow(){ return Array.from({length:COLS}, ()=>randInt(0,96)); }
@@ -99,34 +88,10 @@ function genIStepRow(){
   });
 }
 
-function applyGlobalParams(row){
-  const p=state.params;
-  if(p.start!=null) row[0]=clamp(state.baseMidi+wrapSym(p.start,12),0,96);
-  const base=row[0];
-  const range=p.rango??24;
-  for(let i=0;i<row.length;i++) row[i]=clamp(row[i], base-range, base+range);
-  if(p.iR!=null) row[row.length-1]=clamp(base+p.iR, base-range, base+range);
-  if(!p.duplicates){
-    const used=new Set();
-    for(let i=0;i<row.length;i++){
-      let n=row[i], tries=0;
-      while(used.has(n)&&tries<50){
-        n=clamp(base+randInt(-range,range),0,96); tries++; }
-      row[i]=n; used.add(n);
-    }
-  }
-  if(p.caDif!=null){
-    const used=new Set();
-    for(let i=0;i<row.length;i++){
-      if(used.size<p.caDif){ used.add(row[i]); }
-      else if(!used.has(row[i])){ const arr=Array.from(used); row[i]=arr[randInt(0,arr.length-1)]; }
-    }
-  }
-  return row;
-}
+// applyGlobalParams provided by shared/utils.js
 
 // PARSE CELL INPUT
-function parseCellInput(view,input,oldNa){ const parts=input.split(/r/i).map(s=>s.trim()); const value=parseInt(parts[0],10); const octave=parts[1]?parseInt(parts[1],10):Math.floor(oldNa/12); if(isNaN(value)) return oldNa; let newNa; switch(view){ case 'Na': newNa=clamp(value,0,96); break; case 'Nm': newNa=clamp(octave*12+wrapSym(value,12),0,96); break; case 'Nº':{ const sems=scaleSemis(state.scale.id), len=sems.length; const sem=(sems[(value+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem,0,96); break; } case 'iSm': case 'iAm': newNa=clamp(oldNa+value,0,96); break; case 'iSº': case 'iAº':{ const info=absToDegInfo(oldNa), len=scaleSemis(state.scale.id).length; const newDeg=info.deg+value; const sem2=(scaleSemis(state.scale.id)[(newDeg+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem2,0,96); break; } default: return oldNa;} return newNa; }
+function parseCellInput(view,input,oldNa){ const parts=input.split(/r/i).map(s=>s.trim()); const value=parseInt(parts[0],10); const octave=parts[1]?parseInt(parts[1],10):Math.floor(oldNa/12); if(isNaN(value)) return oldNa; let newNa; switch(view){ case 'Na': newNa=clamp(value,0,96); break; case 'Nm': newNa=clamp(octave*12+wrapSym(value,12),0,96); break; case 'Nº':{ const sems=scaleSemis(state.scale.id), len=sems.length; const sem=(sems[(value+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem,0,96); break; } case 'iSm': case 'iAm': newNa=clamp(oldNa+value,0,96); break; case 'iSº': case 'iAº':{ const info=absToDegInfo(oldNa, state.scale), len=scaleSemis(state.scale.id).length; const newDeg=info.deg+value; const sem2=(scaleSemis(state.scale.id)[(newDeg+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem2,0,96); break; } default: return oldNa;} return newNa; }
 
 // RENDER GRID
 function renderGrid(){
@@ -168,7 +133,7 @@ function renderGrid(){
           break;
         case 'Nº':
           if(n!=null){
-            const di=absToDegInfo(n), oct=Math.floor(n/12);
+            const di=absToDegInfo(n, state.scale), oct=Math.floor(n/12);
             const degStr=di.off===0?`${di.deg}`:di.off>0?`${di.deg}+${di.off}`:`${di.deg}-${Math.abs(di.off)}`;
             txt=`${degStr}r${oct}`;
           }
@@ -185,12 +150,12 @@ function renderGrid(){
         case 'iAº':
           if(c===0){
             if(n!=null){
-              const di=absToDegInfo(n), oct=Math.floor(n/12);
+              const di=absToDegInfo(n, state.scale), oct=Math.floor(n/12);
               const degStr=di.off===0?`${di.deg}`:di.off>0?`${di.deg}+${di.off}`:`${di.deg}-${Math.abs(di.off)}`;
               txt=`${degStr}r${oct}`;
             }
           }else{
-            const prev=row[c-1], pi=absToDegInfo(prev), ci=absToDegInfo(n);
+            const prev=row[c-1], pi=absToDegInfo(prev, state.scale), ci=absToDegInfo(n, state.scale);
             const offDiff=wrapSym(ci.off-pi.off,12);
             const len=scaleSemis(state.scale.id).length;
             const degDiff=wrapSym(ci.deg-pi.deg,len);
@@ -354,7 +319,7 @@ function genRows(){
       case 'iSº':
       case 'iAº': row=genIStepRow(); break;
     }
-    state.naRows.push(applyGlobalParams(row));
+    state.naRows.push(applyGlobalParams(state, row));
   }
   renderGrid();
   stopCurrent();
