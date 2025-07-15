@@ -541,14 +541,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     notesChanged();
   };
   document.getElementById('reduceBtn').onclick=()=>{
-    // Order components alphabetically and reset all octave shifts so
-    // every note sits in the same register selected via the C3/C4 drop-down
-    const order=[...components.keys()].sort((a,b)=>{
-      return components[a].localeCompare(components[b]);
-    });
-    notes=order.map(i=>notes[i]);
-    components=order.map(i=>components[i]);
-    octShifts=order.map(()=>0);
+    notes.sort((a,b)=>degToSemi(a)-degToSemi(b));
+    octShifts = Array(notes.length).fill(0);
+    generateComponents();
     fitNotes();
     ensureDuplicateComponents();
     selectedCards.clear();
