@@ -26,6 +26,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let playMode='iA';
   let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app3Snapshots')||'null'));
   let activeSnapshot=null;
+  let lastSaved=null;
   let recording=false;
   let recordStart=0;
   let recorded=[];
@@ -445,6 +446,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         saveSnapshot(i);
         Presets.saveLocal('app3Snapshots', snapshots);
         long=true;
+        lastSaved=i;
         renderSnapshots();
       });
       b.onclick=()=>{
@@ -453,6 +455,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         renderSnapshots();
       };
       snapWrap.appendChild(b);
+      if(lastSaved===i){
+        b.classList.add('lp-complete');
+        setTimeout(()=>{ b.classList.remove('lp-complete'); lastSaved=null; },300);
+      }
     }
   }
 

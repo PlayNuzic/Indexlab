@@ -16,6 +16,7 @@ let state={
   naRows:[]
 };
 let presets=Array(8).fill(null), currentPreset=-1;
+let lastSavedPreset=-1;
 const storedPresets = Presets.loadLocal('app4Presets');
 if(storedPresets) presets = storedPresets;
 
@@ -276,6 +277,7 @@ function buildPresetBar(){
       currentPreset=i;
       Presets.saveLocal('app4Presets', presets);
       long=true;
+      lastSavedPreset=i;
       buildPresetBar();
     });
     b.onclick=e=>{
@@ -289,6 +291,10 @@ function buildPresetBar(){
       }
     };
     presetBar.appendChild(b);
+    if(lastSavedPreset===i){
+      b.classList.add('lp-complete');
+      setTimeout(()=>{ b.classList.remove('lp-complete'); lastSavedPreset=-1; },300);
+    }
   });
 }
 
