@@ -30,6 +30,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   let playing=false;
   let playTimers=[];
   let showNm=false;
+  let undoStack=[];
+  let redoStack=[];
   // cache of diagonal MIDI notes and numbers for the currently rendered grid
   let diagArr=[];
   let diagNumsArr=[];
@@ -57,6 +59,39 @@ window.addEventListener('DOMContentLoaded', async () => {
       if(map.has(val)) components[i]=map.get(val);
       else { map.set(val, comp); }
     });
+  }
+
+  function pushUndo(){
+    undoStack.push({
+      notes:notes.slice(),
+      octShifts:octShifts.slice(),
+      components:components.slice()
+    });
+    if(undoStack.length>5) undoStack.shift();
+    redoStack=[];
+  }
+
+  function undoAction(){
+    if(!undoStack.length) return;
+    redoStack.push({notes:notes.slice(),octShifts:octShifts.slice(),components:components.slice()});
+    const snap=undoStack.pop();
+    notes=snap.notes.slice();
+    octShifts=snap.octShifts.slice();
+    components=snap.components.slice();
+    renderAll();
+    notesChanged();
+  }
+
+  function redoAction(){
+    if(!redoStack.length) return;
+    undoStack.push({notes:notes.slice(),octShifts:octShifts.slice(),components:components.slice()});
+    if(undoStack.length>5) undoStack.shift();
+    const snap=redoStack.pop();
+    notes=snap.notes.slice();
+    octShifts=snap.octShifts.slice();
+    components=snap.components.slice();
+    renderAll();
+    notesChanged();
   }
   function getIntervals(){
     const len=scaleSemis(scale.id).length;
@@ -127,6 +162,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rotRight=document.getElementById('rotRight');
   const globUp=document.getElementById('globUp');
   const globDown=document.getElementById('globDown');
+  const undoBtn=document.getElementById('undoBtn');
+  const redoBtn=document.getElementById('redoBtn');
   const transposeControls=document.getElementById('transposeControls');
   const transposeUp=document.getElementById('transposeUp');
   const transposeDown=document.getElementById('transposeDown');
@@ -177,6 +214,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('tabAc').onclick=()=>switchMode('Ac');
 
   function transpose(delta){
+    pushUndo();
     const len=scaleSemis(scale.id).length;
     notes = notes.map(n=>((n+delta)%len+len)%len);
     seqInput.value = mode==='eA' ? notesToEA(notes,len) : notesToAc(notes);
@@ -190,6 +228,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   transposeDown.onclick=()=>transpose(-1);
 
   document.getElementById('generate').onclick=()=>{
+    pushUndo();
     const nums=parseNums(seqInput.value);
     if(!nums.length){errorEl.textContent='Introduce números separados por espacios';return;}
     const len=scaleSemis(scale.id).length;
@@ -291,6 +330,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function moveCards(indices, target){
+    pushUndo();
     indices.sort((a,b)=>a-b);
     const vals=indices.map(i=>notes[i]);
     const shifts=indices.map(i=>octShifts[i]);
@@ -336,15 +376,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       const up=document.createElement('button');
       up.className='up';
       up.innerHTML='&#9650;';
-      up.onclick=()=>{octShifts[i]++;renderAll();};
+      up.onclick=()=>{pushUndo();octShifts[i]++;renderAll();};
       const down=document.createElement('button');
       down.className='down';
       down.innerHTML='&#9660;';
-      down.onclick=()=>{octShifts[i]--;renderAll();};
+      down.onclick=()=>{pushUndo();octShifts[i]--;renderAll();};
       const close=document.createElement('div');
       close.className='close';
       close.textContent='x';
-      close.onclick=()=>{notes.splice(i,1);octShifts.splice(i,1);components.splice(i,1);selectedCards.clear();ensureDuplicateComponents();renderAll();};
+      close.onclick=()=>{pushUndo();notes.splice(i,1);octShifts.splice(i,1);components.splice(i,1);selectedCards.clear();ensureDuplicateComponents();renderAll();};
       const note=document.createElement('div');
       note.className='note';
       note.textContent=num;
@@ -362,6 +402,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         ia.className='ia-field';
         ia.value=intervals[i];
         ia.onchange=()=>{
+          pushUndo();
           const len=scaleSemis(scale.id).length;
           let ints=getIntervals();
           const val=parseInt(ia.value,10);
@@ -523,12 +564,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;
-  rotLeft.onclick=()=>{notes.push(notes.shift());octShifts.push(octShifts.shift());components.push(components.shift());selectedCards.clear();renderAll();};
-  rotRight.onclick=()=>{notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());components.unshift(components.pop());selectedCards.clear();renderAll();};
+  rotLeft.onclick=()=>{pushUndo();notes.push(notes.shift());octShifts.push(octShifts.shift());components.push(components.shift());selectedCards.clear();renderAll();};
+  rotRight.onclick=()=>{pushUndo();notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());components.unshift(components.pop());selectedCards.clear();renderAll();};
   globUp.onclick=()=>{selectedCards.clear();transpose(1);};
   globDown.onclick=()=>{selectedCards.clear();transpose(-1);};
   document.getElementById('dupBtn').onclick=()=>{
     if(!selectedCards.size) return;
+    pushUndo();
     const idx=Array.from(selectedCards).sort((a,b)=>a-b);
     const vals=idx.map(i=>notes[i]);
     const shifts=idx.map(i=>octShifts[i]);
@@ -541,15 +583,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     notesChanged();
   };
   document.getElementById('reduceBtn').onclick=()=>{
-    notes.sort((a,b)=>degToSemi(a)-degToSemi(b));
-    octShifts = Array(notes.length).fill(0);
-    generateComponents();
+    pushUndo();
+    const len=scaleSemis(scale.id).length;
+    const arr=notes.map((n,i)=>({
+      note:((n%len)+len)%len,
+      comp:components[i],
+      val:degToSemi(n)+12*(octShifts[i]||0)
+    }));
+    arr.sort((a,b)=>a.val-b.val);
+    notes=arr.map(o=>o.note);
+    components=arr.map(o=>o.comp);
+    octShifts=Array(notes.length).fill(0);
     fitNotes();
-    ensureDuplicateComponents();
     selectedCards.clear();
     renderAll();
     notesChanged();
   };
+  undoBtn.onclick=undoAction;
+  redoBtn.onclick=redoAction;
   document.body.addEventListener('click',e=>{
     if(!e.target.closest('.component-card') && !e.target.classList.contains('ia-field')){
       if(selectedCards.size){selectedCards.clear();renderComponents();}
