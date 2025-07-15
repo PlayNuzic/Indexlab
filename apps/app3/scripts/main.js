@@ -334,6 +334,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         const rr=+td.dataset.r, cc=+td.dataset.c;
         if((rr===r&&cc===c)||(rr===compR&&cc===compC)) td.classList.add('highlight-pair');
       });
+      // highlight the diagonal notes involved in the harmonic interval
+      const diag1R=size-1-c, diag1C=c;
+      const diag2R=r, diag2C=size-1-r;
+      document.querySelectorAll('.matrix td').forEach(td=>{
+        const rr=+td.dataset.r, cc=+td.dataset.c;
+        if((rr===diag1R&&cc===diag1C)||(rr===diag2R&&cc===diag2C)) td.classList.add('highlight-diag');
+      });
     }
   }
 
