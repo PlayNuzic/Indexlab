@@ -1,36 +1,11 @@
 import { init as loadInstrument, playNote, playChord, ensureAudio } from '../../../libs/sound/index.js';
+import EarTrainingGame from '../../../libs/ear-training/index.js';
+import { randInt } from '../../../libs/utils/index.js';
 
-let mode = 'iS';
-let level = 1;
-let question = 0;
-let correctLevel = 0;
-let wrongLevel = 0;
-let correctTotal = 0;
-let wrongTotal = 0;
-let currentInterval = 0;
-let note1 = 60; // base midi
-let note2 = 60;
-let repeat = false;
-const requiredToLevelUp = 10;
-
-// Interval sets per level. Unison (0) always included and placed first.
-const intervals = {
-  1: [0,1,-1,2,-2,10,-10,11,-11],
-  2: [0,5,-5,6,-6,7,-7],
-  3: [0,3,-3,4,-4,8,-8,9,-9]
-};
-intervals[4] = [...new Set([0, ...intervals[1].slice(1), ...intervals[3].slice(1)])];
-intervals[5] = [...new Set([0, ...intervals[4].slice(1), ...intervals[2].slice(1)])];
+const game = new EarTrainingGame({ randInt });
 
 async function startGame(selected){
-  mode = selected;
-  level = parseInt(document.getElementById('levelSelect').value) || 1;
-  question = 0;
-  correctLevel = 0;
-  correctTotal = 0;
-  wrongLevel = 0;
-  wrongTotal = 0;
-  repeat = false;
+  game.start(selected, parseInt(document.getElementById('levelSelect').value) || 1);
   document.getElementById('welcome').style.display='none';
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
@@ -50,13 +25,13 @@ document.getElementById('startIA').onclick=async ()=>{
 };
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('nextBlock').onclick=()=>{
-  if(level < 5 && confirm('Vols passar al següent nivell?')){
-    level++;
+  if(game.level < 5 && confirm('Vols passar al següent nivell?')){
+    game.level++;
   }
-  question=0;
-  correctLevel=0;
-  wrongLevel=0;
-  repeat=false;
+  game.question=0;
+  game.correctLevel=0;
+  game.wrongLevel=0;
+  game.repeat=false;
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
   initButtons();
@@ -72,59 +47,42 @@ document.getElementById('backBtn').onclick=()=>{
 };
 
 function playNotes(){
-  if(mode==='iS'){
-    playNote(note1, 0.5);
+  if(game.mode==='iS'){
+    playNote(game.note1, 0.5);
     setTimeout(()=>{
-      playNote(note2, 0.5);
+      playNote(game.note2, 0.5);
     },800);
   }else{
-    playChord([note1, note2], 0.5);
+    playChord([game.note1, game.note2], 0.5);
   }
 }
 
 function nextQuestion(){
-  if(!repeat){
-    question++;
-    let opts = intervals[level];
-    if(mode==='iA'){
-      opts = opts.filter(n=>n>=0);
-    }
-    currentInterval = opts[randInt(0, opts.length - 1)];
-    note1 = 60 + randInt(0, 11);
-    note2 = note1 + currentInterval;
-  }
+  const q = game.next();
   playNotes();
-  document.getElementById('question').textContent=`Pregunta ${question} · Nivell ${level}`;
+  document.getElementById('question').textContent=`Pregunta ${q.question} · Nivell ${q.level}`;
   document.getElementById('feedback').textContent='';
   initButtons();
 }
 
 function submitAnswer(value){
-  const expected = currentInterval;
-  if(value === expected){
-    correctLevel++;
-    correctTotal++;
-    document.getElementById('feedback').textContent=`\u2714 Correcte! ${(note2%12)} - ${(note1%12)} = ${currentInterval} => ${mode}(${currentInterval})`;
-    updateScore();
-    repeat=false;
+  const res = game.answer(value);
+  updateScore();
+  if(res.correct){
+    document.getElementById('feedback').textContent=`\u2714 Correcte! ${(game.note2%12)} - ${(game.note1%12)} = ${game.currentInterval} => ${game.mode}(${game.currentInterval})`;
     setTimeout(()=>{
-      if(correctLevel >= requiredToLevelUp){
+      if(res.levelUp){
         showSummary();
       }else{
         nextQuestion();
       }
     },1500);
   }else{
-    wrongLevel++;
-    wrongTotal++;
-    updateScore();
-    if(!repeat){
+    if(res.retry){
       document.getElementById('feedback').textContent='\u274C Incorrecte. Torna-ho a provar!';
-      repeat=true;
       setTimeout(()=>{playNotes();},1000);
     }else{
-      document.getElementById('feedback').textContent=`\u274C Era ${mode}(${expected})`;
-      repeat=false;
+      document.getElementById('feedback').textContent=`\u274C Era ${game.mode}(${game.currentInterval})`;
       setTimeout(nextQuestion,1000);
     }
   }
@@ -132,10 +90,10 @@ function submitAnswer(value){
 
 function showSummary(){
   document.getElementById("game").style.display="none";
-  const total = correctLevel + wrongLevel;
-  const percent = total ? Math.round(correctLevel*100/total) : 0;
-  document.getElementById("result").textContent=`Encerts en aquest nivell: ${correctLevel} · Errors: ${wrongLevel}`;
-  document.getElementById("totals").textContent=`Totals sessió · Enc.: ${correctTotal} · Err.: ${wrongTotal} · Percentatge: ${percent}% · Nivell ${level}`;
+  const total = game.correctLevel + game.wrongLevel;
+  const percent = total ? Math.round(game.correctLevel*100/total) : 0;
+  document.getElementById("result").textContent=`Encerts en aquest nivell: ${game.correctLevel} · Errors: ${game.wrongLevel}`;
+  document.getElementById("totals").textContent=`Totals sessió · Enc.: ${game.correctTotal} · Err.: ${game.wrongTotal} · Percentatge: ${percent}% · Nivell ${game.level}`;
   document.getElementById("summary").style.display="block";
 }
 
@@ -143,11 +101,11 @@ function initButtons(){
   const wrap=document.getElementById('quickAns');
   wrap.innerHTML='';
   const positives = [0,1,2,3,4,5,6,7,8,9,10,11];
-  const negatives = mode==='iS' ? positives.slice(1).map(n=>-n) : [];
-  const allowed=new Set(mode==='iA'?intervals[level].filter(n=>n>=0):intervals[level]);
+  const negatives = game.mode==='iS' ? positives.slice(1).map(n=>-n) : [];
+  const allowed=new Set(game.mode==='iA'?game.intervals[game.level].filter(n=>n>=0):game.intervals[game.level]);
   const create=(i)=>{
     const b=document.createElement('button');
-    b.textContent=`${mode}(${i})`;
+    b.textContent=`${game.mode}(${i})`;
     if(!allowed.has(i)){
       b.classList.add('disabled');
       b.disabled=true;
@@ -166,6 +124,6 @@ function initButtons(){
 }
 
 function updateScore(){
-  document.getElementById('score').textContent=`Encerts: ${correctTotal} · Errors: ${wrongTotal}`;
+  document.getElementById('score').textContent=`Encerts: ${game.correctTotal} · Errors: ${game.wrongTotal}`;
 }
 
