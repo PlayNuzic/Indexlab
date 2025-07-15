@@ -135,7 +135,7 @@ button#generate:hover{background:#e6a12b;}
 #components-wrap{
   display:flex;
   flex-direction:row;
-  align-items:flex-start;
+  align-items:center;
   gap:.4rem;
 }
 .component-card{
@@ -154,7 +154,17 @@ button#generate:hover{background:#e6a12b;}
 }
 .component-card.selected{outline:2px solid var(--accent);}
 .component-card .note{font-weight:bold;font-size:1.2rem;}
-.component-card .label{font-size:1rem;color:#6ee7b7;font-weight:bold;}
+.component-card .label{
+  font-size:1.1rem;
+  color:#6ee7b7;
+  font-weight:bold;
+  margin-top:auto;
+  margin-bottom:0.2rem;
+}
+.component-card .shift-ind{
+  font-size:0.9rem;
+  color:#6ee7b7;
+}
 .component-card button{
   position:absolute;
   left:0;
@@ -201,7 +211,7 @@ button#generate:hover{background:#e6a12b;}
   text-align:center;
   background:#333;
   color:#fff;
-  border:1px solid #555;
+  border:1px solid #6366f1;
   border-radius:4px;
   font-size:.8rem;
   padding:.1rem;

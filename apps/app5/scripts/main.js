@@ -388,6 +388,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       const note=document.createElement('div');
       note.className='note';
       note.textContent=num;
+      const shift=Math.floor((diagArr[i]-baseMidi)/12);
+      const reg=document.createElement('div');
+      reg.className='shift-ind';
+      reg.textContent=shift!==0?(shift>0?'+':'-').repeat(Math.abs(shift)):'\u00A0';
       const label=document.createElement('div');
       label.className='label';
       label.textContent=comps[i];
@@ -395,6 +399,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       card.appendChild(down);
       card.appendChild(close);
       card.appendChild(note);
+      card.appendChild(reg);
       card.appendChild(label);
       componentsWrap.appendChild(card);
       if(i<notes.length-1){
