@@ -129,7 +129,7 @@ button#generate:hover{background:#e6a12b;}
 }
 #components-row{
   display:flex;
-  align-items:flex-start;
+  align-items:center; /* centreu els botons verticalment */
   gap:.4rem;
 }
 #components-wrap{
@@ -191,13 +191,30 @@ button#generate:hover{background:#e6a12b;}
   cursor:pointer;
 }
 #components-area button{padding:.3rem;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;}
+#rotLeft,#rotRight{
+  width:2.6rem;
+  height:2.6rem;
+  font-size:1.4rem;
+  border:2px solid #16a34a; /* verd */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 #components-area button.up,#components-area button.down{background:transparent;color:#ccc;}
-#transp-controls{display:flex;flex-direction:column;gap:.2rem;margin-left:.4rem;}
+#transp-controls{
+  display:flex;
+  flex-direction:column;
+  gap:.2rem;
+  margin-left:.4rem;
+  height:6rem; /* coincideix amb l'altura de les targetes */
+}
 #transp-controls button{
+  flex:1;                /* ocupen alçada igual */
+  width:2.6rem;
   padding:.3rem;
   background:#555;
   color:#fff;
-  border:none;
+  border:2px solid #fbbf24; /* mateix groc que la base del triangle inferior */
   border-radius:4px;
   cursor:pointer;
 }
