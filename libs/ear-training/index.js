@@ -21,6 +21,7 @@ class EarTrainingGame {
     this.correctTotal = 0;
     this.wrongTotal = 0;
     this.repeat = false;
+    this.history = [];
   }
 
   generateQuestion() {
@@ -47,7 +48,9 @@ class EarTrainingGame {
 
   answer(value) {
     const expected = this.currentInterval;
-    if (value === expected) {
+    const correct = value === expected;
+    this.history.push({ interval: expected, value, correct, level: this.level, mode: this.mode });
+    if (correct) {
       this.correctLevel++;
       this.correctTotal++;
       const levelUp = this.correctLevel >= this.requiredToLevelUp;

@@ -36,4 +36,15 @@ describe('EarTrainingGame logic', () => {
     expect(res.correct).toBe(true);
     expect(game.correctTotal).toBe(2);
   });
+
+  test('answer records attempt history', () => {
+    const game = new EarTrainingGame({ randInt: () => 0 });
+    game.start('iS', 1);
+    game.next();
+    game.answer(game.currentInterval + 1); // wrong
+    game.answer(game.currentInterval); // correct after retry
+    expect(game.history.length).toBe(2);
+    expect(game.history[0].correct).toBe(false);
+    expect(game.history[1].correct).toBe(true);
+  });
 });

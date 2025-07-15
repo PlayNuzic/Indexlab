@@ -24,19 +24,15 @@ document.getElementById('startIA').onclick=async ()=>{
   startGame('iA');
 };
 document.getElementById('playBtn').onclick=()=>playNotes();
-document.getElementById('nextBlock').onclick=()=>{
-  if(game.level < 5 && confirm('Vols passar al següent nivell?')){
+document.getElementById('advanceLevel').onclick=()=>{
+  if(game.level < 5){
     game.level++;
   }
-  game.question=0;
-  game.correctLevel=0;
-  game.wrongLevel=0;
-  game.repeat=false;
-  document.getElementById('summary').style.display='none';
-  document.getElementById('game').style.display='block';
-  initButtons();
-  updateScore();
-  nextQuestion();
+  resetForNextLevel();
+};
+
+document.getElementById('repeatLevel').onclick=()=>{
+  resetForNextLevel();
 };
 document.getElementById('instrument').onchange=async e=>{
   await loadInstrument(e.target.value);
@@ -94,6 +90,13 @@ function showSummary(){
   const percent = total ? Math.round(game.correctLevel*100/total) : 0;
   document.getElementById("result").textContent=`Encerts en aquest nivell: ${game.correctLevel} · Errors: ${game.wrongLevel}`;
   document.getElementById("totals").textContent=`Totals sessió · Enc.: ${game.correctTotal} · Err.: ${game.wrongTotal} · Percentatge: ${percent}% · Nivell ${game.level}`;
+  const list=document.getElementById('attempts');
+  list.innerHTML='';
+  game.history.forEach(a=>{
+    const li=document.createElement('li');
+    li.textContent=`${a.correct?'\u2714':'\u274C'} ${a.mode}(${a.interval})`;
+    list.appendChild(li);
+  });
   document.getElementById("summary").style.display="block";
 }
 
@@ -125,5 +128,18 @@ function initButtons(){
 
 function updateScore(){
   document.getElementById('score').textContent=`Encerts: ${game.correctTotal} · Errors: ${game.wrongTotal}`;
+}
+
+function resetForNextLevel(){
+  game.question=0;
+  game.correctLevel=0;
+  game.wrongLevel=0;
+  game.repeat=false;
+  game.history=[];
+  document.getElementById('summary').style.display='none';
+  document.getElementById('game').style.display='block';
+  initButtons();
+  updateScore();
+  nextQuestion();
 }
 
