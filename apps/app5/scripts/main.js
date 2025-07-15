@@ -34,11 +34,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   let diagArr=[];
   let diagNumsArr=[];
   let octShifts=Array(notes.length).fill(0);
-  generateComponents(); 
   const letters='abcdefghijklmnopqrstuvwxyz';
   let components=[];
   let nextLetterIdx=0;
-      
+  generateComponents();
+
   function generateComponents(){
     const map=new Map();
     nextLetterIdx=0;
@@ -49,11 +49,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       return l;
     });
   }
-    
+
   function ensureDuplicateComponents(){
     const map=new Map();
     components.forEach((comp,i)=>{
-      const val=notes[i]; 
+      const val=notes[i];
       if(map.has(val)) components[i]=map.get(val);
       else { map.set(val, comp); }
     });
@@ -62,12 +62,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len=scaleSemis(scale.id).length;
     return notes.slice(1).map((n,i)=>((n-notes[i]+len)%len));
   }
+
   function fitNotes(){
     const len = scaleSemis(scale.id).length;
     notes = notes.map(n => ((n % len) + len) % len);
     while(octShifts.length < notes.length) octShifts.push(0);
     if(octShifts.length > notes.length) octShifts = octShifts.slice(0, notes.length);
-   }
+  }
+
   function notesChanged(){
     if(activeSnapshot!==null){
       activeSnapshot=null;
@@ -179,6 +181,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     notes = notes.map(n=>((n+delta)%len+len)%len);
     seqInput.value = mode==='eA' ? notesToEA(notes,len) : notesToAc(notes);
     fitNotes();
+    ensureDuplicateComponents();
     renderAll();
     notesChanged();
   }
@@ -192,8 +195,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len=scaleSemis(scale.id).length;
     notes= mode==='eA'? eAToNotes(nums, len) : nums.map(x=>((x%len)+len)%len);
     octShifts = Array(notes.length).fill(0);
+    generateComponents();
     errorEl.textContent='';
-    ensureDuplicateComponents(); 
     renderAll();
     notesChanged();
   };
@@ -282,28 +285,27 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.style.setProperty('--cell-size', px + 'px');
   }
 
-  const letters = 'abcdefghijklmnopqrstuvwxyz';
   function computeComponents(){
-    const map=new Map();
-    let idx=0;
-    notes.forEach(n=>{
-      if(!map.has(n)) map.set(n, letters[idx++]||'?');
-    });
-    return notes.map(n=>map.get(n));
+    ensureDuplicateComponents();
+    return components.slice();
   }
 
   function moveCards(indices, target){
     indices.sort((a,b)=>a-b);
     const vals=indices.map(i=>notes[i]);
     const shifts=indices.map(i=>octShifts[i]);
+    const comps=indices.map(i=>components[i]);
     for(let j=indices.length-1;j>=0;j--){
       notes.splice(indices[j],1);
       octShifts.splice(indices[j],1);
+      components.splice(indices[j],1);
     }
     let insert=target;
     indices.forEach(i=>{ if(i<target) insert--; });
     notes.splice(insert,0,...vals);
     octShifts.splice(insert,0,...shifts);
+    components.splice(insert,0,...comps);
+    ensureDuplicateComponents();
     selectedCards=new Set(indices.map((_,k)=>insert+k));
     renderAll();
   }
@@ -342,7 +344,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const close=document.createElement('div');
       close.className='close';
       close.textContent='x';
-      close.onclick=()=>{notes.splice(i,1);octShifts.splice(i,1);selectedCards.clear();renderAll();};
+      close.onclick=()=>{notes.splice(i,1);octShifts.splice(i,1);components.splice(i,1);selectedCards.clear();ensureDuplicateComponents();renderAll();};
       const note=document.createElement('div');
       note.className='note';
       note.textContent=num;
@@ -368,6 +370,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           const rel=eAToNotes(ints,len);
           notes=rel.map(n=>((n+base)%len+len)%len);
           fitNotes();
+          ensureDuplicateComponents();
           renderAll();
           notesChanged();
         };
@@ -408,6 +411,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       refreshRot();
       rotSel.value=scale.rot;
       octShifts = Array(notes.length).fill(0);
+      generateComponents();
       fitNotes();
       const len=scaleSemis(scale.id).length;
       seqInput.value=mode==='eA'?notesToEA(notes, len):notesToAc(notes);
@@ -519,8 +523,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;
-  rotLeft.onclick=()=>{notes.push(notes.shift());octShifts.push(octShifts.shift());selectedCards.clear();renderAll();};
-  rotRight.onclick=()=>{notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());selectedCards.clear();renderAll();};
+  rotLeft.onclick=()=>{notes.push(notes.shift());octShifts.push(octShifts.shift());components.push(components.shift());selectedCards.clear();renderAll();};
+  rotRight.onclick=()=>{notes.unshift(notes.pop());octShifts.unshift(octShifts.pop());components.unshift(components.pop());selectedCards.clear();renderAll();};
   globUp.onclick=()=>{selectedCards.clear();transpose(1);};
   globDown.onclick=()=>{selectedCards.clear();transpose(-1);};
   document.getElementById('dupBtn').onclick=()=>{
@@ -528,8 +532,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     const idx=Array.from(selectedCards).sort((a,b)=>a-b);
     const vals=idx.map(i=>notes[i]);
     const shifts=idx.map(i=>octShifts[i]);
+    const comps=idx.map(i=>components[i]);
     notes.push(...vals);
     octShifts.push(...shifts);
+    components.push(...comps);
     selectedCards=new Set(idx.map((_,k)=>notes.length-vals.length+k));
     renderAll();
     notesChanged();
@@ -538,7 +544,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     const mids=diagMidis();
     const order=[...mids.keys()].sort((a,b)=>mids[a]-mids[b]);
     notes=order.map(i=>notes[i]);
+    components=order.map(i=>components[i]);
     octShifts=order.map(()=>0);
+    ensureDuplicateComponents();
     selectedCards.clear();
     renderAll();
     notesChanged();
