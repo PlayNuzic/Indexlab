@@ -1,6 +1,7 @@
 import { init as loadInstrument, playNote, playChord, ensureAudio } from '../../../libs/sound/index.js';
 import EarTrainingGame from '../../../libs/ear-training/index.js';
 import { randInt } from '../../../libs/utils/index.js';
+import { drawInterval } from '../../../libs/notation/index.js';
 
 const game = new EarTrainingGame({ randInt });
 const levelNames = {
@@ -65,6 +66,7 @@ function nextQuestion(){
   playNotes();
   document.getElementById('question').textContent=`Pregunta ${q.question} · Nivell ${q.level} – ${levelNames[q.level]}`;
   document.getElementById('feedback').textContent='';
+  document.getElementById('notation').innerHTML='';
   initButtons();
 }
 
@@ -73,6 +75,7 @@ function submitAnswer(value){
   updateScore();
   if(res.correct){
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${(game.note2%12)} - ${(game.note1%12)} = ${game.currentInterval} => ${game.mode}(${game.currentInterval})`;
+    drawInterval(document.getElementById('notation'), game.note1, game.note2, game.mode);
     setTimeout(()=>{
       if(res.levelUp){
         showSummary();
