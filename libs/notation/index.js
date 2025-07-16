@@ -1,4 +1,4 @@
-import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, Factory, StaveConnector } from '../vendor/vexflow/entry/vexflow.js';
+import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector } from '../vendor/vexflow/entry/vexflow.js';
 
 function midiToParts(midi, preferSharp=true){
   const letters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
@@ -16,72 +16,96 @@ function needsDoubleStaff(n1, n2){
   return n1 < 60 || n2 < 60 || n1 > 81 || n2 > 81;
 }
 
+function createNote(midi, duration, asc, clef){
+  let parts = midiToParts(midi, asc);
+  const note = new StaveNote({ keys:[parts.key], duration, clef });
+  if(parts.accidental) note.addModifier(new Accidental(parts.accidental), 0);
+  return note;
+}
+
+function createChord(m1, m2, duration, asc, clef){
+  let p1 = midiToParts(m1, asc);
+  let p2 = midiToParts(m2, asc);
+  if(p1.key[0] === p2.key[0]){
+    p2 = midiToParts(m2, !asc);
+  }
+  const chord = new StaveNote({ keys:[p1.key, p2.key], duration, clef });
+  if(p1.accidental) chord.addModifier(new Accidental(p1.accidental), 0);
+  if(p2.accidental) chord.addModifier(new Accidental(p2.accidental), 1);
+  return chord;
+}
+
 export function drawInterval(container, note1, note2, mode='iS'){
   container.innerHTML = '';
   const useDouble = needsDoubleStaff(note1, note2);
+  const renderer = new Renderer(container, Renderer.Backends.SVG);
+  renderer.resize(180, useDouble ? 340 : 240);
+  const context = renderer.getContext();
 
   if(useDouble){
-    const vf = new Factory({ renderer:{ elementId: container, backend: Renderer.Backends.SVG, width:180, height:340 } });
-    const asc = note2 >= note1;
-    const trebleNotes = [];
-    const bassNotes = [];
+    const treble = new Stave(10, 40, 160);
+    treble.addClef('treble');
+    const bass = new Stave(10, 160, 160);
+    bass.addClef('bass');
+    treble.setContext(context).draw();
+    bass.setContext(context).draw();
 
-    function addNote(midi, dur){
-      const parts = midiToParts(midi, asc);
-      const clef = midi < 60 ? 'bass' : 'treble';
-      const n = vf.StaveNote({ keys:[parts.key], duration:dur, clef });
-      if(parts.accidental) n.addModifier(new Accidental(parts.accidental), 0);
-      if(clef === 'bass') bassNotes.push(n); else trebleNotes.push(n);
-    }
-
-    if(mode === 'iS'){
-      addNote(note1, 'q');
-      addNote(note2, 'q');
-    }else{
-      const parts1 = midiToParts(note1, asc);
-      const parts2 = midiToParts(note2, asc);
-      const clef1 = note1 < 60 ? 'bass' : 'treble';
-      const clef2 = note2 < 60 ? 'bass' : 'treble';
-      if(clef1 === clef2){
-        const n = vf.StaveNote({ keys:[parts1.key, parts2.key], duration:'h', clef:clef1 });
-        if(parts1.accidental) n.addModifier(new Accidental(parts1.accidental), 0);
-        if(parts2.accidental) n.addModifier(new Accidental(parts2.accidental), 1);
-        if(clef1 === 'bass') bassNotes.push(n); else trebleNotes.push(n);
-      }else{
-        addNote(note1, 'h');
-        addNote(note2, 'h');
-      }
-    }
+    const brace = new StaveConnector(treble, bass);
+    brace.setType(StaveConnector.type.BRACE);
+    brace.setContext(context).draw();
+    const line = new StaveConnector(treble, bass);
+    line.setType(StaveConnector.type.SINGLE_LEFT);
+    line.setContext(context).draw();
 
     const trebleVoice = new Voice({ numBeats:2, beatValue:4 });
     const bassVoice = new Voice({ numBeats:2, beatValue:4 });
 
+    const asc = note2 >= note1;
+
     if(mode === 'iS'){
-      const restTreble = vf.StaveNote({ keys:['b/4'], duration:'qr', clef:'treble' });
-      const restBass = vf.StaveNote({ keys:['b/4'], duration:'qr', clef:'bass' });
-      trebleVoice.addTickable(trebleNotes[0] || restTreble);
-      bassVoice.addTickable(bassNotes[0] || restBass);
-      trebleVoice.addTickable(trebleNotes[1] || restTreble);
-      bassVoice.addTickable(bassNotes[1] || restBass);
+      const restTreble = new StaveNote({ keys:['b/4'], duration:'qr', clef:'treble' });
+      const restBass = new StaveNote({ keys:['b/4'], duration:'qr', clef:'bass' });
+      const n1Clef = note1 < 60 ? 'bass' : 'treble';
+      const n2Clef = note2 < 60 ? 'bass' : 'treble';
+      const n1 = createNote(note1, 'q', asc, n1Clef);
+      const n2 = createNote(note2, 'q', asc, n2Clef);
+      trebleVoice.addTickable(n1Clef === 'treble' ? n1 : restTreble);
+      bassVoice.addTickable(n1Clef === 'bass' ? n1 : restBass);
+      trebleVoice.addTickable(n2Clef === 'treble' ? n2 : restTreble);
+      bassVoice.addTickable(n2Clef === 'bass' ? n2 : restBass);
     }else{
-      const restTreble = vf.StaveNote({ keys:['b/4'], duration:'hr', clef:'treble' });
-      const restBass = vf.StaveNote({ keys:['b/4'], duration:'hr', clef:'bass' });
-      trebleVoice.addTickables(trebleNotes.length ? trebleNotes : [restTreble]);
-      bassVoice.addTickables(bassNotes.length ? bassNotes : [restBass]);
+      const restTreble = new StaveNote({ keys:['b/4'], duration:'hr', clef:'treble' });
+      const restBass = new StaveNote({ keys:['b/4'], duration:'hr', clef:'bass' });
+      const clef1 = note1 < 60 ? 'bass' : 'treble';
+      const clef2 = note2 < 60 ? 'bass' : 'treble';
+      if(clef1 === clef2){
+        const chord = createChord(note1, note2, 'h', asc, clef1);
+        if(clef1 === 'treble'){
+          trebleVoice.addTickable(chord);
+          bassVoice.addTickable(restBass);
+        }else{
+          bassVoice.addTickable(chord);
+          trebleVoice.addTickable(restTreble);
+        }
+      }else{
+        const n1 = createNote(note1, 'h', asc, clef1);
+        const n2 = createNote(note2, 'h', asc, clef2);
+        if(clef1 === 'treble') trebleVoice.addTickable(n1); else bassVoice.addTickable(n1);
+        if(clef2 === 'treble') trebleVoice.addTickable(n2); else bassVoice.addTickable(n2);
+        if(clef1 === 'treble' && clef2 !== 'treble') trebleVoice.addTickable(restTreble);
+        if(clef1 === 'bass' && clef2 !== 'bass') bassVoice.addTickable(restBass);
+      }
     }
 
-    const system = vf.System({ x:10, y:40, width:160, spaceBetweenStaves:70 });
-    system.addStave({ voices:[trebleVoice] }).addClef('treble');
-    system.addStave({ voices:[bassVoice] }).addClef('bass');
-    system.addConnector().setType(StaveConnector.type.BRACE);
-    system.addConnector().setType(StaveConnector.type.SINGLE_LEFT);
-    vf.draw();
+    const formatter = new Formatter();
+    formatter.joinVoices([trebleVoice]);
+    formatter.joinVoices([bassVoice]);
+    formatter.format([trebleVoice, bassVoice], 120);
+    trebleVoice.draw(context, treble);
+    bassVoice.draw(context, bass);
     return;
   }
 
-  const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(180, 240);
-  const context = renderer.getContext();
   const stave = new Stave(10, 80, 160);
   stave.addClef('treble');
   stave.setContext(context).draw();
