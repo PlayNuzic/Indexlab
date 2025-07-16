@@ -36,7 +36,9 @@ Aquest repositori conté quatre demos dins `apps/`:
 - **app4** – Aleatoritzador modular de melodies publicat a GitHub Pages.
 
 Totes comparteixen els components i utilitats comuns que es troben a `libs/`
-i al directori `shared/`.
+i al directori `shared/`. El mòdul `libs/notation` proporciona la
+funcionalitat de dibuix d'intervals en pentagrama (simple o doble) perquè les
+apps puguin reutilitzar-lo.
 La manipulació de cartes (parell component-nota) es documenta a
 [`docs/cards-transformations.md`](docs/cards-transformations.md).
 

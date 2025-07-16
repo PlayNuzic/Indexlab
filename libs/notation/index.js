@@ -1,16 +1,10 @@
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector } from '../vendor/vexflow/entry/vexflow.js';
-
-function midiToParts(midi, preferSharp=true){
-  const letters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
-  const sharps =  ['', '#', '', '#', '', '', '#', '', '#', '', '#', ''];
-  const flats  =  ['', 'b', '', 'b', '', '', 'b', '', 'b', '', 'b', ''];
-  const pc = midi % 12;
-  const octave = Math.floor(midi / 12) - 1;
-  return {
-    key: `${letters[pc]}/${octave}`,
-    accidental: (preferSharp ? sharps[pc] : flats[pc])
-  };
-}
+import {
+  midiToParts,
+  needsDoubleStaff,
+  createNote,
+  createChord
+} from './helpers.js';
 
 function needsDoubleStaff(n1, n2){
   return n1 < 60 || n2 < 60 || n1 > 81 || n2 > 81;
@@ -136,3 +130,10 @@ export function drawInterval(container, note1, note2, mode='iS'){
     voice.draw(context, stave);
   }
 }
+
+export {
+  midiToParts,
+  needsDoubleStaff,
+  createNote,
+  createChord
+};
