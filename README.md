@@ -42,4 +42,9 @@ La manipulació de cartes (parell component-nota) es documenta a
 
 ## Tests
 
-Run `npm test` from the repository root.
+Before running tests, execute `./setup.sh` once per session to install all
+dependencies and configure Git. After that you can run the test suite with:
+
+```bash
+npm test
+```
