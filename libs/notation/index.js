@@ -6,29 +6,6 @@ import {
   createChord
 } from './helpers.js';
 
-function needsDoubleStaff(n1, n2){
-  return n1 < 60 || n2 < 60 || n1 > 81 || n2 > 81;
-}
-
-function createNote(midi, duration, asc, clef){
-  let parts = midiToParts(midi, asc);
-  const note = new StaveNote({ keys:[parts.key], duration, clef });
-  if(parts.accidental) note.addModifier(new Accidental(parts.accidental), 0);
-  return note;
-}
-
-function createChord(m1, m2, duration, asc, clef){
-  let p1 = midiToParts(m1, asc);
-  let p2 = midiToParts(m2, asc);
-  if(p1.key[0] === p2.key[0]){
-    p2 = midiToParts(m2, !asc);
-  }
-  const chord = new StaveNote({ keys:[p1.key, p2.key], duration, clef });
-  if(p1.accidental) chord.addModifier(new Accidental(p1.accidental), 0);
-  if(p2.accidental) chord.addModifier(new Accidental(p2.accidental), 1);
-  return chord;
-}
-
 export function drawInterval(container, note1, note2, mode='iS'){
   container.innerHTML = '';
   const useDouble = needsDoubleStaff(note1, note2);
@@ -131,9 +108,4 @@ export function drawInterval(container, note1, note2, mode='iS'){
   }
 }
 
-export {
-  midiToParts,
-  needsDoubleStaff,
-  createNote,
-  createChord
-};
+export * from './helpers.js';
