@@ -25,7 +25,8 @@ describe('notation helpers', () => {
   test('midiToParts maps MIDI to VexFlow parts', () => {
     expect(midiToParts(60)).toEqual({ key: 'c/4', accidental: '' });
     expect(midiToParts(61)).toEqual({ key: 'c/4', accidental: '#' });
-    expect(midiToParts(63,false).accidental).toBe('b');
+    expect(midiToParts(61,false)).toEqual({ key: 'd/4', accidental: 'b' });
+    expect(midiToParts(63,false)).toEqual({ key: 'e/4', accidental: 'b' });
   });
 
   test('needsDoubleStaff detects out of range', () => {

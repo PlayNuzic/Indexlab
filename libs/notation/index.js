@@ -38,8 +38,8 @@ export function drawInterval(container, note1, note2, mode='iS'){
       const restBass = new StaveNote({ keys:['b/4'], duration:'qr', clef:'bass' });
       const n1Clef = note1 < 60 ? 'bass' : 'treble';
       const n2Clef = note2 < 60 ? 'bass' : 'treble';
-      const n1 = createNote(note1, 'q', asc, n1Clef);
-      const n2 = createNote(note2, 'q', asc, n2Clef);
+      const n1 = createNote(note1, 'q', asc, n1Clef, Accidental, StaveNote);
+      const n2 = createNote(note2, 'q', asc, n2Clef, Accidental, StaveNote);
       trebleVoice.addTickable(n1Clef === 'treble' ? n1 : restTreble);
       bassVoice.addTickable(n1Clef === 'bass' ? n1 : restBass);
       trebleVoice.addTickable(n2Clef === 'treble' ? n2 : restTreble);
@@ -50,7 +50,7 @@ export function drawInterval(container, note1, note2, mode='iS'){
       const clef1 = note1 < 60 ? 'bass' : 'treble';
       const clef2 = note2 < 60 ? 'bass' : 'treble';
       if(clef1 === clef2){
-        const chord = createChord(note1, note2, 'h', asc, clef1);
+        const chord = createChord(note1, note2, 'h', asc, clef1, Accidental, StaveNote);
         if(clef1 === 'treble'){
           trebleVoice.addTickable(chord);
           bassVoice.addTickable(restBass);
@@ -59,8 +59,8 @@ export function drawInterval(container, note1, note2, mode='iS'){
           trebleVoice.addTickable(restTreble);
         }
       }else{
-        const n1 = createNote(note1, 'h', asc, clef1);
-        const n2 = createNote(note2, 'h', asc, clef2);
+        const n1 = createNote(note1, 'h', asc, clef1, Accidental, StaveNote);
+        const n2 = createNote(note2, 'h', asc, clef2, Accidental, StaveNote);
         if(clef1 === 'treble') trebleVoice.addTickable(n1); else bassVoice.addTickable(n1);
         if(clef2 === 'treble') trebleVoice.addTickable(n2); else bassVoice.addTickable(n2);
         if(clef1 === 'treble' && clef2 !== 'treble') trebleVoice.addTickable(restTreble);

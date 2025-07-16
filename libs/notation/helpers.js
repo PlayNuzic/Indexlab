@@ -1,9 +1,11 @@
 export function midiToParts(midi, preferSharp = true) {
-  const letters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
-  const sharps =  ['', '#', '', '#', '', '', '#', '', '#', '', '#', ''];
-  const flats  =  ['', 'b', '', 'b', '', '', 'b', '', 'b', '', 'b', ''];
+  const sharpLetters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
+  const flatLetters  = ['c','d','d','e','e','f','g','g','a','a','b','b'];
+  const sharps = ['', '#', '', '#', '', '', '#', '', '#', '', '#', ''];
+  const flats  = ['', 'b', '', 'b', '', '', 'b', '', 'b', '', 'b', ''];
   const pc = midi % 12;
   const octave = Math.floor(midi / 12) - 1;
+  const letters = preferSharp ? sharpLetters : flatLetters;
   return {
     key: `${letters[pc]}/${octave}`,
     accidental: preferSharp ? sharps[pc] : flats[pc]
