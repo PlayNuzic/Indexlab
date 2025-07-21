@@ -54,6 +54,34 @@ export const scaleKeySignatures = {
     ['fa#','do#','sol' + BECUADRO,'re#'],
     ['sib','mi' + BECUADRO,'lab'],
     ['fa#','do#','sol#','re#','la' + BECUADRO,'do#']
+  ],
+  ARMm: [
+    ['si'+BECUADRO,'mib','lab'],
+    ['fa#','do#','sol#','re#','la'+BECUADRO,'mi'+BECUADRO,'si#'],
+    ['fa'+BECUADRO,'do#','sib'],
+    ['sib','mib','lab','re'+BECUADRO,'solb','dob'],
+    ['fa#','do'+BECUADRO,'sol'+BECUADRO,'re#'],
+    ['sib','mi'+BECUADRO,'lab','reb'],
+    ['fa#','do#','sol#','re'+BECUADRO,'la'+BECUADRO,'mi#'],
+    ['fa#','sib','mib'],
+    ['sib','mib','lab','reb','sol'+BECUADRO,'dob','fab'],
+    ['fa'+BECUADRO,'do'+BECUADRO,'sol#'],
+    ['sib','mib','la'+BECUADRO,'reb','solb'],
+    ['fa#','do#','sol'+BECUADRO,'re'+BECUADRO,'la#']
+  ],
+  ARMM: [
+    ['lab'],
+    ['fa#','do#','sol#','re#','la'+BECUADRO,'mi#'],
+    ['fa#','do#','sib'],
+    ['sib','mib','lab','re'+BECUADRO,'sol'+BECUADRO,'dob'],
+    ['fa#','do'+BECUADRO,'sol#','re#'],
+    ['sib','mi'+BECUADRO,'la'+BECUADRO,'reb'],
+    ['fa#','do#','sol#','re'+BECUADRO,'la#','mi#'],
+    ['fa#','sib'],
+    ['sib','mib','lab','reb','sol'+BECUADRO,'do'+BECUADRO,'fab'],
+    ['fa'+BECUADRO,'do#','sol#'],
+    ['sib','mib','la'+BECUADRO,'re'+BECUADRO,'solb'],
+    ['fa#','do#','sol'+BECUADRO,'re#','la#']
   ]
 };
 

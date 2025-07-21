@@ -27,4 +27,15 @@ describe('getKeySignature', () => {
   test('ACUS root 9 uses natural', () => {
     expect(getKeySignature('ACUS',9)).toEqual(['fa#','do#','sol'+BECUADRO,'re#']);
   });
+<<<<<<< ours
+=======
+
+  test('ARMm root 0', () => {
+    expect(getKeySignature('ARMm',0)).toEqual(['si'+BECUADRO,'mib','lab']);
+  });
+
+  test('ARMM root 1', () => {
+    expect(getKeySignature('ARMM',1)).toEqual(['fa#','do#','sol#','re#','la'+BECUADRO,'mi#']);
+  });
+>>>>>>> theirs
 });
