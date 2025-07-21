@@ -1,6 +1,6 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { drawPentagram } from '../../../libs/notation/pentagram.js';
 import { motherScalesData, scaleSemis, getKeySignature } from '../../../shared/scales.js';
+import { drawKeySignature } from '../../../libs/notation/index.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
@@ -157,7 +157,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
   function updateKeySig(){
     const acc = getKeySignature(scale.id, scale.root);
-    keySigEl.textContent = acc.length ? 'Arm.: ' + acc.join(' ') : 'Arm.: -';
+    drawKeySignature(keySigEl, acc);
   }
   function refreshRot(){
     rotSel.innerHTML='';
