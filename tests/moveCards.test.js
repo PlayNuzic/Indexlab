@@ -43,4 +43,11 @@ describe('moveCards', () => {
     expect(state.notes).toEqual([0,3,4,1,2]);
     expect(res).toEqual([1,2]);
   });
+
+  test('move after target index', () => {
+    const state = setup([0,1,2,3]);
+    const res = moveCards(state,[1],2,true);
+    expect(state.notes).toEqual([0,2,1,3]);
+    expect(res).toEqual([2]);
+  });
 });

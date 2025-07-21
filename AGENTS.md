@@ -12,4 +12,8 @@ Des del directori arrel del repositori, executa:
 npm test
 ```
 
+## Documentació de cartes
+
+Consulta `docs/cards-transformations.md` per a les darreres funcions de permutació de targetes.
+
 

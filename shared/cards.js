@@ -43,7 +43,7 @@ export function shiftOct(octShifts, idx, delta){
   return octShifts[idx];
 }
 
-export function moveCards(state, indices, target){
+export function moveCards(state, indices, target, after=false){
   const {notes, octShifts, components}=state;
   indices=indices.slice().sort((a,b)=>a-b);
   const vals=indices.map(i=>notes[i]);
@@ -54,8 +54,8 @@ export function moveCards(state, indices, target){
     octShifts.splice(indices[j],1);
     components.splice(indices[j],1);
   }
-  let insert=target;
-  indices.forEach(i=>{ if(i<target) insert--; });
+  let insert=after?target+1:target;
+  indices.forEach(i=>{ if(i<insert) insert--; });
   notes.splice(insert,0,...vals);
   octShifts.splice(insert,0,...shifts);
   components.splice(insert,0,...comps);

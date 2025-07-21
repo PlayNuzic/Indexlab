@@ -10,7 +10,7 @@ The module `shared/cards.js` groups helpers to manipulate note-component pairs (
 | `rotateLeft(notes, shifts, comps)` | Rotate card arrays to the left. |
 | `rotateRight(notes, shifts, comps)` | Rotate card arrays to the right. |
 | `shiftOct(octShifts, index, delta)` | Change the octave shift for one card. |
-| `moveCards(state, indices, target)` | Permute cards by moving a group to `target`. Returns their new indices. |
+| `moveCards(state, indices, target, after?)` | Permute cards by moving a group before or after `target` depending on the optional `after` flag. Returns their new indices. |
 | `duplicateCards(state, indices)` | Duplicate cards appending them at the end. Returns indices of the new cards. |
 | `omitCards(state, indices)` | Remove the specified cards from the arrays. |
 | `addCard(state, note, comp, shift?, index?)` | Insert a new card at the given index (or at the end). |
