@@ -54,10 +54,10 @@ export function drawPentagram(container, midis = [], options = {}) {
   trebleVoice.setStrict(false);
   bassVoice.setStrict(false);
 
-  const trebleVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
-  const bassVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
-  trebleVoice.setStrict(false);
-  bassVoice.setStrict(false);
+  const trebleV = new Voice({ numBeats: midis.length, beatValue: 4 });
+  const bassV = new Voice({ numBeats: midis.length, beatValue: 4 });
+  trebleV.setStrict(false);
+  bassV.setStrict(false);
 
   if (chord) {
     const byClef = { treble: [], bass: [] };
@@ -73,7 +73,7 @@ export function drawPentagram(container, midis = [], options = {}) {
       byClef[clef].forEach((p, i) => {
         if (needsAccidental(p, ksMap)) note.addModifier(new Accidental(p.accidental), i);
       });
-      (clef === 'treble' ? trebleVoice : bassVoice).addTickable(note);
+      (clef === 'treble' ? trebleV : bassV).addTickable(note);
     });
   } else {
     midis.forEach(m => {
@@ -81,26 +81,26 @@ export function drawPentagram(container, midis = [], options = {}) {
       const clef = m < 60 ? 'bass' : 'treble';
       const note = new StaveNote({ keys: [parts.key], duration, clef });
       if (needsAccidental(parts, ksMap)) note.addModifier(new Accidental(parts.accidental), 0);
-      const target = clef === 'treble' ? trebleVoice : bassVoice;
-      const other = clef === 'treble' ? bassVoice : trebleVoice;
+      const target = clef === 'treble' ? trebleV : bassV;
+      const other = clef === 'treble' ? bassV : trebleV;
       target.addTickable(note);
       other.addTickable(new GhostNote(duration));
     });
   }
 
   const voices = [];
-  if(trebleVoice.getTickables().length){
-    voices.push(trebleVoice);
+  if(trebleV.getTickables().length){
+    voices.push(trebleV);
   }
-  if(bassVoice.getTickables().length){
-    voices.push(bassVoice);
+  if(bassV.getTickables().length){
+    voices.push(bassV);
   }
   if(voices.length){
     const formatter = new Formatter();
     voices.forEach(v => formatter.joinVoices([v]));
     formatter.format(voices, 280);
-    if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
-    if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
+    if(trebleV.getTickables().length) trebleV.draw(context, treble);
+    if(bassV.getTickables().length) bassV.draw(context, bass);
   }
 }
 
