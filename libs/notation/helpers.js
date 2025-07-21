@@ -1,3 +1,5 @@
+export const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
+
 export function midiToParts(midi, preferSharp = true) {
   const sharpLetters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
   const flatLetters  = ['c','d','d','e','e','f','g','g','a','a','b','b'];
@@ -10,6 +12,20 @@ export function midiToParts(midi, preferSharp = true) {
     key: `${letters[pc]}/${octave}`,
     accidental: preferSharp ? sharps[pc] : flats[pc]
   };
+}
+
+export function midiToPartsByKeySig(midi, ksMap) {
+  if(!ksMap) return midiToParts(midi, true);
+  const pc = ((midi % 12) + 12) % 12;
+  const octave = Math.floor(midi / 12) - 1;
+  for(const [letter, basePc] of Object.entries(letterToPc)){
+    const acc = ksMap[basePc] || '';
+    const adj = acc === '#' ? 1 : acc === 'b' ? -1 : 0;
+    if(((basePc + adj + 12) % 12) === pc){
+      return { key: `${letter}/${octave}`, accidental: acc };
+    }
+  }
+  return midiToParts(midi, true);
 }
 
 export function needsDoubleStaff(n1, n2) {

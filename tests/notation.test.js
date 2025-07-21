@@ -3,8 +3,10 @@ const path = require('path');
 
 function loadHelpers(){
   const code = fs.readFileSync(path.join(__dirname, '../libs/notation/helpers.js'), 'utf8');
-  const transformed = code.replace(/export function/g, 'function') +
-    '\nmodule.exports = { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom };';
+  const transformed = code
+    .replace(/export function/g, 'function')
+    .replace(/export const/g, 'const') +
+    '\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom };';
   const mod = { exports: {} };
   const fn = new Function('module','exports', transformed);
   fn(mod, mod.exports);

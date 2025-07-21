@@ -1,5 +1,5 @@
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, GhostNote } from '../vendor/vexflow/entry/vexflow.js';
-import { midiToParts, keySignatureFrom } from './helpers.js';
+import { midiToParts, midiToPartsByKeySig, keySignatureFrom } from './helpers.js';
 import { getKeySignature } from '../../shared/scales.js';
 
 const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
@@ -59,10 +59,11 @@ export function drawPentagram(container, midis = [], options = {}) {
   trebleV.setStrict(false);
   bassV.setStrict(false);
 
+  const useKs = options.scaleId !== 'CROM';
   if (chord) {
     const byClef = { treble: [], bass: [] };
     midis.forEach(m => {
-      const parts = midiToParts(m, true);
+      const parts = useKs ? midiToPartsByKeySig(m, ksMap) : midiToParts(m, true);
       const clef = m < 60 ? 'bass' : 'treble';
       byClef[clef].push(parts);
     });
@@ -71,16 +72,18 @@ export function drawPentagram(container, midis = [], options = {}) {
       const keys = byClef[clef].map(p => p.key);
       const note = new StaveNote({ keys, duration, clef });
       byClef[clef].forEach((p, i) => {
-        if (needsAccidental(p, ksMap)) note.addModifier(new Accidental(p.accidental), i);
+        const need = useKs ? needsAccidental(p, ksMap) : !!p.accidental;
+        if (need) note.addModifier(new Accidental(p.accidental), i);
       });
       (clef === 'treble' ? trebleV : bassV).addTickable(note);
     });
   } else {
     midis.forEach(m => {
-      const parts = midiToParts(m, true);
+      const parts = useKs ? midiToPartsByKeySig(m, ksMap) : midiToParts(m, true);
       const clef = m < 60 ? 'bass' : 'treble';
       const note = new StaveNote({ keys: [parts.key], duration, clef });
-      if (needsAccidental(parts, ksMap)) note.addModifier(new Accidental(parts.accidental), 0);
+      const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;
+      if (need) note.addModifier(new Accidental(parts.accidental), 0);
       const target = clef === 'treble' ? trebleV : bassV;
       const other = clef === 'treble' ? bassV : trebleV;
       target.addTickable(note);
