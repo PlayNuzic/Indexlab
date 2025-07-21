@@ -42,14 +42,14 @@ button#generate:hover{background:#e6a12b;}
 .matrix td.playing-pair{background:rgba(244,114,182,0.6)!important;}
 .rec-controls{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;justify-content:center;margin-top:.5rem;}
 #togglePlay{background:var(--accent);color:#222;}
-#staff{display:flex;justify-content:center;margin:.5rem 0;}
+#staff{display:flex;justify-content:center;margin:.5rem 0;position:relative;z-index:20;}
 #staff svg{
-  background:var(--bg-card);
+  background:#fff;
   border-radius:8px;
   padding:.5rem;
   position:relative;
   width:400px;
-  z-index:10;
+  z-index:20;
 }
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}

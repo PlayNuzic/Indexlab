@@ -1,4 +1,4 @@
-import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector } from '../vendor/vexflow/entry/vexflow.js';
+import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, GhostNote } from '../vendor/vexflow/entry/vexflow.js';
 import { midiToParts, keySignatureFrom } from './helpers.js';
 import { getKeySignature } from '../../shared/scales.js';
 
@@ -27,7 +27,7 @@ export function needsAccidental(parts, ksMap){
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
   if (!midis.length) return;
-  const { chord = false } = options;
+  const { chord = false, duration = 'q' } = options;
   const keySigName = keySignatureFrom(options);
   const ksMap = parseKeySignatureArray(getKeySignature(options.scaleId, options.root));
   const renderer = new Renderer(container, Renderer.Backends.SVG);
@@ -54,6 +54,11 @@ export function drawPentagram(container, midis = [], options = {}) {
   trebleVoice.setStrict(false);
   bassVoice.setStrict(false);
 
+  const trebleVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
+  const bassVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
+  trebleVoice.setStrict(false);
+  bassVoice.setStrict(false);
+
   if (chord) {
     const byClef = { treble: [], bass: [] };
     midis.forEach(m => {
@@ -64,7 +69,7 @@ export function drawPentagram(container, midis = [], options = {}) {
     ['treble', 'bass'].forEach(clef => {
       if (!byClef[clef].length) return;
       const keys = byClef[clef].map(p => p.key);
-      const note = new StaveNote({ keys, duration: 'q', clef });
+      const note = new StaveNote({ keys, duration, clef });
       byClef[clef].forEach((p, i) => {
         if (needsAccidental(p, ksMap)) note.addModifier(new Accidental(p.accidental), i);
       });
@@ -74,9 +79,12 @@ export function drawPentagram(container, midis = [], options = {}) {
     midis.forEach(m => {
       const parts = midiToParts(m, true);
       const clef = m < 60 ? 'bass' : 'treble';
-      const note = new StaveNote({ keys: [parts.key], duration: 'q', clef });
+      const note = new StaveNote({ keys: [parts.key], duration, clef });
       if (needsAccidental(parts, ksMap)) note.addModifier(new Accidental(parts.accidental), 0);
-      (clef === 'treble' ? trebleVoice : bassVoice).addTickable(note);
+      const target = clef === 'treble' ? trebleVoice : bassVoice;
+      const other = clef === 'treble' ? bassVoice : trebleVoice;
+      target.addTickable(note);
+      other.addTickable(new GhostNote(duration));
     });
   }
 
