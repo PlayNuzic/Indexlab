@@ -9,6 +9,8 @@ export const motherScalesData = {
   TON:{name:'Tonos',ee:[2,2,2,2,2,2],rotNames:['Único']}
 };
 
+export const BECUADRO = '\u266E';
+
 export function scaleSemis(id){
   if(!scaleSemis.cache) scaleSemis.cache = new Map();
   if(scaleSemis.cache.has(id)) return scaleSemis.cache.get(id);
@@ -33,6 +35,20 @@ export const scaleKeySignatures = {
     ['fa#','do#','sol#'],
     ['sib','mib'],
     ['fa#','do#','sol#','re#','la#']
+  ],
+  ACUS: [
+    ['fa#','sib'],
+    ['sib','mib','lab','reb','sol' + BECUADRO,'dob'],
+    ['fa#','do' + BECUADRO,'sol#'],
+    ['sib','mib','la' + BECUADRO,'reb'],
+    ['fa#','do#','sol#','re' + BECUADRO,'la#'],
+    ['si' + BECUADRO,'mib'],
+    ['sib','mib','lab','reb','solb','do' + BECUADRO,'lab'],
+    ['fa' + BECUADRO,'do#'],
+    ['sib','mib','lab','re' + BECUADRO,'solb'],
+    ['fa#','do#','sol' + BECUADRO,'re#'],
+    ['sib','mi' + BECUADRO,'lab'],
+    ['fa#','do#','sol#','re#','la' + BECUADRO,'do#']
   ]
 };
 
