@@ -1,9 +1,5 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-<<<<<<< ours
-import { drawPentagram } from ../../../libs/notation/pentagram.js;
-=======
 import { drawPentagram } from '../../../libs/notation/pentagram.js';
->>>>>>> theirs
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
