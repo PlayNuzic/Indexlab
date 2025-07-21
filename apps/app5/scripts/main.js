@@ -345,11 +345,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault();
         e.stopPropagation();
         const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
-        moveCards(grp, i);
-      };
-      card.ondragenter=()=>{
+        const min=Math.min(...grp);
+        const target=min < i ? i + 1 : i;
+        moveCards(grp, target);
+        card.classList.remove('drop-hover');
         card.classList.add('drop-flash');
         setTimeout(()=>card.classList.remove('drop-flash'),150);
+      };
+      card.ondragenter=e=>{
+        if(!card.classList.contains('drop-hover')) card.classList.add('drop-hover');
+      };
+      card.ondragleave=e=>{
+        if(!card.contains(e.relatedTarget)) card.classList.remove('drop-hover');
       };
       const up=document.createElement('button');
       up.className='up';

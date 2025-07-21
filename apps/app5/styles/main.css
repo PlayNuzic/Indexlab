@@ -156,6 +156,7 @@ button#generate:hover{background:#e6a12b;}
   cursor:grab;
 }
 .component-card.selected{outline:2px solid var(--accent);}
+.component-card.drop-hover{outline:2px solid var(--accent);}
 .component-card.drop-flash{animation:flash-border 0.15s ease-in-out;}
 @keyframes flash-border{from{outline:2px solid var(--accent);}to{outline:2px solid transparent;}}
 .component-card .note{font-weight:bold;font-size:1.2rem;}
