@@ -51,6 +51,8 @@ export function drawPentagram(container, midis=[], options={}){
 
   const trebleVoice = new Voice({ numBeats: midis.length, beatValue:4 });
   const bassVoice = new Voice({ numBeats: midis.length, beatValue:4 });
+  trebleVoice.setStrict(false);
+  bassVoice.setStrict(false);
 
   midis.forEach(m => {
     const parts = midiToParts(m, true);
