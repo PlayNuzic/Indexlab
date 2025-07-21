@@ -1,5 +1,5 @@
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, GhostNote } from '../vendor/vexflow/entry/vexflow.js';
-import { midiToParts, midiToPartsByKeySig, keySignatureFrom } from './helpers.js';
+import { midiToParts, midiToPartsByKeySig, keySignatureFrom } from './index.js';
 import { getKeySignature } from '../../shared/scales.js';
 
 const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
