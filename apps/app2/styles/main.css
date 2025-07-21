@@ -20,4 +20,5 @@ a{color:#ffbb33;}
 a:hover{text-decoration:underline;}
 button.disabled{background:#555;color:#999;cursor:default;}
 #attempts{list-style:none;padding:0;margin:.5rem 0;}
+#attempts li{display:flex;justify-content:center;gap:1rem;}
 .summary-buttons{display:flex;justify-content:center;gap:.5rem;margin-top:.5rem;}

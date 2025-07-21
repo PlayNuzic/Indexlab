@@ -107,11 +107,33 @@ function showSummary(){
   document.getElementById("totals").textContent=`Totals sessió · Enc.: ${game.correctTotal} · Err.: ${game.wrongTotal} · Percentatge: ${percent}% · Nivell ${game.level} – ${levelNames[game.level]}`;
   const list=document.getElementById('attempts');
   list.innerHTML='';
+  const grouped={};
   game.history.forEach(a=>{
-    const li=document.createElement('li');
-    li.textContent=`${a.correct?'\u2714':'\u274C'} ${a.mode}(${a.interval})`;
-    list.appendChild(li);
+    const key=`${a.mode}(${a.interval})`;
+    if(!grouped[key]) grouped[key]={ok:0, fail:0};
+    if(a.correct) grouped[key].ok++; else grouped[key].fail++;
   });
+  Object.keys(grouped)
+    .sort((a,b)=>{
+      const ai=parseInt(a.match(/\(([-\d]+)\)/)[1]);
+      const bi=parseInt(b.match(/\(([-\d]+)\)/)[1]);
+      return ai-bi;
+    })
+    .forEach(label=>{
+      const {ok,fail}=grouped[label];
+      const li=document.createElement('li');
+      const lbl=document.createElement('span');
+      lbl.textContent=label;
+      const okSpan=document.createElement('span');
+      okSpan.textContent='\u2714'.repeat(ok);
+      const failSpan=document.createElement('span');
+      failSpan.textContent='\u274C'.repeat(fail);
+      failSpan.style.marginLeft='1rem';
+      li.appendChild(lbl);
+      li.appendChild(okSpan);
+      li.appendChild(failSpan);
+      list.appendChild(li);
+    });
   document.getElementById("summary").style.display="block";
 }
 

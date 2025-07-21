@@ -68,3 +68,10 @@ export function keySignatureMap(accArr){
   });
   return map;
 }
+
+export function keySignatureFrom(options){
+  if(!options || options.scaleId !== 'DIAT') return null;
+  const names = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  const idx = ((options.root ?? 0) % 12 + 12) % 12;
+  return names[idx];
+}
