@@ -48,7 +48,8 @@ button#generate:hover{background:#e6a12b;}
   border-radius:8px;
   padding:.5rem;
   position:relative;
-  z-index:1;
+  width:400px;
+  z-index:10;
 }
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}

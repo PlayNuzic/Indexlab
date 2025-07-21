@@ -24,19 +24,20 @@ export function needsAccidental(parts, ksMap){
   return parts.accidental !== expected;
 }
 
-export function drawPentagram(container, midis=[], options={}){
-  container.innerHTML='';
-  if(!midis.length) return;
+export function drawPentagram(container, midis = [], options = {}) {
+  container.innerHTML = '';
+  if (!midis.length) return;
+  const { chord = false } = options;
   const keySigName = keySignatureFrom(options);
   const ksMap = parseKeySignatureArray(getKeySignature(options.scaleId, options.root));
   const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(200,340);
+  renderer.resize(400, 340);
   const context = renderer.getContext();
 
-  const treble = new Stave(10,40,180);
+  const treble = new Stave(10, 40, 360);
   treble.addClef('treble');
   if(keySigName) treble.addKeySignature(keySigName);
-  const bass = new Stave(10,160,180);
+  const bass = new Stave(10, 160, 360);
   bass.addClef('bass');
   if(keySigName) bass.addKeySignature(keySigName);
   treble.setContext(context).draw();
@@ -48,19 +49,36 @@ export function drawPentagram(container, midis=[], options={}){
   const line = new StaveConnector(treble,bass);
   line.setType(StaveConnector.type.SINGLE_LEFT);
   line.setContext(context).draw();
-
-  const trebleVoice = new Voice({ numBeats: midis.length, beatValue:4 });
-  const bassVoice = new Voice({ numBeats: midis.length, beatValue:4 });
+  const trebleVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
+  const bassVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
   trebleVoice.setStrict(false);
   bassVoice.setStrict(false);
 
-  midis.forEach(m => {
-    const parts = midiToParts(m, true);
-    const clef = m < 60 ? 'bass' : 'treble';
-    const note = new StaveNote({ keys:[parts.key], duration:'q', clef });
-    if(needsAccidental(parts, ksMap)) note.addModifier(new Accidental(parts.accidental),0);
-    (clef==='treble'?trebleVoice:bassVoice).addTickable(note);
-  });
+  if (chord) {
+    const byClef = { treble: [], bass: [] };
+    midis.forEach(m => {
+      const parts = midiToParts(m, true);
+      const clef = m < 60 ? 'bass' : 'treble';
+      byClef[clef].push(parts);
+    });
+    ['treble', 'bass'].forEach(clef => {
+      if (!byClef[clef].length) return;
+      const keys = byClef[clef].map(p => p.key);
+      const note = new StaveNote({ keys, duration: 'q', clef });
+      byClef[clef].forEach((p, i) => {
+        if (needsAccidental(p, ksMap)) note.addModifier(new Accidental(p.accidental), i);
+      });
+      (clef === 'treble' ? trebleVoice : bassVoice).addTickable(note);
+    });
+  } else {
+    midis.forEach(m => {
+      const parts = midiToParts(m, true);
+      const clef = m < 60 ? 'bass' : 'treble';
+      const note = new StaveNote({ keys: [parts.key], duration: 'q', clef });
+      if (needsAccidental(parts, ksMap)) note.addModifier(new Accidental(parts.accidental), 0);
+      (clef === 'treble' ? trebleVoice : bassVoice).addTickable(note);
+    });
+  }
 
   const voices = [];
   if(trebleVoice.getTickables().length){
@@ -72,7 +90,7 @@ export function drawPentagram(container, midis=[], options={}){
   if(voices.length){
     const formatter = new Formatter();
     voices.forEach(v => formatter.joinVoices([v]));
-    formatter.format(voices, 140);
+    formatter.format(voices, 280);
     if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
     if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
   }

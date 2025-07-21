@@ -315,7 +315,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     return components.slice();
   }
 function renderStaff(){
-    drawPentagram(staffEl, diagArr, { scaleId: scale.id, root: scale.root });
+    drawPentagram(staffEl, diagArr, { scaleId: scale.id, root: scale.root, chord: mode === 'eA' });
   }
 
 
