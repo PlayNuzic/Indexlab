@@ -9,7 +9,12 @@ export const motherScalesData = {
   TON:{name:'Tonos',ee:[2,2,2,2,2,2],rotNames:['Único']}
 };
 
+export const SHARP = '#';
+export const FLAT = 'b';
+export const DOUBLE_SHARP = '\uD834\uDD2A';
+export const DOUBLE_FLAT = '\uD834\uDD2B';
 export const BECUADRO = '\u266E';
+export const NATURAL = BECUADRO;
 
 export function scaleSemis(id){
   if(!scaleSemis.cache) scaleSemis.cache = new Map();

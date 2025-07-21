@@ -1,6 +1,5 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { drawPentagram } from '../../../libs/notation/pentagram.js';
-import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, getKeySignature } from '../../../shared/scales.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
@@ -146,6 +145,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const scaleSel=document.getElementById('scaleSel');
   const rotSel=document.getElementById('rotSel');
   const rootSel=document.getElementById('rootSel');
+  const keySigEl=document.getElementById('keySig');
   const showNmBtn=document.getElementById('showNm');
   seqInput.value=notesToEA(notes, scaleSemis(scale.id).length);
 
@@ -154,6 +154,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
   rootSel.innerHTML='';
   [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
+  function updateKeySig(){
+    const acc = getKeySignature(scale.id, scale.root);
+    keySigEl.textContent = acc.length ? 'Arm.: ' + acc.join(' ') : 'Arm.: -';
+  }
   function refreshRot(){
     rotSel.innerHTML='';
     motherScalesData[scale.id].rotNames.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
@@ -162,6 +166,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   refreshRot();
   scaleSel.value=scale.id;
   rootSel.value=scale.root;
+  updateKeySig();
 
   scaleSel.onchange=()=>{
     scale.id=scaleSel.value;
@@ -169,6 +174,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     fitNotes();
     renderAll();
     seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes);
+    updateKeySig();
   };
   rotSel.onchange=()=>{
     scale.rot=parseInt(rotSel.value,10);
@@ -179,6 +185,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     scale.root=parseInt(rootSel.value,10);
     fitNotes();
     renderAll();
+    updateKeySig();
   };
   showNmBtn.onmousedown=()=>{ showNm=true; showNmBtn.classList.add('active'); renderAll(); };
   showNmBtn.onmouseup=showNmBtn.onmouseleave=()=>{ showNm=false; showNmBtn.classList.remove('active'); renderAll(); };
@@ -457,6 +464,7 @@ function renderStaff(){
       octShifts = Array(notes.length).fill(0);
       components = generateComponents(notes);
       fitNotes();
+      updateKeySig();
       const len=scaleSemis(scale.id).length;
       seqInput.value=mode==='eA'?notesToEA(notes, len):notesToAc(notes);
       renderAll();
