@@ -343,8 +343,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       card.ondragover=e=>e.preventDefault();
       card.ondrop=e=>{
         e.preventDefault();
+        e.stopPropagation();
         const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
-        moveCards(grp, i+1);
+        moveCards(grp, i);
       };
       card.ondragenter=()=>{
         card.classList.add('drop-flash');
