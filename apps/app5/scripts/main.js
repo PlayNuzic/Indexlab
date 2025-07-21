@@ -1,4 +1,5 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
+import { drawPentagram } from ../../../libs/notation/pentagram.js;
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
@@ -122,6 +123,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const snapWrap=document.getElementById('snapshots');
   const resetSnapsBtn=document.getElementById('resetSnaps');
   const downloadSnapsBtn=document.getElementById('downloadSnaps');
+  const staffEl=document.getElementById("staff");
   const uploadSnapsBtn=document.getElementById('uploadSnaps');
   const snapsFileInput=document.getElementById('snapsFile');
   const bpmInput=document.getElementById('bpm');
@@ -228,6 +230,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const size=notes.length;
     diagArr = diagMidis();
     diagNumsArr = diagNums();
+    renderStaff();
     const comps = computeComponents();
     gridWrap.innerHTML='';
     const table=document.createElement('table');
@@ -311,6 +314,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     ensureDuplicateComponents(notes, components);
     return components.slice();
   }
+function renderStaff(){
+    drawPentagram(staffEl, diagArr, { scaleId: scale.id, root: scale.root });
+  }
+
 
   function moveCards(indices, target){
     pushUndo();

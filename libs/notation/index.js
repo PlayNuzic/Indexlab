@@ -124,3 +124,4 @@ export function drawInterval(container, note1, note2, mode='iS', options={}){
 }
 
 export * from './helpers.js';
+export { drawPentagram } from './pentagram.js';
