@@ -34,3 +34,9 @@ export function createChord(m1, m2, duration, asc, clef, Accidental, StaveNote) 
   if (p2.accidental) chord.addModifier(new Accidental(p2.accidental), 1);
   return chord;
 }
+
+export function keySignatureFrom({ scaleId, root } = {}) {
+  if (scaleId !== 'DIAT' || typeof root !== 'number') return null;
+  const map = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+  return map[((root % 12) + 12) % 12];
+}

@@ -4,7 +4,7 @@ const path = require('path');
 function loadHelpers(){
   const code = fs.readFileSync(path.join(__dirname, '../libs/notation/helpers.js'), 'utf8');
   const transformed = code.replace(/export function/g, 'function') +
-    '\nmodule.exports = { midiToParts, needsDoubleStaff, createNote, createChord };';
+    '\nmodule.exports = { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom };';
   const mod = { exports: {} };
   const fn = new Function('module','exports', transformed);
   fn(mod, mod.exports);
@@ -12,7 +12,7 @@ function loadHelpers(){
 }
 
 describe('notation helpers', () => {
-  const { midiToParts, needsDoubleStaff, createNote, createChord } = loadHelpers();
+  const { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom } = loadHelpers();
 
   class StubNote {
     constructor(opts){ this.opts = opts; this.mods = []; }
@@ -45,5 +45,11 @@ describe('notation helpers', () => {
     const ch = createChord(60,64,'h',true,'treble', StubAcc, StubNote);
     expect(ch.opts.keys).toEqual(['c/4','e/4']);
     expect(ch.mods.every(m => m instanceof StubAcc)).toBe(true);
+  });
+
+  test('keySignatureFrom returns major key name', () => {
+    expect(keySignatureFrom({ scaleId: 'DIAT', root: 0 })).toBe('C');
+    expect(keySignatureFrom({ scaleId: 'DIAT', root: 10 })).toBe('Bb');
+    expect(keySignatureFrom({ scaleId: 'CROM', root: 0 })).toBeNull();
   });
 });

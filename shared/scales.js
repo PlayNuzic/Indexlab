@@ -18,3 +18,27 @@ export function scaleSemis(id){
   scaleSemis.cache.set(id, arr);
   return arr;
 }
+
+export const scaleKeySignatures = {
+  DIAT: [
+    [],
+    ['sib','mib','lab','reb','solb'],
+    ['fa#','do#'],
+    ['sib','mib','lab'],
+    ['fa#','do#','sol#','re#'],
+    ['sib'],
+    ['fa#','do#','sol#','re#','la#','mi#'],
+    ['fa#'],
+    ['sib','mib','lab','reb'],
+    ['fa#','do#','sol#'],
+    ['sib','mib'],
+    ['fa#','do#','sol#','re#','la#']
+  ]
+};
+
+export function getKeySignature(scaleId, root){
+  const table = scaleKeySignatures[scaleId];
+  if(!table) return [];
+  const idx = ((root % 12) + 12) % 12;
+  return table[idx] || [];
+}

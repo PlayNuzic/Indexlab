@@ -3,12 +3,24 @@ import {
   midiToParts,
   needsDoubleStaff,
   createNote,
-  createChord
+  createChord,
+  keySignatureFrom
 } from './helpers.js';
 
-export function drawInterval(container, note1, note2, mode='iS'){
+/**
+ * Render an interval to a container using VexFlow.
+ * @param {HTMLElement} container DOM element where the SVG will be attached.
+ * @param {number} note1 MIDI value of the first note.
+ * @param {number} note2 MIDI value of the second note.
+ * @param {string} [mode='iS'] 'iS' for melodic intervals, 'iA' for harmonic.
+ * @param {Object} [options]
+ * @param {string} [options.scaleId] Mother scale ID used for the key signature.
+ * @param {number} [options.root] Root pitch class (0=C) for the key signature.
+ */
+export function drawInterval(container, note1, note2, mode='iS', options={}){
   container.innerHTML = '';
   const useDouble = needsDoubleStaff(note1, note2);
+  const keySig = keySignatureFrom(options);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   renderer.resize(180, useDouble ? 340 : 240);
   const context = renderer.getContext();
@@ -16,8 +28,10 @@ export function drawInterval(container, note1, note2, mode='iS'){
   if(useDouble){
     const treble = new Stave(10, 40, 160);
     treble.addClef('treble');
+    if(keySig) treble.addKeySignature(keySig);
     const bass = new Stave(10, 160, 160);
     bass.addClef('bass');
+    if(keySig) bass.addKeySignature(keySig);
     treble.setContext(context).draw();
     bass.setContext(context).draw();
 
@@ -79,6 +93,7 @@ export function drawInterval(container, note1, note2, mode='iS'){
 
   const stave = new Stave(10, 80, 160);
   stave.addClef('treble');
+  if(keySig) stave.addKeySignature(keySig);
   stave.setContext(context).draw();
 
   if(mode === 'iS'){
