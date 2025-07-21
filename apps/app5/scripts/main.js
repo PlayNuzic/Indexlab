@@ -341,7 +341,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       card.onmouseup=card.onmouseleave=()=>clearTimeout(pressTimer);
       card.ondragstart=e=>{ clearTimeout(pressTimer); const grp=selectedCards.has(i)?Array.from(selectedCards).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
       card.ondragover=e=>e.preventDefault();
-      card.ondrop=e=>{ e.preventDefault(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); moveCards(grp,i); };
+      card.ondrop=e=>{
+        e.preventDefault();
+        const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
+        moveCards(grp, i+1);
+      };
+      card.ondragenter=()=>{
+        card.classList.add('drop-flash');
+        setTimeout(()=>card.classList.remove('drop-flash'),150);
+      };
       const up=document.createElement('button');
       up.className='up';
       up.innerHTML='&#9650;';
