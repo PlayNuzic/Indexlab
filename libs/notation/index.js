@@ -36,7 +36,7 @@ function applyKeySignature(stave, accArr, clef='treble'){
 export function drawInterval(container, note1, note2, mode='iS', keySig){
   container.innerHTML = '';
   const useDouble = needsDoubleStaff(note1, note2);
-  const keySig = keySignatureFrom(options);
+  const ksName = keySignatureFrom(options);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   renderer.resize(180, useDouble ? 340 : 240);
   const context = renderer.getContext();
@@ -46,11 +46,10 @@ export function drawInterval(container, note1, note2, mode='iS', keySig){
   if(useDouble){
     const treble = new Stave(10, 40, 160);
     treble.addClef('treble');
-    if(keySig) treble.addKeySignature(keySig);
+    if(ksName) treble.addKeySignature(ksName);
     const bass = new Stave(10, 160, 160);
     bass.addClef('bass');
-    applyKeySignature(treble, keySig, 'treble');
-    applyKeySignature(bass, keySig, 'bass');
+    if(ksName) bass.addKeySignature(ksName);
     treble.setContext(context).draw();
     bass.setContext(context).draw();
 
@@ -112,7 +111,7 @@ export function drawInterval(container, note1, note2, mode='iS', keySig){
 
   const stave = new Stave(10, 80, 160);
   stave.addClef('treble');
-  applyKeySignature(stave, keySig, 'treble');
+  if(ksName) stave.addKeySignature(ksName);
   stave.setContext(context).draw();
 
   if(mode === 'iS'){
