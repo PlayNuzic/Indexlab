@@ -1,4 +1,4 @@
-import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector } from '../vendor/vexflow/entry/vexflow.js';
+import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, GhostNote } from '../vendor/vexflow/entry/vexflow.js';
 import { midiToParts, keySignatureFrom } from './helpers.js';
 import { getKeySignature } from '../../shared/scales.js';
 
@@ -24,19 +24,20 @@ export function needsAccidental(parts, ksMap){
   return parts.accidental !== expected;
 }
 
-export function drawPentagram(container, midis=[], options={}){
-  container.innerHTML='';
-  if(!midis.length) return;
+export function drawPentagram(container, midis = [], options = {}) {
+  container.innerHTML = '';
+  if (!midis.length) return;
+  const { chord = false, duration = 'q' } = options;
   const keySigName = keySignatureFrom(options);
   const ksMap = parseKeySignatureArray(getKeySignature(options.scaleId, options.root));
   const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(200,340);
+  renderer.resize(400, 340);
   const context = renderer.getContext();
 
-  const treble = new Stave(10,40,180);
+  const treble = new Stave(10, 40, 360);
   treble.addClef('treble');
   if(keySigName) treble.addKeySignature(keySigName);
-  const bass = new Stave(10,160,180);
+  const bass = new Stave(10, 160, 360);
   bass.addClef('bass');
   if(keySigName) bass.addKeySignature(keySigName);
   treble.setContext(context).draw();
@@ -49,23 +50,54 @@ export function drawPentagram(container, midis=[], options={}){
   line.setType(StaveConnector.type.SINGLE_LEFT);
   line.setContext(context).draw();
 
-  const trebleVoice = new Voice({ numBeats: midis.length, beatValue:4 });
-  const bassVoice = new Voice({ numBeats: midis.length, beatValue:4 });
+  const trebleV = new Voice({ numBeats: midis.length, beatValue: 4 });
+  const bassV = new Voice({ numBeats: midis.length, beatValue: 4 });
+  trebleV.setStrict(false);
+  bassV.setStrict(false);
 
-  midis.forEach(m => {
-    const parts = midiToParts(m, true);
-    const clef = m < 60 ? 'bass' : 'treble';
-    const note = new StaveNote({ keys:[parts.key], duration:'q', clef });
-    if(needsAccidental(parts, ksMap)) note.addModifier(new Accidental(parts.accidental),0);
-    (clef==='treble'?trebleVoice:bassVoice).addTickable(note);
-  });
+  if (chord) {
+    const byClef = { treble: [], bass: [] };
+    midis.forEach(m => {
+      const parts = midiToParts(m, true);
+      const clef = m < 60 ? 'bass' : 'treble';
+      byClef[clef].push(parts);
+    });
+    ['treble', 'bass'].forEach(clef => {
+      if (!byClef[clef].length) return;
+      const keys = byClef[clef].map(p => p.key);
+      const note = new StaveNote({ keys, duration, clef });
+      byClef[clef].forEach((p, i) => {
+        if (needsAccidental(p, ksMap)) note.addModifier(new Accidental(p.accidental), i);
+      });
+      (clef === 'treble' ? trebleV : bassV).addTickable(note);
+    });
+  } else {
+    midis.forEach(m => {
+      const parts = midiToParts(m, true);
+      const clef = m < 60 ? 'bass' : 'treble';
+      const note = new StaveNote({ keys: [parts.key], duration, clef });
+      if (needsAccidental(parts, ksMap)) note.addModifier(new Accidental(parts.accidental), 0);
+      const target = clef === 'treble' ? trebleV : bassV;
+      const other = clef === 'treble' ? bassV : trebleV;
+      target.addTickable(note);
+      other.addTickable(new GhostNote(duration));
+    });
+  }
 
-  const formatter = new Formatter();
-  formatter.joinVoices([trebleVoice]);
-  formatter.joinVoices([bassVoice]);
-  formatter.format([trebleVoice,bassVoice], 140);
-  trebleVoice.draw(context, treble);
-  bassVoice.draw(context, bass);
+  const voices = [];
+  if(trebleV.getTickables().length){
+    voices.push(trebleV);
+  }
+  if(bassV.getTickables().length){
+    voices.push(bassV);
+  }
+  if(voices.length){
+    const formatter = new Formatter();
+    voices.forEach(v => formatter.joinVoices([v]));
+    formatter.format(voices, 280);
+    if(trebleV.getTickables().length) trebleV.draw(context, treble);
+    if(bassV.getTickables().length) bassV.draw(context, bass);
+  }
 }
 
 export default drawPentagram;

@@ -192,6 +192,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len=scaleSemis(scale.id).length;
     seqInput.value=m==='eA'?notesToEA(notes, len):notesToAc(notes);
     transposeControls.style.display=m==='Ac'? 'flex' : 'none';
+    renderStaff();
   }
 
   document.getElementById('tabEA').onclick=()=>switchMode('eA');
@@ -315,7 +316,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     return components.slice();
   }
 function renderStaff(){
-    drawPentagram(staffEl, diagArr, { scaleId: scale.id, root: scale.root });
+    drawPentagram(staffEl, diagArr, {
+      scaleId: scale.id,
+      root: scale.root,
+      chord: mode === 'eA',
+      duration: mode === 'eA' ? 'w' : 'q'
+    });
   }
 
 
