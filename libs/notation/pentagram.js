@@ -62,12 +62,20 @@ export function drawPentagram(container, midis=[], options={}){
     (clef==='treble'?trebleVoice:bassVoice).addTickable(note);
   });
 
-  const formatter = new Formatter();
-  formatter.joinVoices([trebleVoice]);
-  formatter.joinVoices([bassVoice]);
-  formatter.format([trebleVoice,bassVoice], 140);
-  trebleVoice.draw(context, treble);
-  bassVoice.draw(context, bass);
+  const voices = [];
+  if(trebleVoice.getTickables().length){
+    voices.push(trebleVoice);
+  }
+  if(bassVoice.getTickables().length){
+    voices.push(bassVoice);
+  }
+  if(voices.length){
+    const formatter = new Formatter();
+    voices.forEach(v => formatter.joinVoices([v]));
+    formatter.format(voices, 140);
+    if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
+    if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
+  }
 }
 
 export default drawPentagram;
