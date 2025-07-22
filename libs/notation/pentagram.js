@@ -12,11 +12,7 @@ const SHARP_LINES = [0,1.5,-0.5,1,2.5,0.5,2];
 const FLAT_LINES  = [2,0.5,2.5,1,3,1.5,3.5];
 
 function applyKeySignature(stave, accArr, clef='treble'){
-  const ks = new KeySignature('C');
-  if(!accArr || !accArr.length){
-    ks.addToStave(stave);
-    return ks;
-  }
+  if(!accArr || !accArr.length) return new KeySignature('C').addToStave(stave);
   const offset = clef==='bass'?1:0;
   const list = accArr.map(a=>{
     const m=a.match(/^(do|re|mi|fa|sol|la|si)(.*)$/);
@@ -30,10 +26,8 @@ function applyKeySignature(stave, accArr, clef='treble'){
     else { idx=FLAT_ORDER.indexOf(note); line=FLAT_LINES[idx]; }
     return {type:sign||'n', line:line+offset};
   }).filter(Boolean);
-  ks.accList = [];
-  ks.width = 0;
-  ks.children = [];
-  list.forEach((acc,i)=>{ ks.convertToGlyph(acc, list[i+1], stave); });
+  const ks = new KeySignature('C');
+  ks.accList = list;
   ks.addToStave(stave);
   return ks;
 }
@@ -87,11 +81,6 @@ export function drawPentagram(container, midis = [], options = {}) {
   trebleVoice.setStrict(false);
   bassVoice.setStrict(false);
 
-  const trebleV = new Voice({ numBeats: midis.length, beatValue: 4 });
-  const bassV = new Voice({ numBeats: midis.length, beatValue: 4 });
-  trebleV.setStrict(false);
-  bassV.setStrict(false);
-
   const useKs = options.scaleId !== 'CROM';
   if (chord) {
     const byClef = { treble: [], bass: [] };
@@ -108,7 +97,7 @@ export function drawPentagram(container, midis = [], options = {}) {
         const need = useKs ? needsAccidental(p, ksMap) : !!p.accidental;
         if (need) note.addModifier(new Accidental(p.accidental), i);
       });
-      (clef === 'treble' ? trebleV : bassV).addTickable(note);
+      (clef === 'treble' ? trebleVoice : bassVoice).addTickable(note);
     });
   } else {
     midis.forEach(m => {
@@ -117,26 +106,26 @@ export function drawPentagram(container, midis = [], options = {}) {
       const note = new StaveNote({ keys: [parts.key], duration, clef });
       const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;
       if (need) note.addModifier(new Accidental(parts.accidental), 0);
-      const target = clef === 'treble' ? trebleV : bassV;
-      const other = clef === 'treble' ? bassV : trebleV;
+      const target = clef === 'treble' ? trebleVoice : bassVoice;
+      const other = clef === 'treble' ? bassVoice : trebleVoice;
       target.addTickable(note);
       other.addTickable(new GhostNote(duration));
     });
   }
 
   const voices = [];
-  if(trebleV.getTickables().length){
-    voices.push(trebleV);
+  if(trebleVoice.getTickables().length){
+    voices.push(trebleVoice);
   }
-  if(bassV.getTickables().length){
-    voices.push(bassV);
+  if(bassVoice.getTickables().length){
+    voices.push(bassVoice);
   }
   if(voices.length){
     const formatter = new Formatter();
     voices.forEach(v => formatter.joinVoices([v]));
     formatter.format(voices, 280);
-    if(trebleV.getTickables().length) trebleV.draw(context, treble);
-    if(bassV.getTickables().length) bassV.draw(context, bass);
+    if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
+    if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
   }
 }
 
