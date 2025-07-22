@@ -17,6 +17,12 @@ fi
 git config --global user.name  "PlayNuzic-Codex"
 git config --global user.email "codex@playnuzic.local"
 
+# Comprova que GITHUB_TOKEN estigui definit
+if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+  echo "Error: GITHUB_TOKEN environment variable is not set." >&2
+  exit 1
+fi
+
 # 2. Deixa ‘origin’ apuntant a HTTPS amb PAT
 REMOTE_URL="$(git config --get remote.origin.url || true)"
 if [[ -z "$REMOTE_URL" ]]; then
