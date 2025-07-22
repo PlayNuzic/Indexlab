@@ -1,6 +1,6 @@
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, GhostNote, KeySignature } from '../vendor/vexflow/entry/vexflow.js';
 // Import helpers directly to avoid circular dependency with index.js
-import { midiToParts, midiToPartsByKeySig } from './helpers.js';
+import { midiToParts, midiToPartsByKeySig, midiSequenceToChromaticParts } from './helpers.js';
 import { getKeySignature } from '../../shared/scales.js';
 
 const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
@@ -12,7 +12,11 @@ const SHARP_LINES = [0,1.5,-0.5,1,2.5,0.5,2];
 const FLAT_LINES  = [2,0.5,2.5,1,3,1.5,3.5];
 
 function applyKeySignature(stave, accArr, clef='treble'){
-  if(!accArr || !accArr.length) return new KeySignature('C').addToStave(stave);
+  const ks = new KeySignature('C');
+  if(!accArr || !accArr.length){
+    ks.addToStave(stave);
+    return ks;
+  }
   const offset = clef==='bass'?1:0;
   const list = accArr.map(a=>{
     const m=a.match(/^(do|re|mi|fa|sol|la|si)(.*)$/);
@@ -26,8 +30,10 @@ function applyKeySignature(stave, accArr, clef='treble'){
     else { idx=FLAT_ORDER.indexOf(note); line=FLAT_LINES[idx]; }
     return {type:sign||'n', line:line+offset};
   }).filter(Boolean);
-  const ks = new KeySignature('C');
-  ks.accList = list;
+  ks.accList = [];
+  ks.width = 0;
+  ks.children = [];
+  list.forEach((acc,i)=>{ ks.convertToGlyph(acc, list[i+1], stave); });
   ks.addToStave(stave);
   return ks;
 }
@@ -83,7 +89,8 @@ export function drawPentagram(container, midis = [], options = {}) {
   trebleVoice.setStrict(false);
   bassVoice.setStrict(false);
 
-  const useKs = options.scaleId !== 'CROM';
+  const noKsIds = ['CROM','OCT','HEX','TON'];
+  const useKs = !noKsIds.includes(options.scaleId);
   if (chord) {
     const byClef = { treble: [], bass: [] };
     midis.forEach(m => {
@@ -102,8 +109,9 @@ export function drawPentagram(container, midis = [], options = {}) {
       (clef === 'treble' ? trebleVoice : bassVoice).addTickable(note);
     });
   } else {
-    midis.forEach(m => {
-      const parts = useKs ? midiToPartsByKeySig(m, ksMap) : midiToParts(m, true);
+    const partsSeq = useKs ? null : midiSequenceToChromaticParts(midis);
+    midis.forEach((m, idx) => {
+      const parts = useKs ? midiToPartsByKeySig(m, ksMap) : partsSeq[idx];
       const clef = m < 60 ? 'bass' : 'treble';
       const note = new StaveNote({ keys: [parts.key], duration, clef });
       const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;

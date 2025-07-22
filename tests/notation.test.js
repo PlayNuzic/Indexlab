@@ -6,7 +6,7 @@ function loadHelpers(){
   const transformed = code
     .replace(/export function/g, 'function')
     .replace(/export const/g, 'const') +
-    '\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom };';
+    '\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts };';
   const mod = { exports: {} };
   const fn = new Function('module','exports', transformed);
   fn(mod, mod.exports);
@@ -14,7 +14,7 @@ function loadHelpers(){
 }
 
 describe('notation helpers', () => {
-  const { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom } = loadHelpers();
+  const { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts } = loadHelpers();
 
   class StubNote {
     constructor(opts){ this.opts = opts; this.mods = []; }
@@ -53,5 +53,24 @@ describe('notation helpers', () => {
     expect(keySignatureFrom({ scaleId: 'DIAT', root: 0 })).toBe('C');
     expect(keySignatureFrom({ scaleId: 'DIAT', root: 10 })).toBe('Bb');
     expect(keySignatureFrom({ scaleId: 'CROM', root: 0 })).toBeNull();
+  });
+
+  test('midiSequenceToChromaticParts avoids repeated letters', () => {
+    const parts = midiSequenceToChromaticParts([65,66]);
+    expect(parts).toEqual([
+      { key:'f/4', accidental:'' },
+      { key:'g/4', accidental:'b' }
+    ]);
+  });
+
+  test('midiSequenceToChromaticParts adds naturals', () => {
+    const nat = '\u266E';
+    const parts = midiSequenceToChromaticParts([60,61,63,64]);
+    expect(parts).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'b' },
+      { key:'e/4', accidental:'b' },
+      { key:'e/4', accidental:nat }
+    ]);
   });
 });

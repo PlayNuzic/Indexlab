@@ -28,6 +28,57 @@ export function midiToPartsByKeySig(midi, ksMap) {
   return midiToParts(midi, true);
 }
 
+export function midiToChromaticPart(midi, prev){
+  const sharpLetters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
+  const flatLetters  = ['c','d','d','e','e','f','g','g','a','a','b','b'];
+  const sharps = ['', '#', '', '#', '', '', '#', '', '#', '', '#', ''];
+  const flats  = ['', 'b', '', 'b', '', '', 'b', '', 'b', '', 'b', ''];
+  const pc = ((midi % 12) + 12) % 12;
+  const octave = Math.floor(midi / 12) - 1;
+  const candSharp = {
+    letter: sharpLetters[pc],
+    accidental: sharps[pc]
+  };
+  const candFlat = {
+    letter: flatLetters[pc],
+    accidental: flats[pc]
+  };
+  let cand = candSharp;
+  if(candSharp.accidental === '' && candFlat.accidental !== ''){
+    cand = candSharp;
+  }else if(candFlat.accidental === '' && candSharp.accidental !== ''){
+    cand = candFlat;
+  }else if(prev){
+    const diff = Math.abs(pc - prev.pc) % 12;
+    if(diff === 1 || diff === 11){
+      if(candSharp.letter === prev.letter && candFlat.letter !== prev.letter){
+        cand = candFlat;
+      }else if(candFlat.letter === prev.letter && candSharp.letter !== prev.letter){
+        cand = candSharp;
+      }
+    }else{
+      if(candSharp.letter === prev.letter && candFlat.letter !== prev.letter){
+        cand = candFlat;
+      }else if(candFlat.letter === prev.letter && candSharp.letter !== prev.letter){
+        cand = candSharp;
+      }
+    }
+  }
+  let acc = cand.accidental;
+  if(prev && prev.letter === cand.letter && prev.accidental && acc === ''){
+    acc = '\u266E';
+  }
+  return { key: `${cand.letter}/${octave}`, accidental: acc, pc, letter: cand.letter };
+}
+
+export function midiSequenceToChromaticParts(midis){
+  const out = [];
+  midis.forEach(m => {
+    out.push(midiToChromaticPart(m, out[out.length-1]));
+  });
+  return out.map(({key, accidental}) => ({key, accidental}));
+}
+
 export function needsDoubleStaff(n1, n2) {
   return n1 < 60 || n2 < 60 || n1 > 81 || n2 > 81;
 }
