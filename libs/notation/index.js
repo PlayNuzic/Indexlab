@@ -1,14 +1,6 @@
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, KeySignature } from '../vendor/vexflow/entry/vexflow.js';
-import * as helpers from './helpers.js';
-
-const {
-  midiToParts,
-  needsDoubleStaff,
-  createNote,
-  createChord,
-  keySignatureMap,
-  keySignatureFrom
-} from './helpers.js';
+import { midiToParts, needsDoubleStaff, createNote, createChord,
+         keySignatureMap, keySignatureFrom } from './helpers.js';
 
 const SHARP_ORDER = ['fa','do','sol','re','la','mi','si'];
 const FLAT_ORDER  = ['si','mi','la','re','sol','do','fa'];
