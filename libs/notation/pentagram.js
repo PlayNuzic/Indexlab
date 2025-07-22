@@ -36,8 +36,10 @@ export function parseKeySignatureArray(arr){
   const map = {};
   if(!Array.isArray(arr)) return map;
   for(const item of arr){
-    const letter = item.replace(/[#b]/,'');
-    const acc = item.includes('#') ? '#' : 'b';
+    const letter = item.replace(/[#b\u266E]/g,'');
+    let acc = '';
+    if(item.includes('#')) acc = '#';
+    else if(item.includes('b')) acc = 'b';
     const pc = catLetterToPc[letter];
     if(pc !== undefined) map[pc] = acc;
   }

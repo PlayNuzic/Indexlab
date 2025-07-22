@@ -23,6 +23,12 @@ describe('pentagram helpers', () => {
     expect(map[0]).toBe('#');
   });
 
+  test('parseKeySignatureArray handles naturals', () => {
+    const nat = '\u266E';
+    const map = parseKeySignatureArray(['sol' + nat]);
+    expect(map[7]).toBe('');
+  });
+
   test('needsAccidental honors key signature', () => {
     const map = parseKeySignatureArray(['fa#','do#']);
     expect(needsAccidental({ key:'f/4', accidental:'#' }, map)).toBe(false);
