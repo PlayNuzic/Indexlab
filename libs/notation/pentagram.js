@@ -12,7 +12,11 @@ const SHARP_LINES = [0,1.5,-0.5,1,2.5,0.5,2];
 const FLAT_LINES  = [2,0.5,2.5,1,3,1.5,3.5];
 
 function applyKeySignature(stave, accArr, clef='treble'){
-  if(!accArr || !accArr.length) return new KeySignature('C').addToStave(stave);
+  const ks = new KeySignature('C');
+  if(!accArr || !accArr.length){
+    ks.addToStave(stave);
+    return ks;
+  }
   const offset = clef==='bass'?1:0;
   const list = accArr.map(a=>{
     const m=a.match(/^(do|re|mi|fa|sol|la|si)(.*)$/);
@@ -26,8 +30,10 @@ function applyKeySignature(stave, accArr, clef='treble'){
     else { idx=FLAT_ORDER.indexOf(note); line=FLAT_LINES[idx]; }
     return {type:sign||'n', line:line+offset};
   }).filter(Boolean);
-  const ks = new KeySignature('C');
-  ks.accList = list;
+  ks.accList = [];
+  ks.width = 0;
+  ks.children = [];
+  list.forEach((acc,i)=>{ ks.convertToGlyph(acc, list[i+1], stave); });
   ks.addToStave(stave);
   return ks;
 }
