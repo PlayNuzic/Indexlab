@@ -1,10 +1,36 @@
-import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, GhostNote } from '../vendor/vexflow/entry/vexflow.js';
+import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, GhostNote, KeySignature } from '../vendor/vexflow/entry/vexflow.js';
 // Import helpers directly to avoid circular dependency with index.js
-import { midiToParts, midiToPartsByKeySig, keySignatureFrom } from './helpers.js';
+import { midiToParts, midiToPartsByKeySig } from './helpers.js';
 import { getKeySignature } from '../../shared/scales.js';
 
 const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
 const catLetterToPc = { do:0, re:2, mi:4, fa:5, sol:7, la:9, si:11 };
+
+const SHARP_ORDER = ['fa','do','sol','re','la','mi','si'];
+const FLAT_ORDER  = ['si','mi','la','re','sol','do','fa'];
+const SHARP_LINES = [0,1.5,-0.5,1,2.5,0.5,2];
+const FLAT_LINES  = [2,0.5,2.5,1,3,1.5,3.5];
+
+function applyKeySignature(stave, accArr, clef='treble'){
+  if(!accArr || !accArr.length) return new KeySignature('C').addToStave(stave);
+  const offset = clef==='bass'?1:0;
+  const list = accArr.map(a=>{
+    const m=a.match(/^(do|re|mi|fa|sol|la|si)(.*)$/);
+    if(!m) return null;
+    const note=m[1];
+    let sign=m[2]||'';
+    sign=sign.replace('\u266E','n').replace('♮','n').replace('\uD834\uDD2A','##').replace('\uD834\uDD2B','bb');
+    let idx=SHARP_ORDER.indexOf(note);
+    let line;
+    if(idx!==-1){ line=SHARP_LINES[idx]; }
+    else { idx=FLAT_ORDER.indexOf(note); line=FLAT_LINES[idx]; }
+    return {type:sign||'n', line:line+offset};
+  }).filter(Boolean);
+  const ks = new KeySignature('C');
+  ks.accList = list;
+  ks.addToStave(stave);
+  return ks;
+}
 
 export function parseKeySignatureArray(arr){
   const map = {};
@@ -29,18 +55,18 @@ export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
   if (!midis.length) return;
   const { chord = false, duration = 'q' } = options;
-  const keySigName = keySignatureFrom(options);
-  const ksMap = parseKeySignatureArray(getKeySignature(options.scaleId, options.root));
+  const ksArray = getKeySignature(options.scaleId, options.root);
+  const ksMap = parseKeySignatureArray(ksArray);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   renderer.resize(400, 340);
   const context = renderer.getContext();
 
   const treble = new Stave(10, 40, 360);
   treble.addClef('treble');
-  if(keySigName) treble.addKeySignature(keySigName);
+  applyKeySignature(treble, ksArray, 'treble');
   const bass = new Stave(10, 160, 360);
   bass.addClef('bass');
-  if(keySigName) bass.addKeySignature(keySigName);
+  applyKeySignature(bass, ksArray, 'bass');
   treble.setContext(context).draw();
   bass.setContext(context).draw();
 
