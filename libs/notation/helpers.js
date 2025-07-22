@@ -1,4 +1,11 @@
+import { KeySignature } from '../vendor/vexflow/entry/vexflow.js';
+
 export const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
+
+const SHARP_ORDER = ['fa','do','sol','re','la','mi','si'];
+const FLAT_ORDER  = ['si','mi','la','re','sol','do','fa'];
+const SHARP_LINES = [0,1.5,-0.5,1,2.5,0.5,2];
+const FLAT_LINES  = [2,0.5,2.5,1,3,1.5,3.5];
 
 export function midiToParts(midi, preferSharp = true) {
   const sharpLetters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
@@ -139,4 +146,31 @@ export function keySignatureFrom(options){
   const root = typeof options.root === 'number' ? options.root : 0;
   const idx = ((root % 12) + 12) % 12;
   return names[idx];
+}
+
+export function applyKeySignature(stave, accArr, clef='treble'){
+  const ks = new KeySignature('C');
+  if(!accArr || !accArr.length){
+    ks.addToStave(stave);
+    return ks;
+  }
+  const offset = clef==='bass'?1:0;
+  const list = accArr.map(a=>{
+    const m=a.match(/^(do|re|mi|fa|sol|la|si)(.*)$/);
+    if(!m) return null;
+    const note=m[1];
+    let sign=m[2]||'';
+    sign=sign.replace('\u266E','n').replace('♮','n').replace('\uD834\uDD2A','##').replace('\uD834\uDD2B','bb');
+    let idx=SHARP_ORDER.indexOf(note);
+    let line;
+    if(idx!==-1){ line=SHARP_LINES[idx]; }
+    else { idx=FLAT_ORDER.indexOf(note); line=FLAT_LINES[idx]; }
+    return {type:sign||'n', line:line+offset};
+  }).filter(Boolean);
+  ks.accList = [];
+  ks.width = 0;
+  ks.children = [];
+  list.forEach((acc,i)=>{ ks.convertToGlyph(acc, list[i+1], stave); });
+  ks.addToStave(stave);
+  return ks;
 }

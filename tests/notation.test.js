@@ -4,9 +4,10 @@ const path = require('path');
 function loadHelpers(){
   const code = fs.readFileSync(path.join(__dirname, '../libs/notation/helpers.js'), 'utf8');
   const transformed = code
+    .replace(/import[^\n]+\n/g, '')
     .replace(/export function/g, 'function')
     .replace(/export const/g, 'const') +
-    '\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts };';
+    '\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, applyKeySignature };';
   const mod = { exports: {} };
   const fn = new Function('module','exports', transformed);
   fn(mod, mod.exports);
@@ -14,7 +15,7 @@ function loadHelpers(){
 }
 
 describe('notation helpers', () => {
-  const { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts } = loadHelpers();
+  const { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, applyKeySignature } = loadHelpers();
 
   class StubNote {
     constructor(opts){ this.opts = opts; this.mods = []; }
@@ -83,5 +84,8 @@ describe('notation helpers', () => {
       { key:'e/4', accidental:'b' },
       { key:'g/4', accidental:'b' }
     ]);
+
+  test('applyKeySignature is a function', () => {
+    expect(typeof applyKeySignature).toBe('function');
   });
 });
