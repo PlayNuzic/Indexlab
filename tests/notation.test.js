@@ -73,4 +73,15 @@ describe('notation helpers', () => {
       { key:'e/4', accidental:nat }
     ]);
   });
+
+  test('midiSequenceToChromaticParts handles minor thirds', () => {
+    expect(midiSequenceToChromaticParts([60,63])).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'e/4', accidental:'b' }
+    ]);
+    expect(midiSequenceToChromaticParts([63,66])).toEqual([
+      { key:'e/4', accidental:'b' },
+      { key:'g/4', accidental:'b' }
+    ]);
+  });
 });

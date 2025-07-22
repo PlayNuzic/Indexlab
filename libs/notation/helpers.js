@@ -48,9 +48,22 @@ export function midiToChromaticPart(midi, prev){
     cand = candSharp;
   }else if(candFlat.accidental === '' && candSharp.accidental !== ''){
     cand = candFlat;
+  }else if(!prev){
+    cand = candFlat;
   }else if(prev){
     const diff = Math.abs(pc - prev.pc) % 12;
-    if(diff === 1 || diff === 11){
+    const delta = (pc - prev.pc + 12) % 12;
+    if(diff === 3 || diff === 9){
+      const cycle = ['c','d','e','f','g','a','b'];
+      const prevIdx = cycle.indexOf(prev.letter);
+      const targetIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
+      const target = cycle[targetIdx];
+      if(candSharp.letter === target){
+        cand = candSharp;
+      }else if(candFlat.letter === target){
+        cand = candFlat;
+      }
+    }else if(diff === 1 || diff === 11){
       if(candSharp.letter === prev.letter && candFlat.letter !== prev.letter){
         cand = candFlat;
       }else if(candFlat.letter === prev.letter && candSharp.letter !== prev.letter){
