@@ -1,10 +1,13 @@
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector, KeySignature } from '../vendor/vexflow/entry/vexflow.js';
-import {
+import * as helpers from './helpers.js';
+
+const {
   midiToParts,
   needsDoubleStaff,
   createNote,
   createChord,
-  keySignatureMap
+  keySignatureMap,
+  keySignatureFrom
 } from './helpers.js';
 
 const SHARP_ORDER = ['fa','do','sol','re','la','mi','si'];
@@ -33,10 +36,10 @@ function applyKeySignature(stave, accArr, clef='treble'){
   return ks;
 }
 
-export function drawInterval(container, note1, note2, mode='iS', keySig){
+export function drawInterval(container, note1, note2, mode='iS', keySig, options={}){
   container.innerHTML = '';
   const useDouble = needsDoubleStaff(note1, note2);
-  const ksName = keySignatureFrom(options);
+  const ksName = options ? keySignatureFrom(options) : null;
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   renderer.resize(180, useDouble ? 340 : 240);
   const context = renderer.getContext();
