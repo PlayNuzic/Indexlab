@@ -20,6 +20,13 @@ describe('EarTrainingGame logic', () => {
     expect(q.currentInterval).toBeGreaterThanOrEqual(0);
   });
 
+  test('iS mode can generate descending intervals', () => {
+    const game = new EarTrainingGame({ randInt: (a,b) => b });
+    game.start('iS', 1);
+    const q = game.next();
+    expect(q.currentInterval).toBeLessThan(0);
+  });
+
   test('answer tracks score and retry flow', () => {
     const game = new EarTrainingGame({ randInt: () => 0 });
     game.start('iS', 1);
@@ -48,10 +55,11 @@ describe('EarTrainingGame logic', () => {
     expect(game.history[1].correct).toBe(true);
   });
 
-  test('level 3 includes interval 12', () => {
+  test('all levels include unison and octave', () => {
     const game = new EarTrainingGame({ randInt: () => 0 });
-    expect(game.intervals[3]).toContain(12);
-    expect(game.intervals[4]).toContain(12);
-    expect(game.intervals[5]).toContain(12);
+    for(let i=1;i<=10;i++){
+      expect(game.intervals[i]).toContain(0);
+      expect(game.intervals[i]).toContain(12);
+    }
   });
 });

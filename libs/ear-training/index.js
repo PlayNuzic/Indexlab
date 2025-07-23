@@ -1,14 +1,19 @@
 class EarTrainingGame {
   constructor(options = {}) {
     this.randInt = options.randInt || ((a, b) => Math.floor(Math.random() * (b - a + 1)) + a);
-    this.requiredToLevelUp = 10;
+    this.requiredToLevelUp = 5;
     this.intervals = {
-      1: [0, 1, -1, 2, -2, 10, -10, 11, -11],
-      2: [0, 5, -5, 6, -6, 7, -7],
-      3: [0, 3, -3, 4, -4, 8, -8, 9, -9, 12]
+      1: [0, 1, 2, 12],               // dissonant seconds
+      2: [0, 10, 11, 12],             // dissonant sevenths
+      3: [0, 1, 2, 10, 11, 12],       // all dissonants
+      4: [0, 5, 7, 12],               // resonant fourth & fifth
+      5: [0, 5, 6, 7, 12],            // resonant + tritone
+      6: [0, 3, 4, 12],               // consonant thirds
+      7: [0, 8, 9, 12],               // consonant sixths
+      8: [0, 3, 4, 8, 9, 12],         // consonant thirds & sixths
+      9: [0, 1, 2, 3, 4, 8, 9, 10, 11, 12], // mix dissonant & consonant
+      10: [0,1,2,3,4,5,6,7,8,9,10,11,12]    // all intervals
     };
-    this.intervals[4] = [...new Set([0, ...this.intervals[1].slice(1), ...this.intervals[3].slice(1)])];
-    this.intervals[5] = [...new Set([0, ...this.intervals[4].slice(1), ...this.intervals[2].slice(1)])];
     this.start('iS', 1);
   }
 
@@ -27,7 +32,9 @@ class EarTrainingGame {
   generateQuestion() {
     this.question += 1;
     let opts = this.intervals[this.level];
-    if (this.mode === 'iA') opts = opts.filter(n => n >= 0);
+    if (this.mode === 'iS') {
+      opts = [...opts, ...opts.filter(n => n !== 0).map(n => -n)];
+    }
     this.currentInterval = opts[this.randInt(0, opts.length - 1)];
     this.note1 = 60 + this.randInt(0, 11);
     this.note2 = this.note1 + this.currentInterval;

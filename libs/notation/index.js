@@ -1,8 +1,8 @@
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector } from '../vendor/vexflow/entry/vexflow.js';
-import { midiToParts, needsDoubleStaff, createNote, createChord,
+import { midiToParts, midiSequenceToChromaticParts, needsDoubleStaff, createNote, createChord,
          keySignatureMap, keySignatureFrom, applyKeySignature } from './helpers.js';
 
-export function drawInterval(container, note1, note2, mode='iS', keySig, options={}){
+export function drawInterval(container, note1, note2, mode='iS', keySig, options={ scaleId:'CROM', root:0 }){
   container.innerHTML = '';
   const useDouble = needsDoubleStaff(note1, note2);
   const ksName = options ? keySignatureFrom(options) : null;
@@ -11,6 +11,8 @@ export function drawInterval(container, note1, note2, mode='iS', keySig, options
   const context = renderer.getContext();
 
   const ksMap = keySig ? keySignatureMap(keySig) : null;
+  const useChromatic = !keySig && options && options.scaleId === 'CROM';
+  const chromParts = useChromatic ? midiSequenceToChromaticParts([note1, note2]) : null;
 
   if(useDouble){
     const treble = new Stave(10, 40, 160);
@@ -39,8 +41,18 @@ export function drawInterval(container, note1, note2, mode='iS', keySig, options
       const restBass = new StaveNote({ keys:['b/4'], duration:'qr', clef:'bass' });
       const n1Clef = note1 < 60 ? 'bass' : 'treble';
       const n2Clef = note2 < 60 ? 'bass' : 'treble';
-      const n1 = createNote(note1, 'q', asc, n1Clef, Accidental, StaveNote, ksMap);
-      const n2 = createNote(note2, 'q', asc, n2Clef, Accidental, StaveNote, ksMap);
+      let n1, n2;
+      if(useChromatic){
+        const p1 = chromParts[0];
+        const p2 = chromParts[1];
+        n1 = new StaveNote({ keys:[p1.key], duration:'q', clef:n1Clef });
+        if(p1.accidental) n1.addModifier(new Accidental(p1.accidental),0);
+        n2 = new StaveNote({ keys:[p2.key], duration:'q', clef:n2Clef });
+        if(p2.accidental) n2.addModifier(new Accidental(p2.accidental),0);
+      }else{
+        n1 = createNote(note1, 'q', asc, n1Clef, Accidental, StaveNote, ksMap);
+        n2 = createNote(note2, 'q', asc, n2Clef, Accidental, StaveNote, ksMap);
+      }
       trebleVoice.addTickable(n1Clef === 'treble' ? n1 : restTreble);
       bassVoice.addTickable(n1Clef === 'bass' ? n1 : restBass);
       trebleVoice.addTickable(n2Clef === 'treble' ? n2 : restTreble);
@@ -51,7 +63,16 @@ export function drawInterval(container, note1, note2, mode='iS', keySig, options
       const clef1 = note1 < 60 ? 'bass' : 'treble';
       const clef2 = note2 < 60 ? 'bass' : 'treble';
       if(clef1 === clef2){
-        const chord = createChord(note1, note2, 'h', asc, clef1, Accidental, StaveNote, ksMap);
+        let chord;
+        if(useChromatic){
+          const p1 = chromParts[0];
+          const p2 = chromParts[1];
+          chord = new StaveNote({ keys:[p1.key, p2.key], duration:'h', clef:clef1 });
+          if(p1.accidental) chord.addModifier(new Accidental(p1.accidental),0);
+          if(p2.accidental) chord.addModifier(new Accidental(p2.accidental),1);
+        }else{
+          chord = createChord(note1, note2, 'h', asc, clef1, Accidental, StaveNote, ksMap);
+        }
         if(clef1 === 'treble'){
           trebleVoice.addTickable(chord);
           bassVoice.addTickable(restBass);
@@ -60,8 +81,18 @@ export function drawInterval(container, note1, note2, mode='iS', keySig, options
           trebleVoice.addTickable(restTreble);
         }
       }else{
-        const n1 = createNote(note1, 'h', asc, clef1, Accidental, StaveNote, ksMap);
-        const n2 = createNote(note2, 'h', asc, clef2, Accidental, StaveNote, ksMap);
+        let n1, n2;
+        if(useChromatic){
+          const p1 = chromParts[0];
+          const p2 = chromParts[1];
+          n1 = new StaveNote({ keys:[p1.key], duration:'h', clef:clef1 });
+          if(p1.accidental) n1.addModifier(new Accidental(p1.accidental),0);
+          n2 = new StaveNote({ keys:[p2.key], duration:'h', clef:clef2 });
+          if(p2.accidental) n2.addModifier(new Accidental(p2.accidental),0);
+        }else{
+          n1 = createNote(note1, 'h', asc, clef1, Accidental, StaveNote, ksMap);
+          n2 = createNote(note2, 'h', asc, clef2, Accidental, StaveNote, ksMap);
+        }
         if(clef1 === 'treble') trebleVoice.addTickable(n1); else bassVoice.addTickable(n1);
         if(clef2 === 'treble') trebleVoice.addTickable(n2); else bassVoice.addTickable(n2);
         if(clef1 === 'treble' && clef2 !== 'treble') trebleVoice.addTickable(restTreble);
@@ -85,10 +116,15 @@ export function drawInterval(container, note1, note2, mode='iS', keySig, options
 
   if(mode === 'iS'){
     const asc = note2 >= note1;
-    const p1 = midiToParts(note1, asc);
+    let p1, p2;
+    if(useChromatic){
+      [p1,p2] = chromParts;
+    }else{
+      p1 = midiToParts(note1, asc);
+      p2 = midiToParts(note2, asc);
+    }
     const n1 = new StaveNote({ keys:[p1.key], duration:'q' });
     if(p1.accidental && (!ksMap || ksMap.get(p1.key[0]) !== p1.accidental)) n1.addModifier(new Accidental(p1.accidental), 0);
-    const p2 = midiToParts(note2, asc);
     const n2 = new StaveNote({ keys:[p2.key], duration:'q' });
     if(p2.accidental && (!ksMap || ksMap.get(p2.key[0]) !== p2.accidental)) n2.addModifier(new Accidental(p2.accidental), 0);
     const notes = [n1, n2];
@@ -98,8 +134,13 @@ export function drawInterval(container, note1, note2, mode='iS', keySig, options
     voice.draw(context, stave);
   }else{
     const asc = note2 >= note1;
-    const p1 = midiToParts(note1, asc);
-    const p2 = midiToParts(note2, asc);
+    let p1,p2;
+    if(useChromatic){
+      [p1,p2] = chromParts;
+    }else{
+      p1 = midiToParts(note1, asc);
+      p2 = midiToParts(note2, asc);
+    }
     const chord = new StaveNote({ keys:[p1.key, p2.key], duration:'h' });
     if(p1.accidental && (!ksMap || ksMap.get(p1.key[0]) !== p1.accidental)) chord.addModifier(new Accidental(p1.accidental), 0);
     if(p2.accidental && (!ksMap || ksMap.get(p2.key[0]) !== p2.accidental)) chord.addModifier(new Accidental(p2.accidental), 1);

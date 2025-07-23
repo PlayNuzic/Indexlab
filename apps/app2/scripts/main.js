@@ -5,11 +5,16 @@ import { drawInterval } from '../../../libs/notation/index.js';
 
 const game = new EarTrainingGame({ randInt });
 const levelNames = {
-  1: 'Intervals dissonants',
-  2: 'Intervals resonants',
-  3: 'Intervals consonants',
-  4: 'Mix dissonants i consonants',
-  5: 'Tots els intervals'
+  1: 'Intervals dissonants (1-2)',
+  2: 'Intervals dissonants (10-11)',
+  3: 'Intervals dissonants (1,2,10,11)',
+  4: 'Intervals resonants (5 i 7)',
+  5: 'Intervals resonants + tritó',
+  6: 'Intervals consonants (3-4)',
+  7: 'Intervals consonants (8-9)',
+  8: 'Consonants majors',
+  9: 'Mix dissonants i consonants',
+  10: 'Tots els intervals'
 };
 
 async function startGame(selected){
@@ -33,7 +38,7 @@ document.getElementById('startIA').onclick=async ()=>{
 };
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('advanceLevel').onclick=()=>{
-  if(game.level < 5){
+  if(game.level < 10){
     game.level++;
   }
   resetForNextLevel();
@@ -86,7 +91,7 @@ function submitAnswer(value){
         nextQuestion();
       }
     };
-    const timer = setTimeout(proceed, 4000);
+    const timer = setTimeout(proceed, 2500);
     notationEl.addEventListener('click', proceed, { once:true });
   }else{
     if(res.retry){
@@ -141,8 +146,9 @@ function initButtons(){
   const wrap=document.getElementById('quickAns');
   wrap.innerHTML='';
   const positives = [0,1,2,3,4,5,6,7,8,9,10,11,12];
-  const negatives = game.mode==='iS' ? positives.slice(1).filter(n=>n<=11).map(n=>-n) : [];
-  const allowed=new Set(game.mode==='iA'?game.intervals[game.level].filter(n=>n>=0):game.intervals[game.level]);
+  const negatives = game.mode==='iS' ? positives.slice(1).map(n=>-n) : [];
+  const base = game.intervals[game.level];
+  const allowed = new Set(game.mode==='iA' ? base : [...base, ...base.filter(n=>n!==0).map(n=>-n)]);
   const create=(i)=>{
     const b=document.createElement('button');
     b.textContent=`${game.mode}(${i})`;

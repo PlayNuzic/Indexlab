@@ -32,7 +32,7 @@ export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
   if (!midis.length) return;
   const { chord = false, duration = 'q' } = options;
-  const scaleId = options.scaleId ? String(options.scaleId).toUpperCase() : '';
+  const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
@@ -59,8 +59,9 @@ export function drawPentagram(container, midis = [], options = {}) {
   trebleVoice.setStrict(false);
   bassVoice.setStrict(false);
 
+  const normScaleId = scaleId.toUpperCase();
   const noKsIds = ['CROM','OCT','HEX','TON'];
-  const useKs = !noKsIds.includes(scaleId);
+  const useKs = !noKsIds.includes(normScaleId);
   if (chord) {
     const byClef = { treble: [], bass: [] };
     let partsSeq;
