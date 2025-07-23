@@ -5,7 +5,7 @@ class EarTrainingGame {
     this.intervals = {
       1: [0, 1, -1, 2, -2, 10, -10, 11, -11],
       2: [0, 5, -5, 6, -6, 7, -7],
-      3: [0, 3, -3, 4, -4, 8, -8, 9, -9]
+      3: [0, 3, -3, 4, -4, 8, -8, 9, -9, 12]
     };
     this.intervals[4] = [...new Set([0, ...this.intervals[1].slice(1), ...this.intervals[3].slice(1)])];
     this.intervals[5] = [...new Set([0, ...this.intervals[4].slice(1), ...this.intervals[2].slice(1)])];

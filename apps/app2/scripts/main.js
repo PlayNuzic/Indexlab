@@ -76,7 +76,7 @@ function submitAnswer(value){
   if(res.correct){
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${(game.note2%12)} - ${(game.note1%12)} = ${game.currentInterval} => ${game.mode}(${game.currentInterval})`;
     const notationEl = document.getElementById('notation');
-    drawInterval(notationEl, game.note1, game.note2, game.mode);
+    drawInterval(notationEl, game.note1, game.note2, game.mode, undefined, { scaleId:'DIAT', root:0 });
     const proceed = () => {
       notationEl.removeEventListener('click', proceed);
       clearTimeout(timer);
@@ -140,8 +140,8 @@ function showSummary(){
 function initButtons(){
   const wrap=document.getElementById('quickAns');
   wrap.innerHTML='';
-  const positives = [0,1,2,3,4,5,6,7,8,9,10,11];
-  const negatives = game.mode==='iS' ? positives.slice(1).map(n=>-n) : [];
+  const positives = [0,1,2,3,4,5,6,7,8,9,10,11,12];
+  const negatives = game.mode==='iS' ? positives.slice(1).filter(n=>n<=11).map(n=>-n) : [];
   const allowed=new Set(game.mode==='iA'?game.intervals[game.level].filter(n=>n>=0):game.intervals[game.level]);
   const create=(i)=>{
     const b=document.createElement('button');

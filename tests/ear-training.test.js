@@ -47,4 +47,11 @@ describe('EarTrainingGame logic', () => {
     expect(game.history[0].correct).toBe(false);
     expect(game.history[1].correct).toBe(true);
   });
+
+  test('level 3 includes interval 12', () => {
+    const game = new EarTrainingGame({ randInt: () => 0 });
+    expect(game.intervals[3]).toContain(12);
+    expect(game.intervals[4]).toContain(12);
+    expect(game.intervals[5]).toContain(12);
+  });
 });
