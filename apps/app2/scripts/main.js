@@ -5,14 +5,14 @@ import { drawInterval } from '../../../libs/notation/index.js';
 
 const game = new EarTrainingGame({ randInt });
 const levelNames = {
-  1: 'Intervals dissonants (1-2)',
-  2: 'Intervals dissonants (10-11)',
-  3: 'Intervals dissonants (1,2,10,11)',
-  4: 'Intervals resonants (5 i 7)',
-  5: 'Intervals resonants + tritó',
-  6: 'Intervals consonants (3-4)',
-  7: 'Intervals consonants (8-9)',
-  8: 'Consonants majors',
+  1: 'Intervals dissonants (iS 1 y 2)',
+  6: 'Intervals consonants (iS 3 y 4)',
+  4: 'Intervals resonants iS(5 y 7)',
+  5: 'Intervals resonants i tritó iS(5, 6 y 7)',
+  7: 'Intervals consonants (iS 8 y 9)',
+  2: 'Intervals dissonants (iS 10 y 11)',
+  3: 'Intervals dissonants (iS 1,2,10 y 11)',
+  8: 'Intervals consonants (iS 3,4,8 y 9)',
   9: 'Mix dissonants i consonants',
   10: 'Tots els intervals'
 };
