@@ -32,7 +32,8 @@ export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
   if (!midis.length) return;
   const { chord = false, duration = 'q' } = options;
-  const ksArray = getKeySignature(options.scaleId, options.root);
+  const scaleId = options.scaleId ? String(options.scaleId).toUpperCase() : '';
+  const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   renderer.resize(400, 340);
@@ -59,11 +60,20 @@ export function drawPentagram(container, midis = [], options = {}) {
   bassVoice.setStrict(false);
 
   const noKsIds = ['CROM','OCT','HEX','TON'];
-  const useKs = !noKsIds.includes(options.scaleId);
+  const useKs = !noKsIds.includes(scaleId);
   if (chord) {
     const byClef = { treble: [], bass: [] };
-    midis.forEach(m => {
-      const parts = useKs ? midiToPartsByKeySig(m, ksMap) : midiToParts(m, true);
+    let partsSeq;
+    if(useKs){
+      partsSeq = midis.map(m => midiToPartsByKeySig(m, ksMap));
+    }else{
+      const sorted = midis.map((m,i)=>({m,i})).sort((a,b)=>a.m-b.m);
+      const chromParts = midiSequenceToChromaticParts(sorted.map(s=>s.m));
+      partsSeq = new Array(midis.length);
+      sorted.forEach((obj, idx)=>{ partsSeq[obj.i] = chromParts[idx]; });
+    }
+    midis.forEach((m, idx) => {
+      const parts = partsSeq[idx];
       const clef = m < 60 ? 'bass' : 'treble';
       byClef[clef].push(parts);
     });
