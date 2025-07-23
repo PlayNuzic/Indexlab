@@ -171,6 +171,7 @@ export function applyKeySignature(stave, accArr, clef='treble'){
   ks.width = 0;
   ks.children = [];
   list.forEach((acc,i)=>{ ks.convertToGlyph(acc, list[i+1], stave); });
+  ks.formatted = true;
   ks.addToStave(stave);
   return ks;
 }

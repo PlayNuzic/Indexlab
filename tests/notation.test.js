@@ -80,10 +80,11 @@ describe('notation helpers', () => {
       { key:'c/4', accidental:'' },
       { key:'e/4', accidental:'b' }
     ]);
-    expect(midiSequenceToChromaticParts([63,66])).toEqual([
-      { key:'e/4', accidental:'b' },
-      { key:'g/4', accidental:'b' }
-    ]);
+  expect(midiSequenceToChromaticParts([63,66])).toEqual([
+    { key:'e/4', accidental:'b' },
+    { key:'g/4', accidental:'b' }
+  ]);
+  });
 
   test('applyKeySignature is a function', () => {
     expect(typeof applyKeySignature).toBe('function');
