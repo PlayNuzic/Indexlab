@@ -206,10 +206,14 @@ export function applyKeySignature(stave, accArr, clef='treble'){
     }
     return { type: sign || 'n', line: line + offset };
   }).filter(Boolean);
-  // Afegir espaiador i glifs d'alteracions al pentagrama
-  stave.addGlyph(ks.makeSpacer(ks.padding));
+  // Dibuixar la llista calculada d'alteracions sobre el pentagrama
+  ks.accList = [];
+  ks.width = 0;
+  ks.children = [];
   list.forEach((acc, i) => {
-    ks.addAccToStave(stave, acc, list[i + 1]);
+    ks.convertToGlyph(acc, list[i + 1], stave);
   });
+  ks.formatted = true;
+  ks.addToStave(stave);
   return ks;
 }
