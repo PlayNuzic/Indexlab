@@ -11,7 +11,7 @@
 </head>
 <body>
   <h1>Cartes i Pentagrama</h1>
-  <div class="controls">
+  <div id="top-controls" class="controls">
     <div class="scale-controls">
       <label>Escala <select id="scaleSel"></select></label>
       <label>Mode/Rot. <select id="rotSel"></select></label>
@@ -30,10 +30,14 @@
         <button id="transposeDown" title="Baixa">&#9660;</button>
       </div>
     </div>
-    <button id="generate">Generar</button>
+    <div class="action-row">
+      <button id="generate">Generar</button>
+      <button id="modeBtn">Armadura</button>
+    </div>
   </div>
-  <div id="staff"></div>
-  <div id="components-area">
+  <div id="main-area">
+    <div id="staff"></div>
+    <div id="components-area">
     <div id="components-row">
       <button id="rotLeft" title="Rotar esquerra">&#x25C0;</button>
       <div id="cards-wrap"></div>
@@ -48,6 +52,7 @@
       <button id="reduceBtn">Reducir</button>
       <button id="undoBtn" title="Desfer">&#8634;</button>
       <button id="redoBtn" title="Refer">&#8635;</button>
+    </div>
     </div>
   </div>
   <script src="../app5/scripts/helpers.js"></script>

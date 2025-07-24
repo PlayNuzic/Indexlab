@@ -35,6 +35,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
   const generateBtn = document.getElementById('generate');
+  const modeBtn = document.getElementById('modeBtn');
+  let useKeySig = true;
 
   const scaleIDs = Object.keys(motherScalesData);
   scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
@@ -103,8 +105,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function renderStaff(){
     drawPentagram(staffEl, diagMidis(), {
-      scaleId: scale.id,
-      root: scale.root,
+      scaleId: useKeySig ? scale.id : 'CROM',
+      root: useKeySig ? scale.root : 0,
       chord: true,
       duration: 'w'
     });
@@ -210,7 +212,14 @@ window.addEventListener('DOMContentLoaded', () => {
   rotRight.onclick=()=>{pushUndo();rotateRight(notes, octShifts, components);renderAll();};
   globUp.onclick=()=>{pushUndo();notes=transposeNotes(notes, scaleSemis(scale.id).length,1);renderAll();};
   globDown.onclick=()=>{pushUndo();notes=transposeNotes(notes, scaleSemis(scale.id).length,-1);renderAll();};
-  dupBtn.onclick=()=>{pushUndo();duplicateCards({notes,octShifts,components},[notes.length-1]);renderAll();};
+  dupBtn.onclick=()=>{
+    if(!selectedCards.size) return;
+    pushUndo();
+    const idx = Array.from(selectedCards).sort((a,b)=>a-b);
+    const newIdx = duplicateCards({notes,octShifts,components}, idx);
+    selectedCards = new Set(newIdx);
+    renderAll();
+  };
   reduceBtn.onclick=()=>{
     pushUndo();
     const len=scaleSemis(scale.id).length;
@@ -238,6 +247,12 @@ window.addEventListener('DOMContentLoaded', () => {
   scaleSel.onchange=()=>{scale.id=scaleSel.value;refreshRot();renderAll();};
   rotSel.onchange=()=>{scale.rot=parseInt(rotSel.value,10);renderAll();};
   rootSel.onchange=()=>{scale.root=parseInt(rootSel.value,10);renderAll();};
+
+  modeBtn.onclick=()=>{
+    useKeySig = !useKeySig;
+    modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
+    renderStaff();
+  };
 
   document.getElementById('tabEA').onclick=()=>{mode='eA';seqPrefix.textContent='eA(';
     transposeControls.style.display='none'; renderAll();};
