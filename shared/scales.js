@@ -48,12 +48,12 @@ export const scaleKeySignatures = {
     ['Bb','Eb','A' + BECUADRO,'Db'],
     ['F#','C#','G#','D' + BECUADRO,'A#'],
     ['B' + BECUADRO,'Eb'],
-    ['Bb','Eb','Ab','Db','Gb','C' + BECUADRO,'Ab'],
+    ['Bb','Eb','Ab','Db','Gb','C' + BECUADRO,'Fb'],
     ['F' + BECUADRO,'C#'],
     ['Bb','Eb','Ab','D' + BECUADRO,'Gb'],
     ['F#','C#','G' + BECUADRO,'D#'],
     ['Bb','E' + BECUADRO,'Ab'],
-    ['F#','C#','G#','D#','A' + BECUADRO,'C#']
+    ['F#','C#','G#','D#','A' + BECUADRO,'E#']
   ],
   ARMm: [
     ['B'+BECUADRO,'Eb','Ab'],
@@ -70,14 +70,14 @@ export const scaleKeySignatures = {
     ['F#','C#','G'+BECUADRO,'D'+BECUADRO,'A#']
   ],
   ARMM: [
-    ['Ab'],
+    ['B'+BECUADRO,'E'+BECUADRO,'Ab'],
     ['F#','C#','G#','D#','A'+BECUADRO,'E#'],
     ['F#','C#','Bb'],
     ['Bb','Eb','Ab','D'+BECUADRO,'G'+BECUADRO,'Cb'],
     ['F#','C'+BECUADRO,'G#','D#'],
     ['Bb','E'+BECUADRO,'A'+BECUADRO,'Db'],
     ['F#','C#','G#','D'+BECUADRO,'A#','E#'],
-    ['F#','Bb'],
+    ['F#','B'+BECUADRO,'Eb'],
     ['Bb','Eb','Ab','Db','G'+BECUADRO,'C'+BECUADRO,'Fb'],
     ['F'+BECUADRO,'C#','G#'],
     ['Bb','Eb','A'+BECUADRO,'D'+BECUADRO,'Gb'],
