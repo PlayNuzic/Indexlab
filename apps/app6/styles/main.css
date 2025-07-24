@@ -132,9 +132,9 @@ button#generate:hover{background:#e6a12b;}
 /* Component boxes */
 #components-area{
   display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:.4rem;
+  flex-direction:row;
+  align-items:flex-start;
+  gap:1rem;
   margin:0 auto 1rem;
   transform:scale(1.15);
   transform-origin:center;

@@ -28,6 +28,36 @@ function loadHelpers(){
   return mod.exports;
 }
 
+function loadPentagram(apply){
+  const code = fs.readFileSync(path.join(__dirname, '../libs/notation/pentagram.js'), 'utf8');
+  let transformed = code
+    .replace(/import[^\n]+\n/g, '')
+    .replace(/export default.*;/, '')
+    .replace(/export function/g, 'function');
+  const wrapper =
+    'return (function(Renderer,Stave,StaveNote,Voice,Formatter,Accidental,StaveConnector,GhostNote,midiToParts,midiToPartsByKeySig,midiSequenceToChromaticParts,applyKeySignature,parseKeySignatureArray,getKeySignature){\n' +
+    transformed +
+    '\nreturn { drawPentagram };});';
+  const factory = new Function(wrapper)();
+  class Renderer{static Backends={SVG:1};resize(){}getContext(){return {};}}
+  class Stave{addClef(){}setContext(){return this;}draw(){}}
+  class StaveConnector{static type={BRACE:"BRACE",SINGLE_LEFT:"SINGLE_LEFT"};setType(){return this;}setContext(){return this;}draw(){}}
+  const noop = ()=>{};
+  function loadKeySig(){
+    const sc = fs.readFileSync(path.join(__dirname, '../shared/scales.js'), 'utf8');
+    const tf = sc
+      .replace(/export const/g, 'const')
+      .replace(/export function/g, 'function') +
+      '\nmodule.exports = { getKeySignature };';
+    const mod = { exports:{} };
+    new Function('module','exports', tf)(mod, mod.exports);
+    return mod.exports.getKeySignature;
+  }
+  const getKeySignature = loadKeySig();
+  const { parseKeySignatureArray } = loadHelpers();
+  return factory(Renderer,Stave,noop,noop,noop,noop,StaveConnector,noop,noop,noop,noop,apply,parseKeySignatureArray,getKeySignature);
+}
+
 describe('pentagram helpers', () => {
   const { parseKeySignatureArray } = loadHelpers();
   const needsAccidental = loadNeedsAccidental();

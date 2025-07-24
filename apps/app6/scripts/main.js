@@ -14,6 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let components = generateComponents(notes);
   let undoStack = [];
   let redoStack = [];
+  let selectedCards = new Set();
 
   const staffEl = document.getElementById('staff');
   const scaleSel = document.getElementById('scaleSel');
@@ -22,12 +23,15 @@ window.addEventListener('DOMContentLoaded', () => {
   const seqInput = document.getElementById('seq');
   const seqPrefix = document.getElementById('seqPrefix');
   const transposeControls = document.getElementById('transposeControls');
+  const transposeUp = document.getElementById('transposeUp');
+  const transposeDown = document.getElementById('transposeDown');
   const cardsWrap = document.getElementById('cards-wrap');
   const rotLeft = document.getElementById('rotLeft');
   const rotRight = document.getElementById('rotRight');
   const globUp = document.getElementById('globUp');
   const globDown = document.getElementById('globDown');
   const dupBtn = document.getElementById('dupBtn');
+  const reduceBtn = document.getElementById('reduceBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
   const generateBtn = document.getElementById('generate');
@@ -71,6 +75,16 @@ window.addEventListener('DOMContentLoaded', () => {
     renderAll();
   }
 
+  function transpose(delta){
+    pushUndo();
+    const len = scaleSemis(scale.id).length;
+    notes = transposeNotes(notes, len, delta);
+    seqInput.value = mode==='eA'? notesToEA(notes,len) : notesToAc(notes);
+    fitNotes();
+    ensureDuplicateComponents(notes, components);
+    renderAll();
+  }
+
   function fitNotes(){
     const len = scaleSemis(scale.id).length;
     notes = notes.map(n => ((n % len) + len) % len);
@@ -96,6 +110,13 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function moveCards(indices, target){
+    pushUndo();
+    const newIdx = moveCardsLib({notes, octShifts, components}, indices, target);
+    selectedCards = new Set(newIdx);
+    renderAll();
+  }
+
   function renderCards(){
     cardsWrap.innerHTML='';
     const len = scaleSemis(scale.id).length;
@@ -104,19 +125,37 @@ window.addEventListener('DOMContentLoaded', () => {
     diagNums.forEach((num,i)=>{
       const card = document.createElement('div');
       card.className='component-card';
+      if(selectedCards.has(i)) card.classList.add('selected');
       card.draggable = true;
+      let pressTimer;
+      card.onmousedown=e=>{
+        if(e.shiftKey){
+          if(selectedCards.has(i)) selectedCards.delete(i); else selectedCards.add(i);
+          renderCards();
+        }else{
+          pressTimer=setTimeout(()=>{ if(selectedCards.has(i)) selectedCards.delete(i); else selectedCards.add(i); renderCards(); },1000);
+        }
+      };
+      card.onmouseup=card.onmouseleave=()=>clearTimeout(pressTimer);
       card.ondragstart=e=>{
-        e.dataTransfer.setData('text/plain', String(i));
+        clearTimeout(pressTimer);
+        const grp=selectedCards.has(i)?Array.from(selectedCards).sort((a,b)=>a-b):[i];
+        e.dataTransfer.setData('text/plain',JSON.stringify(grp));
       };
       card.ondragover=e=>e.preventDefault();
       card.ondrop=e=>{
         e.preventDefault();
-        const from = parseInt(e.dataTransfer.getData('text/plain'),10);
-        if(isNaN(from)) return;
-        pushUndo();
-        moveCardsLib({notes, octShifts, components}, [from], i);
-        renderAll();
+        e.stopPropagation();
+        const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
+        const min=Math.min(...grp);
+        const target=min < i ? i + 1 : i;
+        moveCards(grp, target);
+        card.classList.remove('drop-hover');
+        card.classList.add('drop-flash');
+        setTimeout(()=>card.classList.remove('drop-flash'),150);
       };
+      card.ondragenter=e=>{ if(!card.classList.contains('drop-hover')) card.classList.add('drop-hover'); };
+      card.ondragleave=e=>{ if(!card.contains(e.relatedTarget)) card.classList.remove('drop-hover'); };
       const up=document.createElement('button');
       up.className='up';
       up.innerHTML='\u25B2';
@@ -142,6 +181,12 @@ window.addEventListener('DOMContentLoaded', () => {
       card.appendChild(label);
       cardsWrap.appendChild(card);
     });
+    cardsWrap.ondragover=e=>e.preventDefault();
+    cardsWrap.ondrop=e=>{
+      e.preventDefault();
+      const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
+      moveCards(grp, notes.length);
+    };
   }
 
   function renderAll(){
@@ -166,8 +211,29 @@ window.addEventListener('DOMContentLoaded', () => {
   globUp.onclick=()=>{pushUndo();notes=transposeNotes(notes, scaleSemis(scale.id).length,1);renderAll();};
   globDown.onclick=()=>{pushUndo();notes=transposeNotes(notes, scaleSemis(scale.id).length,-1);renderAll();};
   dupBtn.onclick=()=>{pushUndo();duplicateCards({notes,octShifts,components},[notes.length-1]);renderAll();};
+  reduceBtn.onclick=()=>{
+    pushUndo();
+    const len=scaleSemis(scale.id).length;
+    const midis=diagMidis();
+    const arr=notes.map((n,i)=>({ note:((n%len)+len)%len, comp:components[i], val:midis[i] }));
+    arr.sort((a,b)=>a.val-b.val);
+    notes=arr.map(o=>o.note);
+    components=arr.map(o=>o.comp);
+    octShifts=Array(notes.length).fill(0);
+    ensureDuplicateComponents(notes, components);
+    fitNotes();
+    selectedCards.clear();
+    renderAll();
+  };
   undoBtn.onclick=undo;
   redoBtn.onclick=redo;
+  transposeUp.onclick=()=>transpose(1);
+  transposeDown.onclick=()=>transpose(-1);
+  document.body.addEventListener('click',e=>{
+    if(!e.target.closest('.component-card')){
+      if(selectedCards.size){ selectedCards.clear(); renderCards(); }
+    }
+  });
 
   scaleSel.onchange=()=>{scale.id=scaleSel.value;refreshRot();renderAll();};
   rotSel.onchange=()=>{scale.rot=parseInt(rotSel.value,10);renderAll();};
