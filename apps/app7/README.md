@@ -1,3 +1,3 @@
 # App7 – Armadures
 
-Aquesta app mostra les armadures (key signatures) de quatre escales per a totes les dotze notes d'arrel. Només cal servir la carpeta i obrir `index.html`.
+Aquesta app permet seleccionar l'escala i la nota d'arrel per visualitzar l'armadura (key signature) corresponent en un pentagrama senzill. Obre `index.html` per començar.
