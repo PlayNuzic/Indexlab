@@ -15,8 +15,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // -------- state --------
   let mode='eA';
-  let scale={id:'CROM', rot:0, root:0};
-  let notes=eAToNotes([3,4,3], scaleSemis(scale.id).length);
+  let scale={id:'ACUS', rot:0, root:0};
+  let notes=eAToNotes([2,2,2], scaleSemis(scale.id).length);
   let playMode='iA';
   let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app3Snapshots')||'null'));
   let activeSnapshot=null;
@@ -229,8 +229,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len=scaleSemis(scale.id).length;
     const matrix=showNm ? buildMatrix(notes.map(n=>degToSemi(n)),12) : buildMatrix(notes,len);
     const size=notes.length;
-    diagArr = diagMidis();
-    diagNumsArr = diagNums();
+    diagArr = notes.length ? diagMidis() : [];
+    diagNumsArr = notes.length ? diagNums() : [];
     renderStaff();
     const comps = computeComponents();
     gridWrap.innerHTML='';
@@ -316,12 +316,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     return components.slice();
   }
 function renderStaff(){
-    drawPentagram(staffEl, diagArr, {
+    drawPentagram(staffEl, [], {
       scaleId: scale.id,
-      root: scale.root,
-      chord: mode === 'eA',
-      duration: mode === 'eA' ? 'w' : 'q'
+      root: scale.root
     });
+    if(diagArr.length){
+      drawPentagram(staffEl, diagArr, {
+        scaleId: scale.id,
+        root: scale.root,
+        chord: mode === 'eA',
+        duration: mode === 'eA' ? 'w' : 'q'
+      });
+    }
   }
 
 

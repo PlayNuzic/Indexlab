@@ -1,5 +1,5 @@
 (function(global){
-  const defaultScale = { id: 'CROM', rot: 0, root: 0 };
+  const defaultScale = { id: 'ACUS', rot: 0, root: 0 };
   function initSnapshots(raw){
     let snaps = raw;
     if(!Array.isArray(snaps) || snaps.length!==10){
