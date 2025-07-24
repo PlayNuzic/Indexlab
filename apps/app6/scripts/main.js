@@ -1,10 +1,12 @@
 import drawPentagram from '../../../libs/notation/pentagram.js';
+import { init, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  await init('piano');
   const { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute } = window.Helpers;
 
   let mode = 'eA';
@@ -270,6 +272,17 @@ window.addEventListener('DOMContentLoaded', () => {
     modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
     renderStaff();
   };
+
+  staffEl.addEventListener('click', async e => {
+    await ensureAudio();
+    const midis = diagMidis();
+    if (e.shiftKey) {
+      const dur = 60 / 150;
+      playMelody(midis.slice().sort((a,b)=>a-b), dur, 0);
+    } else {
+      playChord(midis, 2);
+    }
+  });
 
   document.getElementById('tabEA').onclick=()=>{mode='eA';seqPrefix.textContent='eA(';
     transposeControls.style.display='none'; renderAll();};
