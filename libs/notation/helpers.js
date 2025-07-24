@@ -184,7 +184,18 @@ export function applyKeySignature(stave, accArr, clef='treble'){
   const hasSharps = accArr.some(acc => acc.includes('#') || acc.includes('\uD834\uDD2A'));
   const hasFlats = accArr.some(acc => acc.includes('b') || acc.includes('\uD834\uDD2B'));
   const offset = clef === 'bass' ? 1 : 0;
-  const map = new Map();
+  let orientation;
+  const first = accArr[0] || '';
+  if(first.includes('\u266E') || first.includes('♮')){
+    const note = first[0].toUpperCase();
+    orientation = note === 'B' ? 'flat' : note === 'F' ? 'sharp' : undefined;
+  }
+  if(!orientation){
+    if(hasSharps && !hasFlats) orientation = 'sharp';
+    else if(hasFlats && !hasSharps) orientation = 'flat';
+    else orientation = 'sharp';
+  }
+  const list = [];
   accArr.forEach(a => {
     const m = a.match(/^([A-Ga-g])(.+)?$/);
     if(!m) return;
@@ -194,20 +205,17 @@ export function applyKeySignature(stave, accArr, clef='treble'){
                .replace('♮', 'n')
                .replace('\uD834\uDD2A', '##')
                .replace('\uD834\uDD2B', 'bb');
-    map.set(note, sign);
-  });
-  const list = [];
-  SHARP_ORDER.forEach(n => {
-    if(map.has(n)){
-      list.push({ type: map.get(n) || 'n', line: SHARP_LINES[SHARP_ORDER.indexOf(n)] + offset });
-      map.delete(n);
+    let line;
+    if(sign.startsWith('b')){
+      line = FLAT_LINES[FLAT_ORDER.indexOf(note)];
+    }else if(sign.startsWith('#')){
+      line = SHARP_LINES[SHARP_ORDER.indexOf(note)];
+    }else{
+      line = orientation === 'flat'
+           ? FLAT_LINES[FLAT_ORDER.indexOf(note)]
+           : SHARP_LINES[SHARP_ORDER.indexOf(note)];
     }
-  });
-  FLAT_ORDER.forEach(n => {
-    if(map.has(n)){
-      list.push({ type: map.get(n) || 'n', line: FLAT_LINES[FLAT_ORDER.indexOf(n)] + offset });
-      map.delete(n);
-    }
+    list.push({ type: sign || 'n', line: line + offset });
   });
   // Dibuixar la llista calculada d'alteracions sobre el pentagrama
   ks.accList = [];

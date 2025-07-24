@@ -3,11 +3,12 @@ const path = require('path');
 
 function loadHelpers(){
   const code = fs.readFileSync(path.join(__dirname, '../libs/notation/helpers.js'), 'utf8');
+  const stub = 'class KeySignature{constructor(){this.children=[];}addToStave(){ }convertToGlyph(acc,next,stave){this.children.push({getYShift:()=>stave.getYForLine(acc.line)});}}';
   const transformed = code
     .replace(/import[^\n]+\n/g, '')
     .replace(/export function/g, 'function')
     .replace(/export const/g, 'const') +
-    '\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, applyKeySignature, parseKeySignatureArray };';
+    `\n${stub}\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, applyKeySignature, parseKeySignatureArray, SHARP_LINES, FLAT_LINES };`;
   const mod = { exports: {} };
   const fn = new Function('module','exports', transformed);
   fn(mod, mod.exports);
@@ -141,5 +142,21 @@ describe('notation helpers', () => {
     draw(container, [], { scaleId: 'ACUS', root: 0 });
     expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'treble');
     expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'bass');
+  });
+
+  test('applyKeySignature uses flat lines for B natural', () => {
+    const { applyKeySignature, FLAT_LINES } = loadHelpers();
+    const nat = '\u266E';
+    const stave = { getYForLine: l => l, addModifier(){} };
+    const ks = applyKeySignature(stave, ['B'+nat,'Eb'], 'treble');
+    expect(ks.children[0].getYShift()).toBe(FLAT_LINES[0]);
+  });
+
+  test('applyKeySignature uses sharp lines for F natural', () => {
+    const { applyKeySignature, SHARP_LINES } = loadHelpers();
+    const nat = '\u266E';
+    const stave = { getYForLine: l => l, addModifier(){} };
+    const ks = applyKeySignature(stave, ['F'+nat,'C#'], 'treble');
+    expect(ks.children[0].getYShift()).toBe(SHARP_LINES[0]);
   });
 });
