@@ -176,28 +176,40 @@ export function keySignatureFrom(options){
 
 export function applyKeySignature(stave, accArr, clef='treble'){
   const ks = new KeySignature('C');
-  if(!accArr || !accArr.length){
+  if (!accArr || accArr.length === 0) {
     ks.addToStave(stave);
     return ks;
   }
-  const offset = clef==='bass'?1:0;
-  const list = accArr.map(a=>{
-    const m=a.match(/^([A-Ga-g])(.+)?$/);
-    if(!m) return null;
-    const note=m[1].toUpperCase();
-    let sign=m[2]||'';
-    sign=sign.replace('\u266E','n').replace('♮','n').replace('\uD834\uDD2A','##').replace('\uD834\uDD2B','bb');
-    let idx=SHARP_ORDER.indexOf(note);
+  // Determinar tipo de alteraciones para manejo de becuadros
+  const hasSharps = accArr.some(acc => acc.includes('#') || acc.includes('\uD834\uDD2A'));
+  const hasFlats = accArr.some(acc => acc.includes('b') || acc.includes('\uD834\uDD2B'));
+  const offset = clef === 'bass' ? 1 : 0;
+  const list = accArr.map(a => {
+    const m = a.match(/^([A-Ga-g])(.+)?$/);
+    if (!m) return null;
+    const note = m[1].toUpperCase();
+    let sign = m[2] || '';
+    sign = sign.replace('\u266E', 'n')
+               .replace('♮', 'n')
+               .replace('\uD834\uDD2A', '##')
+               .replace('\uD834\uDD2B', 'bb');
     let line;
-    if(idx!==-1){ line=SHARP_LINES[idx]; }
-    else { idx=FLAT_ORDER.indexOf(note); line=FLAT_LINES[idx]; }
-    return {type:sign||'n', line:line+offset};
+    if (sign.startsWith('b')) {
+      line = FLAT_LINES[FLAT_ORDER.indexOf(note)];
+    } else if (sign.startsWith('#')) {
+      line = SHARP_LINES[SHARP_ORDER.indexOf(note)];
+    } else {
+      // Naturales: elegir tabla según contexto de la armadura
+      line = hasFlats && !hasSharps
+             ? FLAT_LINES[FLAT_ORDER.indexOf(note)]
+             : SHARP_LINES[SHARP_ORDER.indexOf(note)];
+    }
+    return { type: sign || 'n', line: line + offset };
   }).filter(Boolean);
-  ks.accList = [];
-  ks.width = 0;
-  ks.children = [];
-  list.forEach((acc,i)=>{ ks.convertToGlyph(acc, list[i+1], stave); });
-  ks.formatted = true;
-  ks.addToStave(stave);
+  // Añadir armadura al pentagrama (espaciador + glifos de alteraciones)
+  stave.addGlyph(ks.makeSpacer(ks.padding));
+  list.forEach((acc, i) => {
+    ks.addAccToStave(stave, acc, list[i + 1]);
+  });
   return ks;
 }
