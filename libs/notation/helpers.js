@@ -180,7 +180,7 @@ export function applyKeySignature(stave, accArr, clef='treble'){
     ks.addToStave(stave);
     return ks;
   }
-  // Determinar tipo de alteraciones para manejo de becuadros
+  // Determinar tipo de alteraciones per gestionar becuadros
   const hasSharps = accArr.some(acc => acc.includes('#') || acc.includes('\uD834\uDD2A'));
   const hasFlats = accArr.some(acc => acc.includes('b') || acc.includes('\uD834\uDD2B'));
   const offset = clef === 'bass' ? 1 : 0;
@@ -199,17 +199,20 @@ export function applyKeySignature(stave, accArr, clef='treble'){
     } else if (sign.startsWith('#')) {
       line = SHARP_LINES[SHARP_ORDER.indexOf(note)];
     } else {
-      // Naturales: elegir tabla según contexto de la armadura
+      // Naturals: escull taula segons el context de l'armadura
       line = hasFlats && !hasSharps
              ? FLAT_LINES[FLAT_ORDER.indexOf(note)]
              : SHARP_LINES[SHARP_ORDER.indexOf(note)];
     }
     return { type: sign || 'n', line: line + offset };
   }).filter(Boolean);
-  // Añadir armadura al pentagrama (espaciador + glifos de alteraciones)
-  stave.addGlyph(ks.makeSpacer(ks.padding));
+  ks.accList = [];
+  ks.width = 0;
+  ks.children = [];
   list.forEach((acc, i) => {
-    ks.addAccToStave(stave, acc, list[i + 1]);
+    ks.convertToGlyph(acc, list[i + 1], stave);
   });
+  ks.formatted = true;
+  ks.addToStave(stave);
   return ks;
 }
