@@ -30,7 +30,6 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  if (!midis.length) return;
   const { chord = false, duration = 'q' } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
@@ -54,6 +53,9 @@ export function drawPentagram(container, midis = [], options = {}) {
   const line = new StaveConnector(treble,bass);
   line.setType(StaveConnector.type.SINGLE_LEFT);
   line.setContext(context).draw();
+
+  if (!midis.length) return;
+
   const trebleVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
   const bassVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
   trebleVoice.setStrict(false);
