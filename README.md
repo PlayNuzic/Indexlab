@@ -42,6 +42,14 @@ apps puguin reutilitzar-lo.
 La manipulació de cartes (parell component-nota) es documenta a
 [`docs/cards-transformations.md`](docs/cards-transformations.md).
 
+### Gestió d'accidentals
+
+El mòdul `libs/notation` converteix seqüències MIDI en notes amb
+accidentals automàtics. A partir de la versió actual es detecta la
+primera nota alterada d'una seqüència i es manté la preferència
+per sostenits o bemolls fins que acaba la frase, seguint també les
+regles per a terceres majors i menors per facilitar la lectura.
+
 ## Tests
 
 Before running tests, execute `./setup.sh` once per session to install all
