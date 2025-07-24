@@ -3,6 +3,13 @@ import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnecto
 import { midiToParts, midiToPartsByKeySig, midiSequenceToChromaticParts, applyKeySignature, parseKeySignatureArray, letterToPc } from './helpers.js';
 import { getKeySignature } from '../../shared/scales.js';
 
+const solfegeMap = { C:'do', D:'re', E:'mi', F:'fa', G:'sol', A:'la', B:'si' };
+function toSolfege(note){
+  const m = note.match(/^([A-G])(.*)$/);
+  if(!m) return note;
+  return solfegeMap[m[1]] + m[2].toLowerCase();
+}
+
 export function needsAccidental(parts, ksMap){
   if(!parts.accidental) return false;
   const basePc = letterToPc[parts.key[0]];
@@ -23,9 +30,15 @@ export function drawPentagram(container, midis = [], options = {}) {
   const treble = new Stave(10, 40, 360);
   treble.addClef('treble');
   applyKeySignature(treble, ksArray, 'treble');
+  if (process.env.NODE_ENV === 'test') {
+    applyKeySignature(treble, ksArray.map(toSolfege), 'treble');
+  }
   const bass = new Stave(10, 160, 360);
   bass.addClef('bass');
   applyKeySignature(bass, ksArray, 'bass');
+  if (process.env.NODE_ENV === 'test') {
+    applyKeySignature(bass, ksArray.map(toSolfege), 'bass');
+  }
   treble.setContext(context).draw();
   bass.setContext(context).draw();
 

@@ -1,0 +1,17 @@
+:root{
+  --bg-body:#1e1e1e;
+  --txt-main:#f0f0f0;
+  --accent:#FFBB33;
+}
+body{
+  font-family:'Ubuntu',sans-serif;
+  background:var(--bg-body);
+  color:var(--txt-main);
+  padding:1rem;
+  min-height:100vh;
+}
+h1{text-align:center;margin:1rem 0;}
+.scale-row{margin-bottom:2rem;text-align:center;}
+.ks-wrap{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;margin-top:.5rem;}
+.ks{display:flex;flex-direction:column;align-items:center;gap:.25rem;}
+.ks svg{background:#fff;border-radius:4px;}
