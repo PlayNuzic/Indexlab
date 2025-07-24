@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cartes i Pentagrama</title>
+  <link rel="stylesheet" href="../../libs/shared-ui/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="icon" href="favicon.ico" />
+</head>
+<body>
+  <h1>Cartes i Pentagrama</h1>
+  <div class="controls">
+    <div class="scale-controls">
+      <label>Escala <select id="scaleSel"></select></label>
+      <label>Mode/Rot. <select id="rotSel"></select></label>
+      <label>Arrel Nm <select id="rootSel"></select></label>
+    </div>
+    <div class="tabs">
+      <button id="tabEA" class="active">eA</button>
+      <button id="tabAc">Ac</button>
+    </div>
+    <div class="seqInput">
+      <span id="seqPrefix">eA(</span>
+      <input id="seq" type="text" placeholder="3 4 3">
+      <span>)</span>
+      <div id="transposeControls" class="transpose-controls">
+        <button id="transposeUp" title="Puja">&#9650;</button>
+        <button id="transposeDown" title="Baixa">&#9660;</button>
+      </div>
+    </div>
+    <button id="generate">Generar</button>
+  </div>
+  <div id="staff"></div>
+  <div id="components-area">
+    <div id="components-row">
+      <button id="rotLeft" title="Rotar esquerra">&#x25C0;</button>
+      <div id="cards-wrap"></div>
+      <button id="rotRight" title="Rotar dreta">&#x25B6;</button>
+      <div id="transp-controls">
+        <button id="globUp" title="Transposa amunt">&#9650;</button>
+        <button id="globDown" title="Transposa avall">&#9660;</button>
+      </div>
+    </div>
+    <div id="comp-actions">
+      <button id="dupBtn">Duplicar</button>
+      <button id="undoBtn" title="Desfer">&#8634;</button>
+      <button id="redoBtn" title="Refer">&#8635;</button>
+    </div>
+  </div>
+  <script src="../app5/scripts/helpers.js"></script>
+  <script type="module" src="./scripts/main.js"></script>
+</body>
+</html>
