@@ -125,7 +125,7 @@ describe('notation helpers', () => {
     const draw = loadPentagram(apply);
     const container = { innerHTML:'', setAttribute(){} };
     draw(container, [], { scaleId: 'ACUS', root: 0 });
-    expect(apply).toHaveBeenCalledWith(expect.anything(), ['fa#','sib'], 'treble');
-    expect(apply).toHaveBeenCalledWith(expect.anything(), ['fa#','sib'], 'bass');
+    expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'treble');
+    expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'bass');
   });
 });

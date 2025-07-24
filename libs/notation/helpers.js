@@ -2,24 +2,22 @@ import { KeySignature } from '../vendor/vexflow/entry/vexflow.js';
 
 export const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
 
-const catLetterToPc = { do:0, re:2, mi:4, fa:5, sol:7, la:9, si:11 };
-
 export function parseKeySignatureArray(arr){
   const map = {};
   if(!Array.isArray(arr)) return map;
   for(const item of arr){
-    const letter = item.replace(/[#b\u266E]/g,'');
+    const letter = item.replace(/[#b\u266E]/g, '').toLowerCase();
     let acc = '';
     if(item.includes('#')) acc = '#';
     else if(item.includes('b')) acc = 'b';
-    const pc = catLetterToPc[letter];
+    const pc = letterToPc[letter];
     if(pc !== undefined) map[pc] = acc;
   }
   return map;
 }
 
-const SHARP_ORDER = ['fa','do','sol','re','la','mi','si'];
-const FLAT_ORDER  = ['si','mi','la','re','sol','do','fa'];
+const SHARP_ORDER = ['F','C','G','D','A','E','B'];
+const FLAT_ORDER  = ['B','E','A','D','G','C','F'];
 const SHARP_LINES = [0,1.5,-0.5,1,2.5,0.5,2];
 const FLAT_LINES  = [2,0.5,2.5,1,3,1.5,3.5];
 
@@ -144,11 +142,10 @@ export function createChord(m1, m2, duration, asc, clef, Accidental, StaveNote, 
 
 export function keySignatureMap(accArr){
   const map = new Map();
-  const noteMap = { do:'c', re:'d', mi:'e', fa:'f', sol:'g', la:'a', si:'b' };
   accArr.forEach(a=>{
-    const m=a.match(/^(do|re|mi|fa|sol|la|si)(.*)$/);
+    const m = a.match(/^([A-Ga-g])(.+)?$/);
     if(!m) return;
-    const letter = noteMap[m[1]];
+    const letter = m[1].toLowerCase();
     let acc = m[2] || '';
     acc = acc.replace('\u266E','n').replace('♮','n').replace('\uD834\uDD2A','##').replace('\uD834\uDD2B','bb');
     map.set(letter, acc);
@@ -172,9 +169,9 @@ export function applyKeySignature(stave, accArr, clef='treble'){
   }
   const offset = clef==='bass'?1:0;
   const list = accArr.map(a=>{
-    const m=a.match(/^(do|re|mi|fa|sol|la|si)(.*)$/);
+    const m=a.match(/^([A-Ga-g])(.+)?$/);
     if(!m) return null;
-    const note=m[1];
+    const note=m[1].toUpperCase();
     let sign=m[2]||'';
     sign=sign.replace('\u266E','n').replace('♮','n').replace('\uD834\uDD2A','##').replace('\uD834\uDD2B','bb');
     let idx=SHARP_ORDER.indexOf(note);

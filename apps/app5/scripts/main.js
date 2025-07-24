@@ -15,7 +15,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // -------- state --------
   let mode='eA';
-  let scale={id:'ACUS', rot:0, root:0};
+  let scale={id:'DIAT', rot:0, root:0};
   let notes=eAToNotes([2,2,2], scaleSemis(scale.id).length);
   let playMode='iA';
   let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app3Snapshots')||'null'));

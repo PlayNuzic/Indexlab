@@ -33,19 +33,19 @@ describe('pentagram helpers', () => {
   const needsAccidental = loadNeedsAccidental();
 
   test('parseKeySignatureArray maps notes', () => {
-    const map = parseKeySignatureArray(['fa#','do#']);
+    const map = parseKeySignatureArray(['F#','C#']);
     expect(map[5]).toBe('#');
     expect(map[0]).toBe('#');
   });
 
   test('parseKeySignatureArray handles naturals', () => {
     const nat = '\u266E';
-    const map = parseKeySignatureArray(['sol' + nat]);
+    const map = parseKeySignatureArray(['G' + nat]);
     expect(map[7]).toBe('');
   });
 
   test('needsAccidental honors key signature', () => {
-    const map = parseKeySignatureArray(['fa#','do#']);
+    const map = parseKeySignatureArray(['F#','C#']);
     expect(needsAccidental({ key:'f/4', accidental:'#' }, map)).toBe(false);
     expect(needsAccidental({ key:'f/4', accidental:'b' }, map)).toBe(true);
   });

@@ -17,7 +17,7 @@ describe('getKeySignature', () => {
   const { getKeySignature, BECUADRO } = loadScaleModule();
 
   test('E major has four sharps', () => {
-    expect(getKeySignature('DIAT',4)).toEqual(['fa#','do#','sol#','re#']);
+    expect(getKeySignature('DIAT',4)).toEqual(['F#','C#','G#','D#']);
   });
 
   test('C major has no accidentals', () => {
@@ -25,13 +25,13 @@ describe('getKeySignature', () => {
   });
 
   test('ACUS root 9 uses natural', () => {
-    expect(getKeySignature('ACUS',9)).toEqual(['fa#','do#','sol'+BECUADRO,'re#']);
+    expect(getKeySignature('ACUS',9)).toEqual(['F#','C#','G'+BECUADRO,'D#']);
   });
   test('ARMm root 0', () => {
-    expect(getKeySignature('ARMm',0)).toEqual(['si'+BECUADRO,'mib','lab']);
+    expect(getKeySignature('ARMm',0)).toEqual(['B'+BECUADRO,'Eb','Ab']);
   });
 
   test('ARMM root 1', () => {
-    expect(getKeySignature('ARMM',1)).toEqual(['fa#','do#','sol#','re#','la'+BECUADRO,'mi#']);
+    expect(getKeySignature('ARMM',1)).toEqual(['F#','C#','G#','D#','A'+BECUADRO,'E#']);
   });
 });
