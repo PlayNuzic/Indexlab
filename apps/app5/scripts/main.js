@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let scale={id:'DIAT', rot:0, root:0};
   let notes=eAToNotes([2,2,2], scaleSemis(scale.id).length);
   let playMode='iA';
+  let useKeySig = true;
   let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app3Snapshots')||'null'));
   let activeSnapshot=null;
   let lastSaved=null;
@@ -124,6 +125,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const resetSnapsBtn=document.getElementById('resetSnaps');
   const downloadSnapsBtn=document.getElementById('downloadSnaps');
   const staffEl=document.getElementById("staff");
+  const modeBtn=document.getElementById('modeBtn');
   const uploadSnapsBtn=document.getElementById('uploadSnaps');
   const snapsFileInput=document.getElementById('snapsFile');
   const bpmInput=document.getElementById('bpm');
@@ -317,8 +319,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 function renderStaff(){
     drawPentagram(staffEl, diagArr, {
-      scaleId: scale.id,
-      root: scale.root,
+      scaleId: useKeySig ? scale.id : 'CROM',
+      root: useKeySig ? scale.root : 0,
       chord: mode === 'eA',
       duration: mode === 'eA' ? 'w' : 'q'
     });
@@ -627,6 +629,11 @@ function renderStaff(){
   });
 
   toggleBtn.onclick=()=>{ playMode= playMode==='iA'?'iS':'iA'; updatePlayMode(); };
+  modeBtn.onclick=()=>{
+    useKeySig = !useKeySig;
+    modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
+    renderStaff();
+  };
 
   let taps=[];
   tapBtn.onclick=()=>{
