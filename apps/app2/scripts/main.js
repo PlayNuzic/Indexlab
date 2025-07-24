@@ -17,8 +17,11 @@ const levelNames = {
   10: 'Tots els intervals'
 };
 
-async function startGame(selected){
-  game.start(selected, parseInt(document.getElementById('levelSelect').value) || 1);
+let currentMode = 'iS';
+
+async function startGame(selected, level = 1){
+  currentMode = selected;
+  game.start(selected, level);
   document.getElementById('welcome').style.display='none';
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
@@ -30,11 +33,11 @@ async function startGame(selected){
 
 document.getElementById('startIS').onclick=async ()=>{
   await ensureAudio();
-  startGame('iS');
+  startGame('iS', 1);
 };
 document.getElementById('startIA').onclick=async ()=>{
   await ensureAudio();
-  startGame('iA');
+  startGame('iA', 1);
 };
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('advanceLevel').onclick=()=>{
@@ -54,6 +57,14 @@ document.getElementById('backBtn').onclick=()=>{
   document.getElementById('game').style.display='none';
   document.getElementById('welcome').style.display='block';
 };
+
+document.querySelectorAll('#levelInfo button').forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    await ensureAudio();
+    const level=parseInt(btn.dataset.level,10);
+    startGame(currentMode, level);
+  });
+});
 
 function playNotes(){
   if(game.mode==='iS'){
