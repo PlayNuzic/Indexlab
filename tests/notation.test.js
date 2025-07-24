@@ -26,7 +26,7 @@ function loadPentagram(apply){
     '\nreturn drawPentagram;});';
   const factory = new Function(wrapper)();
   class Renderer{static Backends={SVG:1};resize(){}getContext(){return {};}}
-  class Stave{addClef(){}setContext(){return this;}draw(){}}
+  class Stave{addClef(){}setContext(){return this;}addGlyph(){}draw(){}}
   class StaveConnector{static type={BRACE:"BRACE",SINGLE_LEFT:"SINGLE_LEFT"};setType(){return this;}setContext(){return this;}draw(){}}
   const noop = ()=>{};
   function loadKeySig(){

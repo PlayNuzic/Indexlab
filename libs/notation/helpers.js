@@ -206,13 +206,10 @@ export function applyKeySignature(stave, accArr, clef='treble'){
     }
     return { type: sign || 'n', line: line + offset };
   }).filter(Boolean);
-  ks.accList = [];
-  ks.width = 0;
-  ks.children = [];
+  // Afegir espaiador i glifs d'alteracions al pentagrama
+  stave.addGlyph(ks.makeSpacer(ks.padding));
   list.forEach((acc, i) => {
-    ks.convertToGlyph(acc, list[i + 1], stave);
+    ks.addAccToStave(stave, acc, list[i + 1]);
   });
-  ks.formatted = true;
-  ks.addToStave(stave);
   return ks;
 }
