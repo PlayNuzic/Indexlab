@@ -28,42 +28,14 @@ export function init(container, {
   container.appendChild(area);
   if(orientation==='column') area.classList.add('vertical');
 
+  // expose controls via API only; DOM buttons are created by the host app
   const rotLeftBtn = document.createElement('button');
-  rotLeftBtn.className = 'rot-left';
-  rotLeftBtn.textContent = '\u25C0';
   const rotRightBtn = document.createElement('button');
-  rotRightBtn.className = 'rot-right';
-  rotRightBtn.textContent = '\u25B6';
-  row.prepend(rotLeftBtn);
-  row.appendChild(rotRightBtn);
-
-  const transpWrap = document.createElement('div');
-  transpWrap.className = 'transp-controls';
   const upBtn = document.createElement('button');
-  upBtn.className = 'glob-up';
-  upBtn.textContent = '\u25B2';
   const downBtn = document.createElement('button');
-  downBtn.className = 'glob-down';
-  downBtn.textContent = '\u25BC';
-  transpWrap.appendChild(upBtn);
-  transpWrap.appendChild(downBtn);
-  row.appendChild(transpWrap);
-
-  const actions = document.createElement('div');
-  actions.className = 'comp-actions';
   const dupBtn = document.createElement('button');
-  dupBtn.className = 'dup';
-  dupBtn.textContent = 'Duplicar';
   const undoBtn = document.createElement('button');
-  undoBtn.className = 'undo';
-  undoBtn.textContent = '\u21B6';
   const redoBtn = document.createElement('button');
-  redoBtn.className = 'redo';
-  redoBtn.textContent = '\u21B7';
-  actions.appendChild(dupBtn);
-  actions.appendChild(undoBtn);
-  actions.appendChild(redoBtn);
-  area.appendChild(actions);
 
   let infoToggle, infoCard;
   if(help){
@@ -140,8 +112,17 @@ export function init(container, {
       card.className='component-card';
       if(selected.has(i)) card.classList.add('selected');
       card.draggable=true;
-      card.onmousedown=e=>{ if(e.shiftKey){ if(selected.has(i)) selected.delete(i); else selected.add(i); render(); } };
-      card.ondragstart=e=>{ const grp=selected.has(i)?Array.from(selected).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
+      let pressTimer;
+      card.onmousedown=e=>{
+        if(e.shiftKey){
+          if(selected.has(i)) selected.delete(i); else selected.add(i);
+          render();
+        }else{
+          pressTimer=setTimeout(()=>{ if(selected.has(i)) selected.delete(i); else selected.add(i); render(); },1000);
+        }
+      };
+      card.onmouseup=card.onmouseleave=()=>clearTimeout(pressTimer);
+      card.ondragstart=e=>{ clearTimeout(pressTimer); const grp=selected.has(i)?Array.from(selected).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
       card.ondragover=e=>e.preventDefault();
       card.ondrop=e=>{ e.preventDefault(); e.stopPropagation(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); const min=Math.min(...grp); const target=min<i?i+1:i; moveCards(grp,target); };
       const up=document.createElement('button'); up.className='up'; up.textContent='\u25B2'; up.onclick=()=>{pushUndo();shiftOct(state.octShifts,i,1);render();};
