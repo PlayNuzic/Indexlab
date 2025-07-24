@@ -2,6 +2,22 @@ import { KeySignature } from '../vendor/vexflow/entry/vexflow.js';
 
 export const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
 
+const catLetterToPc = { do:0, re:2, mi:4, fa:5, sol:7, la:9, si:11 };
+
+export function parseKeySignatureArray(arr){
+  const map = {};
+  if(!Array.isArray(arr)) return map;
+  for(const item of arr){
+    const letter = item.replace(/[#b\u266E]/g,'');
+    let acc = '';
+    if(item.includes('#')) acc = '#';
+    else if(item.includes('b')) acc = 'b';
+    const pc = catLetterToPc[letter];
+    if(pc !== undefined) map[pc] = acc;
+  }
+  return map;
+}
+
 const SHARP_ORDER = ['fa','do','sol','re','la','mi','si'];
 const FLAT_ORDER  = ['si','mi','la','re','sol','do','fa'];
 const SHARP_LINES = [0,1.5,-0.5,1,2.5,0.5,2];

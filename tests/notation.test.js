@@ -7,7 +7,7 @@ function loadHelpers(){
     .replace(/import[^\n]+\n/g, '')
     .replace(/export function/g, 'function')
     .replace(/export const/g, 'const') +
-    '\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, applyKeySignature };';
+    '\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, applyKeySignature, parseKeySignatureArray };';
   const mod = { exports: {} };
   const fn = new Function('module','exports', transformed);
   fn(mod, mod.exports);
@@ -21,7 +21,7 @@ function loadPentagram(apply){
     .replace(/export default.*;/, '')
     .replace(/export function/g, 'function');
   const wrapper =
-    'return (function(Renderer,Stave,StaveNote,Voice,Formatter,Accidental,StaveConnector,GhostNote,midiToParts,midiToPartsByKeySig,midiSequenceToChromaticParts,applyKeySignature,getKeySignature){\n' +
+    'return (function(Renderer,Stave,StaveNote,Voice,Formatter,Accidental,StaveConnector,GhostNote,midiToParts,midiToPartsByKeySig,midiSequenceToChromaticParts,applyKeySignature,parseKeySignatureArray,getKeySignature){\n' +
     transformed +
     '\nreturn drawPentagram;});';
   const factory = new Function(wrapper)();
@@ -40,7 +40,8 @@ function loadPentagram(apply){
     return mod.exports.getKeySignature;
   }
   const getKeySignature = loadKeySig();
-  return factory(Renderer,Stave,noop,noop,noop,noop,StaveConnector,noop,noop,noop,noop,apply,getKeySignature);
+  const { parseKeySignatureArray } = loadHelpers();
+  return factory(Renderer,Stave,noop,noop,noop,noop,StaveConnector,noop,noop,noop,noop,apply,parseKeySignatureArray,getKeySignature);
 }
 
 describe('notation helpers', () => {
