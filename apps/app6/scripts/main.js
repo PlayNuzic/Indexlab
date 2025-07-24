@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const transposeControls = document.getElementById('transposeControls');
   const transposeUp = document.getElementById('transposeUp');
   const transposeDown = document.getElementById('transposeDown');
-  const cardsWrap = document.getElementById('cards-wrap');
+  const componentsWrap = document.getElementById('components-wrap');
   const rotLeft = document.getElementById('rotLeft');
   const rotRight = document.getElementById('rotRight');
   const globUp = document.getElementById('globUp');
@@ -134,7 +134,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderCards(){
-    cardsWrap.innerHTML='';
+    componentsWrap.innerHTML='';
     const len = scaleSemis(scale.id).length;
     const diagNums = notes.slice();
     const comps = ensureDuplicateComponents(notes, components);
@@ -195,10 +195,10 @@ window.addEventListener('DOMContentLoaded', () => {
       card.appendChild(close);
       card.appendChild(note);
       card.appendChild(label);
-      cardsWrap.appendChild(card);
+      componentsWrap.appendChild(card);
     });
-    cardsWrap.ondragover=e=>e.preventDefault();
-    cardsWrap.ondrop=e=>{
+    componentsWrap.ondragover=e=>e.preventDefault();
+    componentsWrap.ondrop=e=>{
       e.preventDefault();
       const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
       moveCards(grp, notes.length);

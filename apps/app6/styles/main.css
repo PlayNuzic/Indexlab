@@ -5,6 +5,9 @@
   --txt-sec:#cccccc;
   --cell-size:6rem;
 }
+body{font-family:'Ubuntu',sans-serif;display:block;background:var(--bg-body);color:var(--txt-main);text-align:center;padding:2rem;}
+h1{margin-bottom:1rem;color:#fff;}
+>>>>>>> theirs
 .controls{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.5rem;margin-bottom:0;font-size:125%;}
 #controls-box{display:flex;flex-direction:column;align-items:center;gap:.5rem;margin-bottom:1rem;}
 #app-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;}
@@ -146,12 +149,6 @@ button#generate:hover{background:#e6a12b;}
   align-items:center; /* centreu els botons verticalment */
   gap:.4rem;
 }
-#cards-wrap{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:.4rem;
-}
 #components-wrap{
   display:flex;
   flex-direction:row;
@@ -257,7 +254,7 @@ button#generate:hover{background:#e6a12b;}
   font-size:.9rem;
   padding:.1rem;
 }
-#comp-actions{display:flex;gap:.4rem;}
+#comp-actions{display:flex;gap:.4rem;margin-top:.4rem;justify-content:center;}
 #comp-actions button{padding:.3rem .6rem;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;}
 
 button.lp-complete{
