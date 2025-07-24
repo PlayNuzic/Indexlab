@@ -11,7 +11,8 @@
 </head>
 <body>
   <h1>Cartes i Pentagrama</h1>
-  <div id="top-controls" class="controls">
+  <div id="app-wrap">
+  <div id="controls-box" class="controls">
     <div class="scale-controls">
       <label>Escala <select id="scaleSel"></select></label>
       <label>Mode/Rot. <select id="rotSel"></select></label>
@@ -25,6 +26,10 @@
       <span id="seqPrefix">eA(</span>
       <input id="seq" type="text" placeholder="3 4 3">
       <span>)</span>
+      <select id="baseNote">
+        <option value="60" selected>C4</option>
+        <option value="48">C3</option>
+      </select>
       <div id="transposeControls" class="transpose-controls">
         <button id="transposeUp" title="Puja">&#9650;</button>
         <button id="transposeDown" title="Baixa">&#9660;</button>
@@ -46,14 +51,15 @@
         <button id="globUp" title="Transposa amunt">&#9650;</button>
         <button id="globDown" title="Transposa avall">&#9660;</button>
       </div>
-    </div>
-    <div id="comp-actions">
+      <div id="comp-actions">
       <button id="dupBtn">Duplicar</button>
       <button id="reduceBtn">Reducir</button>
       <button id="undoBtn" title="Desfer">&#8634;</button>
       <button id="redoBtn" title="Refer">&#8635;</button>
+      </div>
     </div>
     </div>
+  </div>
   </div>
   <script src="../app5/scripts/helpers.js"></script>
   <script type="module" src="./scripts/main.js"></script>

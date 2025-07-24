@@ -22,6 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const rootSel = document.getElementById('rootSel');
   const seqInput = document.getElementById('seq');
   const seqPrefix = document.getElementById('seqPrefix');
+  const baseSelect = document.getElementById('baseNote');
   const transposeControls = document.getElementById('transposeControls');
   const transposeUp = document.getElementById('transposeUp');
   const transposeDown = document.getElementById('transposeDown');
@@ -37,6 +38,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const generateBtn = document.getElementById('generate');
   const modeBtn = document.getElementById('modeBtn');
   let useKeySig = true;
+  let baseMidi = 60;
+  baseSelect.value = String(baseMidi);
+  baseSelect.onchange = () => { baseMidi = parseInt(baseSelect.value, 10); renderAll(); };
 
   const scaleIDs = Object.keys(motherScalesData);
   scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
@@ -100,7 +104,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const len = semsArr.length;
       return (semsArr[(d + scale.rot) % len] + scale.root) % 12;
     });
-    return toAbsolute(sems, 60).map((m,i)=>m + 12*(octShifts[i]||0));
+    return toAbsolute(sems, baseMidi).map((m,i)=>m + 12*(octShifts[i]||0));
   }
 
   function renderStaff(){
