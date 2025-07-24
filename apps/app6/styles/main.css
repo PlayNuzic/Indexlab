@@ -146,6 +146,12 @@ button#generate:hover{background:#e6a12b;}
   align-items:center; /* centreu els botons verticalment */
   gap:.4rem;
 }
+#cards-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.4rem;
+}
 #components-wrap{
   display:flex;
   flex-direction:row;

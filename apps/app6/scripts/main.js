@@ -41,6 +41,11 @@ window.addEventListener('DOMContentLoaded', () => {
   let baseMidi = 60;
   baseSelect.value = String(baseMidi);
   baseSelect.onchange = () => { baseMidi = parseInt(baseSelect.value, 10); renderAll(); };
+  const degToSemi = d => {
+    const sems = scaleSemis(scale.id);
+    const len = sems.length;
+    return (sems[(d + scale.rot) % len] + scale.root) % 12;
+  };
 
   const scaleIDs = Object.keys(motherScalesData);
   scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
@@ -56,28 +61,33 @@ window.addEventListener('DOMContentLoaded', () => {
   rootSel.value = scale.root;
 
   function pushUndo(){
-    undoStack.push({ notes:notes.slice(), octShifts:octShifts.slice(), components:components.slice() });
-    if(undoStack.length>20) undoStack.shift();
-    redoStack = [];
+    undoStack.push({
+      notes:notes.slice(),
+      octShifts:octShifts.slice(),
+      components:components.slice()
+    });
+    if(undoStack.length>5) undoStack.shift();
+    redoStack=[];
   }
 
-  function undo(){
+  function undoAction(){
     if(!undoStack.length) return;
-    redoStack.push({ notes:notes.slice(), octShifts:octShifts.slice(), components:components.slice() });
-    const snap = undoStack.pop();
-    notes = snap.notes.slice();
-    octShifts = snap.octShifts.slice();
-    components = snap.components.slice();
+    redoStack.push({notes:notes.slice(),octShifts:octShifts.slice(),components:components.slice()});
+    const snap=undoStack.pop();
+    notes=snap.notes.slice();
+    octShifts=snap.octShifts.slice();
+    components=snap.components.slice();
     renderAll();
   }
 
-  function redo(){
+  function redoAction(){
     if(!redoStack.length) return;
-    undoStack.push({ notes:notes.slice(), octShifts:octShifts.slice(), components:components.slice() });
-    const snap = redoStack.pop();
-    notes = snap.notes.slice();
-    octShifts = snap.octShifts.slice();
-    components = snap.components.slice();
+    undoStack.push({notes:notes.slice(),octShifts:octShifts.slice(),components:components.slice()});
+    if(undoStack.length>5) undoStack.shift();
+    const snap=redoStack.pop();
+    notes=snap.notes.slice();
+    octShifts=snap.octShifts.slice();
+    components=snap.components.slice();
     renderAll();
   }
 
@@ -227,8 +237,11 @@ window.addEventListener('DOMContentLoaded', () => {
   reduceBtn.onclick=()=>{
     pushUndo();
     const len=scaleSemis(scale.id).length;
-    const midis=diagMidis();
-    const arr=notes.map((n,i)=>({ note:((n%len)+len)%len, comp:components[i], val:midis[i] }));
+    const arr=notes.map((n,i)=>({
+      note:((n%len)+len)%len,
+      comp:components[i],
+      val:degToSemi(n)+12*(octShifts[i]||0)
+    }));
     arr.sort((a,b)=>a.val-b.val);
     notes=arr.map(o=>o.note);
     components=arr.map(o=>o.comp);
@@ -238,8 +251,8 @@ window.addEventListener('DOMContentLoaded', () => {
     selectedCards.clear();
     renderAll();
   };
-  undoBtn.onclick=undo;
-  redoBtn.onclick=redo;
+  undoBtn.onclick=undoAction;
+  redoBtn.onclick=redoAction;
   transposeUp.onclick=()=>transpose(1);
   transposeDown.onclick=()=>transpose(-1);
   document.body.addEventListener('click',e=>{
