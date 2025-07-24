@@ -116,6 +116,20 @@ describe('notation helpers', () => {
   ]);
   });
 
+  test('midiSequenceToChromaticParts handles major thirds', () => {
+    expect(midiSequenceToChromaticParts([60,64])).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'e/4', accidental:'' }
+    ]);
+  });
+
+  test('midiSequenceToChromaticParts keeps accidental preference', () => {
+    expect(midiSequenceToChromaticParts([61,66])).toEqual([
+      { key:'d/4', accidental:'b' },
+      { key:'g/4', accidental:'b' }
+    ]);
+  });
+
   test('applyKeySignature is a function', () => {
     expect(typeof applyKeySignature).toBe('function');
   });

@@ -49,7 +49,7 @@ export function midiToPartsByKeySig(midi, ksMap) {
   return midiToParts(midi, true);
 }
 
-export function midiToChromaticPart(midi, prev){
+export function midiToChromaticPart(midi, prev, prefer){
   const sharpLetters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
   const flatLetters  = ['c','d','d','e','e','f','g','g','a','a','b','b'];
   const sharps = ['', '#', '', '#', '', '', '#', '', '#', '', '#', ''];
@@ -70,11 +70,13 @@ export function midiToChromaticPart(midi, prev){
   }else if(candFlat.accidental === '' && candSharp.accidental !== ''){
     cand = candFlat;
   }else if(!prev){
-    cand = candFlat;
+    if(prefer === '#') cand = candSharp;
+    else if(prefer === 'b') cand = candFlat;
+    else cand = candFlat;
   }else if(prev){
     const diff = Math.abs(pc - prev.pc) % 12;
     const delta = (pc - prev.pc + 12) % 12;
-    if(diff === 3 || diff === 9){
+    if(diff === 3 || diff === 4 || diff === 8 || diff === 9){
       const cycle = ['c','d','e','f','g','a','b'];
       const prevIdx = cycle.indexOf(prev.letter);
       const targetIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
@@ -98,6 +100,11 @@ export function midiToChromaticPart(midi, prev){
       }
     }
   }
+  if(prefer === '#' && candSharp.accidental === '#') {
+    cand = candSharp;
+  }else if(prefer === 'b' && candFlat.accidental === 'b') {
+    cand = candFlat;
+  }
   let acc = cand.accidental;
   if(prev && prev.letter === cand.letter && prev.accidental && acc === ''){
     acc = '\u266E';
@@ -107,8 +114,14 @@ export function midiToChromaticPart(midi, prev){
 
 export function midiSequenceToChromaticParts(midis){
   const out = [];
+  let prefer = null;
   midis.forEach(m => {
-    out.push(midiToChromaticPart(m, out[out.length-1]));
+    const part = midiToChromaticPart(m, out[out.length-1], prefer);
+    if(!prefer && part.accidental && part.accidental !== '\u266E'){
+      if(part.accidental.includes('b')) prefer = 'b';
+      else if(part.accidental.includes('#')) prefer = '#';
+    }
+    out.push(part);
   });
   return out.map(({key, accidental}) => ({key, accidental}));
 }
