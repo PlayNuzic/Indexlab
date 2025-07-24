@@ -25,16 +25,16 @@ export function drawPentagram(container, midis = [], options = {}) {
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(400, 340);
+  renderer.resize(420, 340);
   const context = renderer.getContext();
 
-  const treble = new Stave(10, 40, 360);
+  const treble = new Stave(20, 40, 360);
   treble.addClef('treble');
   applyKeySignature(treble, ksArray, 'treble');
   if (isTestEnv) {
     applyKeySignature(treble, ksArray.map(toSolfege), 'treble');
   }
-  const bass = new Stave(10, 160, 360);
+  const bass = new Stave(20, 160, 360);
   bass.addClef('bass');
   applyKeySignature(bass, ksArray, 'bass');
   if (isTestEnv) {
