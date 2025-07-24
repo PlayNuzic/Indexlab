@@ -316,19 +316,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     return components.slice();
   }
 function renderStaff(){
-    drawPentagram(staffEl, [], {
+    drawPentagram(staffEl, diagArr, {
       scaleId: scale.id,
-      root: scale.root
+      root: scale.root,
+      chord: mode === 'eA',
+      duration: mode === 'eA' ? 'w' : 'q'
     });
-    if(diagArr.length){
-      drawPentagram(staffEl, diagArr, {
-        scaleId: scale.id,
-        root: scale.root,
-        chord: mode === 'eA',
-        duration: mode === 'eA' ? 'w' : 'q'
-      });
-    }
-  }
+}
 
 
   function moveCards(indices, target){

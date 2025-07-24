@@ -54,12 +54,11 @@ export function drawPentagram(container, midis = [], options = {}) {
   line.setType(StaveConnector.type.SINGLE_LEFT);
   line.setContext(context).draw();
 
-  if (!midis.length) return;
-
-  const trebleVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
-  const bassVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
-  trebleVoice.setStrict(false);
-  bassVoice.setStrict(false);
+  if (midis.length) {
+    const trebleVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
+    const bassVoice = new Voice({ numBeats: midis.length, beatValue: 4 });
+    trebleVoice.setStrict(false);
+    bassVoice.setStrict(false);
 
   const normScaleId = scaleId.toUpperCase();
   const noKsIds = ['CROM','OCT','HEX','TON'];
@@ -118,6 +117,7 @@ export function drawPentagram(container, midis = [], options = {}) {
     formatter.format(voices, 280);
     if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
     if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
+  }
   }
 }
 
