@@ -134,6 +134,127 @@ button#generate:hover{background:#e6a12b;}
 .card.info .desc{color:#fde68a;}
 .feature-list{text-align:left;margin:0.5rem auto;max-width:40rem;}
 /* Component boxes */
+#components-area{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1rem;
+  margin:0 auto 1rem;
+  transform:scale(1.15);
+  transform-origin:center;
+}
+#components-row{
+  display:flex;
+  align-items:center; /* centreu els botons verticalment */
+  gap:.4rem;
+}
+#components-wrap{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:.4rem;
+}
+.component-card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  background:#444;
+  padding:.5rem .3rem;
+  border-radius:4px;
+  border:1px solid #6ee7b7;
+  width:4.5rem;
+  height:6rem;
+  position:relative;
+  user-select:none;
+  cursor:grab;
+}
+.component-card.selected{outline:2px solid var(--accent);}
+.component-card.drop-hover{outline:2px solid var(--accent);}
+.component-card.drop-flash{animation:flash-border 0.15s ease-in-out;}
+@keyframes flash-border{from{outline:2px solid var(--accent);}to{outline:2px solid transparent;}}
+.component-card .note{font-weight:bold;font-size:1.2rem;}
+.component-card .label{
+  font-size:1.1rem;
+  color:#6ee7b7;
+  font-weight:bold;
+  margin-top:auto;
+  margin-bottom:0.2rem;
+}
+.component-card .shift-ind{
+  font-size:0.9rem;
+  color:#6ee7b7;
+}
+.component-card button{
+  position:absolute;
+  left:0;
+  width:100%;
+  background:transparent;
+  border:none;
+  color:#ccc;
+  cursor:pointer;
+}
+.component-card .up{top:-0.8rem;}
+.component-card .down{bottom:-0.8rem;}
+.component-card .close{
+  position:absolute;
+  top:0.1rem;
+  right:0.1rem;
+  background:#922;
+  color:#fff;
+  width:0.8rem;
+  height:0.8rem;
+  border-radius:50%;
+  font-size:.6rem;
+  line-height:0.8rem;
+  text-align:center;
+  cursor:pointer;
+}
+#components-area button{padding:.3rem;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;}
+#rotLeft,#rotRight{
+  width:2.6rem;
+  height:2.6rem;
+  font-size:1.4rem;
+  border:2px solid #16a34a; /* verd */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#components-area button.up,#components-area button.down{background:transparent;color:#ccc;}
+#transp-controls{
+  display:flex;
+  flex-direction:column;
+  gap:.2rem;
+  margin-left:.4rem;
+  height:6rem; /* coincideix amb l'altura de les targetes */
+}
+#transp-controls button{
+  flex:1;                /* ocupen alçada igual */
+  width:2.6rem;
+  padding:.3rem;
+  background:#555;
+  color:#fff;
+  border:2px solid #fbbf24; /* mateix groc que la base del triangle inferior */
+  border-radius:4px;
+  cursor:pointer;
+}
+#ia-wrap{
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+}
+.ia-field{
+  width:2.2rem;
+  height:2.2rem;
+  text-align:center;
+  background:#333;
+  color:#fff;
+  border:1px solid #6366f1;
+  border-radius:4px;
+  font-size:.9rem;
+  padding:.1rem;
+}
+#comp-actions{display:flex;gap:.4rem;margin-top:.4rem;justify-content:center;}
+#comp-actions button{padding:.3rem .6rem;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;}
 
 button.lp-complete{
   outline:2px solid var(--accent);
