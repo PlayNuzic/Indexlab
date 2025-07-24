@@ -19,6 +19,7 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
+  const isTestEnv = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
   const { chord = false, duration = 'q' } = options;
   const scaleId = options.scaleId ? String(options.scaleId).toUpperCase() : '';
   const ksArray = getKeySignature(scaleId, options.root);
@@ -30,13 +31,13 @@ export function drawPentagram(container, midis = [], options = {}) {
   const treble = new Stave(10, 40, 360);
   treble.addClef('treble');
   applyKeySignature(treble, ksArray, 'treble');
-  if (process.env.NODE_ENV === 'test') {
+  if (isTestEnv) {
     applyKeySignature(treble, ksArray.map(toSolfege), 'treble');
   }
   const bass = new Stave(10, 160, 360);
   bass.addClef('bass');
   applyKeySignature(bass, ksArray, 'bass');
-  if (process.env.NODE_ENV === 'test') {
+  if (isTestEnv) {
     applyKeySignature(bass, ksArray.map(toSolfege), 'bass');
   }
   treble.setContext(context).draw();
