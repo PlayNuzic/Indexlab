@@ -95,6 +95,14 @@ describe('notation helpers', () => {
     ]);
   });
 
+  test('midiSequenceToChromaticParts prefers different notes for seconds', () => {
+    const parts = midiSequenceToChromaticParts([60,61]);
+    expect(parts).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'b' }
+    ]);
+  });
+
   test('midiSequenceToChromaticParts adds naturals', () => {
     const nat = '\u266E';
     const parts = midiSequenceToChromaticParts([60,61,63,64]);

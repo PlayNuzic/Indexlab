@@ -1,7 +1,7 @@
 body{font-family:'Ubuntu',sans-serif;background:#222;color:#f0f0f0;text-align:center;padding:2rem;}
 section{margin-bottom:2rem;}
 .controls{display:flex;justify-content:center;gap:.5rem;margin:.5rem 0;}
-button{padding:.5rem 1rem;background:#ffbb33;border:none;border-radius:4px;color:#222;cursor:pointer;}
+button{padding:.5rem 1rem;background:#ffbb33;border:none;border-radius:4px;color:#222;cursor:pointer;font-size:calc(1rem + 2pt);}
 button:hover{background:#e6a12b;}
 button.small{font-size:.8rem;padding:.3rem .7rem;margin-top:.5rem;}
 #score{font-weight:bold;margin:.3rem 0;}
@@ -27,5 +27,6 @@ button.disabled{background:#555;color:#999;cursor:default;}
 #attempts{list-style:none;padding:0;margin:.5rem 0;}
 #attempts li{display:flex;justify-content:center;gap:1rem;}
 .summary-buttons{display:flex;justify-content:center;gap:.5rem;margin-top:.5rem;}
-#levelInfo{display:flex;flex-direction:column;gap:.3rem;align-items:flex-start;}
-#levelInfo button{width:100%;max-width:280px;}
+#levelInfo{display:flex;flex-direction:column;gap:.3rem;align-items:center;}
+#levelInfo li.line{display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap;}
+#levelInfo button{width:auto;max-width:none;}

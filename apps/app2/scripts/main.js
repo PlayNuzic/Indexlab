@@ -96,7 +96,7 @@ function submitAnswer(value){
   if(res.correct){
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${(game.note2%12)} - ${(game.note1%12)} = ${game.currentInterval} => ${game.mode}(${game.currentInterval})`;
     const notationEl = document.getElementById('notation');
-    drawInterval(notationEl, game.note1, game.note2, game.mode, undefined, { scaleId:'DIAT', root:0 });
+    drawInterval(notationEl, game.note1, game.note2, game.mode, undefined, { scaleId:'CROM', root:0 });
     const proceed = () => {
       notationEl.removeEventListener('click', proceed);
       clearTimeout(timer);
