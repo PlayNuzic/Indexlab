@@ -30,16 +30,12 @@ export function drawPentagram(container, midis = [], options = {}) {
 
   const treble = new Stave(20, 40, 360);
   treble.addClef('treble');
+  // Sólo aplicamos la armadura en notación inglesa. Eliminamos la conversión a solfeo.
   applyKeySignature(treble, ksArray, 'treble');
-  if (isTestEnv) {
-    applyKeySignature(treble, ksArray.map(toSolfege), 'treble');
-  }
   const bass = new Stave(20, 160, 360);
   bass.addClef('bass');
+  // Sólo aplicamos la armadura en notación inglesa. Eliminamos la conversión a solfeo.
   applyKeySignature(bass, ksArray, 'bass');
-  if (isTestEnv) {
-    applyKeySignature(bass, ksArray.map(toSolfege), 'bass');
-  }
   treble.setContext(context).draw();
   bass.setContext(context).draw();
 
