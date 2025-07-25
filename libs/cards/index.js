@@ -1,6 +1,7 @@
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   eAToNotes, rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../shared/cards.js';
+import { pitchColor as noteColor } from 'chromatone-theory';
 
 export function init(container, {
   notes = [],
@@ -134,7 +135,10 @@ export function init(container, {
       const up=document.createElement('button'); up.className='up'; up.textContent='\u25B2'; up.onclick=()=>{pushUndo();shiftOct(state.octShifts,i,1);render();};
       const down=document.createElement('button'); down.className='down'; down.textContent='\u25BC'; down.onclick=()=>{pushUndo();shiftOct(state.octShifts,i,-1);render();};
       const close=document.createElement('div'); close.className='close'; close.textContent='x'; close.onclick=()=>{pushUndo();omitCards(state,[i]);render();};
-      const note=document.createElement('div'); note.className='note'; note.textContent=n;
+      const note=document.createElement('div');
+      note.className='note';
+      note.textContent=n;
+      note.style.color = noteColor(Number(n));
       const label=document.createElement('div'); label.className='label'; label.textContent=state.components[i];
       card.appendChild(up); card.appendChild(down); card.appendChild(close); card.appendChild(note); card.appendChild(label);
       wrap.appendChild(card);
