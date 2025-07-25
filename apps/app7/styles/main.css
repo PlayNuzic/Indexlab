@@ -17,4 +17,4 @@ h1{margin-bottom:.5rem;}
 #scaleSel,#rotSel,#rootSel{background:#555;color:#fff;border:none;border-radius:4px;padding:.3rem .6rem;}
 .scale-controls{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem;}
 #staff{margin-top:1rem;display:flex;justify-content:center;}
-#staff svg{background:#fff;border-radius:4px;margin-left:12px;}
+#staff svg{background:#fff;border-radius:4px;margin-left:12px;width:200px;height:120px;}

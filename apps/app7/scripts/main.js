@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const rotSel = document.getElementById('rotSel');
   const rootSel = document.getElementById('rootSel');
 
-  const state = { id: 'DIAT', rot: 0, root: 1 };
+  const state = { id: 'DIAT', rot: 0, root: 0 };
 
   scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
   [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
