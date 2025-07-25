@@ -179,6 +179,7 @@ import { getKeySignature } from '../../shared/scales.js';
 const DOUBLE_SHARP = '\uD834\uDD2A';
 const DOUBLE_FLAT = '\uD834\uDD2B';
 const BECUADRO = '\u266E';
+const EXTRA_ACC_SPACE = 1; // Additional horizontal spacing between accidentals
 
 export function baseKeyHadSharp(note, root){
   const ks = getKeySignature('DIAT', root);
@@ -196,6 +197,7 @@ export function applyKeySignature(stave, accArr, clef='treble', root=null){
     ks.addToStave(stave);
     return ks;
   }
+
   const hasSharps = accArr.some(acc => acc.includes('#') || acc.includes(DOUBLE_SHARP));
   const hasFlats  = accArr.some(acc => acc.includes('b') || acc.includes(DOUBLE_FLAT));
   const offset = clef === 'bass' ? 1 : 0;
@@ -255,6 +257,13 @@ export function applyKeySignature(stave, accArr, clef='treble', root=null){
     this.accList = this.customList;
     for(let i=0;i<this.accList.length;i++){
       this.convertToGlyph(this.accList[i], this.accList[i+1], stave);
+      if(i>0){
+        const glyph = this.children[this.children.length - 1];
+        if(glyph && typeof glyph.getXShift === 'function' && typeof glyph.setXShift === 'function'){
+          glyph.setXShift(glyph.getXShift() + EXTRA_ACC_SPACE);
+        }
+        this.width += EXTRA_ACC_SPACE;
+      }
     }
     if(typeof this.calculateDimensions === 'function') {
       this.calculateDimensions();
