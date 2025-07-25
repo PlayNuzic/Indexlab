@@ -26,6 +26,12 @@ a:hover{text-decoration:underline;}
 button.disabled{background:#555;color:#999;cursor:default;}
 #attempts{list-style:none;padding:0;margin:.5rem 0;}
 #attempts li{display:flex;justify-content:center;gap:1rem;}
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
 .summary-buttons{display:flex;justify-content:center;gap:.5rem;margin-top:.5rem;}
 #levelInfo{display:flex;flex-direction:column;gap:.3rem;align-items:center;}
 #levelInfo li.line{display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap;}
