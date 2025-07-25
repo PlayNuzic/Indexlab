@@ -589,8 +589,8 @@ function renderStaff(){
   resetSnapsBtn.onclick=resetSnapshots;
   downloadSnapsBtn.onclick=downloadSnapshots;
   uploadSnapsBtn.onclick=promptLoadSnapshots;
-  rotLeft.onclick=()=>{pushUndo();rotateLeft(notes, octShifts, components);selectedCards.clear();renderAll();};
-  rotRight.onclick=()=>{pushUndo();rotateRight(notes, octShifts, components);selectedCards.clear();renderAll();};
+  rotLeft.onclick=()=>{pushUndo();rotateRight(notes, octShifts, components);selectedCards.clear();renderAll();};
+  rotRight.onclick=()=>{pushUndo();rotateLeft(notes, octShifts, components);selectedCards.clear();renderAll();};
   globUp.onclick=()=>{selectedCards.clear();transpose(1);};
   globDown.onclick=()=>{selectedCards.clear();transpose(-1);};
   document.getElementById('dupBtn').onclick=()=>{

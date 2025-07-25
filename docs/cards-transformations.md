@@ -14,3 +14,9 @@ The module `shared/cards.js` groups helpers to manipulate note-component pairs (
 | `duplicateCards(state, indices)` | Duplicate cards appending them at the end. Returns indices of the new cards. |
 | `omitCards(state, indices)` | Remove the specified cards from the arrays. |
 | `addCard(state, note, comp, shift?, index?)` | Insert a new card at the given index (or at the end). |
+
+## `libs/cards` options
+
+The UI helper `libs/cards/index.js` exposes `init(container, opts)` to create editable card rows.
+When `opts.showIntervals` is `true`, input fields are inserted between cards so the
+intervals can be edited directly. Changing a field updates `state.notes` accordingly.

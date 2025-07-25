@@ -1,12 +1,13 @@
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
-  rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
+  eAToNotes, rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../shared/cards.js';
 
 export function init(container, {
   notes = [],
   scaleLen = 12,
   orientation = 'row',
-  help = false
+  help = false,
+  showIntervals = false
 } = {}){
   const state = {
     notes: notes.slice(),
@@ -97,6 +98,10 @@ export function init(container, {
     render();
   }
 
+  function getIntervals(){
+    return state.notes.slice(1).map((n,i)=>((n-state.notes[i]+scaleLen)%scaleLen));
+  }
+
   function moveCards(indices, target){
     pushUndo();
     const newIdx = moveCardsLib(state, indices, target);
@@ -107,6 +112,7 @@ export function init(container, {
   function render(){
     wrap.innerHTML='';
     ensureDuplicateComponents(state.notes, state.components);
+    const intervals = showIntervals ? getIntervals() : null;
     state.notes.forEach((n,i)=>{
       const card = document.createElement('div');
       card.className='component-card';
@@ -132,6 +138,23 @@ export function init(container, {
       const label=document.createElement('div'); label.className='label'; label.textContent=state.components[i];
       card.appendChild(up); card.appendChild(down); card.appendChild(close); card.appendChild(note); card.appendChild(label);
       wrap.appendChild(card);
+      if(showIntervals && i<state.notes.length-1){
+        const ia=document.createElement('input');
+        ia.className='ia-field';
+        ia.value=intervals[i];
+        ia.onchange=()=>{
+          pushUndo();
+          const ints=getIntervals();
+          const val=parseInt(ia.value,10);
+          if(!isNaN(val)) ints[i]=((val%scaleLen)+scaleLen)%scaleLen;
+          const base=state.notes[0];
+          const rel=eAToNotes(ints,scaleLen);
+          state.notes=transposeNotes(rel,scaleLen,base);
+          ensureDuplicateComponents(state.notes, state.components);
+          render();
+        };
+        wrap.appendChild(ia);
+      }
     });
     wrap.ondragover=e=>e.preventDefault();
     wrap.ondrop=e=>{ e.preventDefault(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); moveCards(grp, state.notes.length); };
@@ -144,7 +167,11 @@ export function init(container, {
   dupBtn.onclick=()=>{if(!selected.size) return; pushUndo(); const idx=Array.from(selected).sort((a,b)=>a-b); const newIdx=duplicateCards(state, idx); selected=new Set(newIdx); render();};
   undoBtn.onclick=undo;
   redoBtn.onclick=redo;
-  document.body.addEventListener('click',e=>{ if(!e.target.closest('.component-card')){ if(selected.size){ selected.clear(); render(); } } });
+  document.body.addEventListener('click',e=>{
+    if(!e.target.closest('.component-card') && !(showIntervals && e.target.classList.contains('ia-field'))){
+      if(selected.size){ selected.clear(); render(); }
+    }
+  });
 
   render();
 

@@ -110,6 +110,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(octShifts.length > notes.length) octShifts = octShifts.slice(0, notes.length);
   }
 
+  function getIntervals(){
+    const len = scaleSemis(scale.id).length;
+    return notes.slice(1).map((n,i)=>((n-notes[i]+len)%len));
+  }
+
   function diagMidis(){
     const sems = notes.map((d,i)=>{
       const semsArr = scaleSemis(scale.id);
@@ -140,6 +145,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len = scaleSemis(scale.id).length;
     const diagNums = notes.slice();
     const comps = ensureDuplicateComponents(notes, components);
+    const intervals = getIntervals();
     diagNums.forEach((num,i)=>{
       const card = document.createElement('div');
       card.className='component-card';
@@ -198,6 +204,24 @@ window.addEventListener('DOMContentLoaded', async () => {
       card.appendChild(note);
       card.appendChild(label);
       componentsWrap.appendChild(card);
+      if(i<notes.length-1){
+        const ia=document.createElement('input');
+        ia.className='ia-field';
+        ia.value=intervals[i];
+        ia.onchange=()=>{
+          pushUndo();
+          const ints=getIntervals();
+          const val=parseInt(ia.value,10);
+          if(!isNaN(val)) ints[i]=((val%len)+len)%len;
+          const base=notes[0];
+          const rel=eAToNotes(ints,len);
+          notes=transposeNotes(rel,len,base);
+          fitNotes();
+          ensureDuplicateComponents(notes, components);
+          renderAll();
+        };
+        componentsWrap.appendChild(ia);
+      }
     });
     componentsWrap.ondragover=e=>e.preventDefault();
     componentsWrap.ondrop=e=>{
@@ -258,7 +282,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   transposeUp.onclick=()=>transpose(1);
   transposeDown.onclick=()=>transpose(-1);
   document.body.addEventListener('click',e=>{
-    if(!e.target.closest('.component-card')){
+    if(!e.target.closest('.component-card') && !e.target.classList.contains('ia-field')){
       if(selectedCards.size){ selectedCards.clear(); renderCards(); }
     }
   });

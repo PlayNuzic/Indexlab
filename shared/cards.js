@@ -24,6 +24,15 @@ export function transposeNotes(notes, len, delta){
   return notes.map(n=>((n+delta)%len+len)%len);
 }
 
+export function eAToNotes(intervals, len=12){
+  const out=[0];
+  intervals.forEach(i=>{
+    const prev=out[out.length-1];
+    out.push(((prev+i)%len+len)%len);
+  });
+  return out;
+}
+
 export function rotateLeft(arr, arr2, arr3){
   if(!arr.length) return;
   arr.push(arr.shift());
