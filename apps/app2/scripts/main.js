@@ -31,13 +31,8 @@ async function startGame(selected, level = 1){
   nextQuestion();
 }
 
-document.getElementById('startIS').onclick=async ()=>{
-  await ensureAudio();
-  startGame('iS', 1);
-};
-document.getElementById('startIA').onclick=async ()=>{
-  await ensureAudio();
-  startGame('iA', 1);
+document.getElementById('mode').onchange=e=>{
+  currentMode=e.target.value;
 };
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('advanceLevel').onclick=()=>{

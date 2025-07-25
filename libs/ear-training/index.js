@@ -58,8 +58,11 @@ class EarTrainingGame {
     const correct = value === expected;
     this.history.push({ interval: expected, value, correct, level: this.level, mode: this.mode });
     if (correct) {
-      this.correctLevel++;
-      this.correctTotal++;
+      const ignore = expected === 0 || Math.abs(expected) === 12;
+      if (!ignore) {
+        this.correctLevel++;
+        this.correctTotal++;
+      }
       const levelUp = this.correctLevel >= this.requiredToLevelUp;
       this.repeat = false;
       return { correct: true, levelUp };

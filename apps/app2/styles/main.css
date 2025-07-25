@@ -14,7 +14,7 @@ button.small{font-size:.8rem;padding:.3rem .7rem;margin-top:.5rem;}
   padding:.5rem;
   border-radius:4px;
 }
-.modeBtns{display:flex;flex-direction:column;gap:.5rem;margin:.5rem 0;}
+.modeSelect{display:flex;flex-direction:column;gap:.5rem;margin:.5rem 0;}
 select{padding:.4rem;}
 a{color:#ffbb33;}
 a:hover{text-decoration:underline;}

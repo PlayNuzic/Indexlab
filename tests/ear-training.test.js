@@ -33,7 +33,7 @@ describe('EarTrainingGame logic', () => {
     game.next();
     let res = game.answer(game.currentInterval);
     expect(res.correct).toBe(true);
-    expect(game.correctTotal).toBe(1);
+    expect(game.correctTotal).toBe(0);
 
     game.next();
     res = game.answer(game.currentInterval + 1); // wrong
@@ -41,7 +41,7 @@ describe('EarTrainingGame logic', () => {
     expect(game.wrongTotal).toBe(1);
     res = game.answer(game.currentInterval); // retry correct
     expect(res.correct).toBe(true);
-    expect(game.correctTotal).toBe(2);
+    expect(game.correctTotal).toBe(0);
   });
 
   test('answer records attempt history', () => {
