@@ -198,8 +198,9 @@ export function applyKeySignature(stave, accArr, clef='treble', root=null){
   }
   // Determinar tipo de alteraciones per gestionar becuadros
   const hasSharps = accArr.some(acc => acc.includes('#') || acc.includes(DOUBLE_SHARP));
-  const hasFlats = accArr.some(acc => acc.includes('b') || acc.includes(DOUBLE_FLAT));
+  const hasFlats  = accArr.some(acc => acc.includes('b') || acc.includes(DOUBLE_FLAT));
   const offset = clef === 'bass' ? 1 : 0;
+
   let orientation;
   const first = accArr[0] || '';
   if(first.includes('\u266E') || first.includes('♮')){
@@ -211,6 +212,7 @@ export function applyKeySignature(stave, accArr, clef='treble', root=null){
     else if(hasFlats && !hasSharps) orientation = 'flat';
     else orientation = 'sharp';
   }
+
   const list = [];
   accArr.forEach(a => {
     const m = a.match(/^([A-Ga-g])(.+)?$/);
@@ -246,14 +248,21 @@ export function applyKeySignature(stave, accArr, clef='treble', root=null){
     }
     list.push({ type: sign || 'n', line: line + offset });
   });
-  // Dibuixar la llista calculada d'alteracions sobre el pentagrama
-  ks.accList = [];
-  ks.width = 0;
-  ks.children = [];
-  list.forEach((acc, i) => {
-    ks.convertToGlyph(acc, list[i + 1], stave);
-  });
-  ks.formatted = true;
+
+  ks.customList = list;
+  ks.format = function(){
+    this.width = 0;
+    this.children = [];
+    this.accList = this.customList;
+    for(let i=0;i<this.accList.length;i++){
+      this.convertToGlyph(this.accList[i], this.accList[i+1], stave);
+    }
+    if(typeof this.calculateDimensions === 'function') {
+      this.calculateDimensions();
+    }
+    this.formatted = true;
+  };
   ks.addToStave(stave);
+  ks.format();
   return ks;
 }
