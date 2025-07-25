@@ -1,4 +1,4 @@
-:root{--bg:#43433b;--central:#eee8d8;--accent:#e76f68;--sub:#bdd9e6;--metro:#ffbb33;--warn:#ffbb33}
+:root{--bg:#2b1c4a;--central:#eee8d8;--accent:#e76f68;--sub:#bdd9e6;--metro:#ffbb33;--warn:#ffbb33}
 *{box-sizing:border-box;margin:0}
 body{font-family:"Ubuntu",sans-serif;background:var(--bg);color:var(--central);line-height:1.45}
 h1{text-align:center;font-weight:700;margin:1rem 0}

@@ -1,4 +1,4 @@
-    :root { --bg:#43433B; --fg:#EEE8D8; --accent:#E76F68; --accent2:#F28AAD;
+    :root { --bg:#2B1C4A; --fg:#EEE8D8; --accent:#E76F68; --accent2:#F28AAD;
       --yellow:#FFBB33; --blue:#7BB4CD; --green:#7CD683; font-size:16px; }
     * { box-sizing:border-box; margin:0; padding:0; }
     body { background:var(--bg); color:var(--fg); font-family:'Ubuntu',sans-serif;

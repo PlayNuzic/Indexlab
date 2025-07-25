@@ -1,4 +1,4 @@
-body{font-family:'Ubuntu',sans-serif;background:#222;color:#f0f0f0;text-align:center;padding:2rem;}
+body{font-family:'Ubuntu',sans-serif;background:#2b1c4a;color:#f0f0f0;text-align:center;padding:2rem;}
 section{margin-bottom:2rem;}
 .controls{display:flex;justify-content:center;gap:.5rem;margin:.5rem 0;}
 button{padding:.5rem 1rem;background:#ffbb33;border:none;border-radius:4px;color:#222;cursor:pointer;font-size:calc(1rem + 2pt);}
@@ -33,6 +33,6 @@ button.disabled{background:#555;color:#999;cursor:default;}
   gap: 0.5rem;
 }
 .summary-buttons{display:flex;justify-content:center;gap:.5rem;margin-top:.5rem;}
-#levelInfo{display:flex;flex-direction:column;gap:.3rem;align-items:center;}
+#levelInfo{display:flex;flex-direction:column;gap:.3rem;align-items:center;border:2px solid #ffbb33;padding:.5rem;border-radius:4px;}
 #levelInfo li.line{display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap;}
 #levelInfo button{width:auto;max-width:none;}
