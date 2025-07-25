@@ -1,4 +1,4 @@
-import drawPentagram from '../../../libs/notation/pentagram.js';
+import { drawKeySignature } from '../../../libs/notation/index.js';
 import { motherScalesData } from '../../../shared/scales.js';
 
 const scaleIDs = ['DIAT','ACUS','ARMm','ARMM'];
@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function render(){
-    drawPentagram(staffEl, [], { scaleId: state.id, root: state.root });
+    drawKeySignature(staffEl, state.id, state.root);
   }
 
   refreshRot();

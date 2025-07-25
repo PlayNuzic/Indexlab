@@ -1,6 +1,7 @@
 import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnector } from '../vendor/vexflow/entry/vexflow.js';
 import { midiToParts, midiSequenceToChromaticParts, needsDoubleStaff, createNote, createChord,
          keySignatureMap, keySignatureFrom, applyKeySignature } from './helpers.js';
+import { getKeySignature } from '../../shared/scales.js';
 
 export function drawInterval(container, note1, note2, mode='iS', keySig, options={ scaleId:'CROM', root:0 }){
   container.innerHTML = '';
@@ -151,14 +152,15 @@ export function drawInterval(container, note1, note2, mode='iS', keySig, options
   }
 }
 
-export function drawKeySignature(container, keySig, clef='treble'){
+export function drawKeySignature(container, scaleId, root, clef='treble'){
   container.innerHTML='';
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   renderer.resize(80, 80);
   const ctx = renderer.getContext();
   const stave = new Stave(10, 20, 60);
   stave.addClef(clef);
-  applyKeySignature(stave, keySig, clef);
+  const accList = getKeySignature(String(scaleId).toUpperCase(), root);
+  applyKeySignature(stave, accList, clef);
   stave.setContext(ctx).draw();
 }
 
