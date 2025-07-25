@@ -248,8 +248,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderAll();
   };
 
-  rotLeft.onclick=()=>{pushUndo();rotateLeft(notes, octShifts, components);renderAll();};
-  rotRight.onclick=()=>{pushUndo();rotateRight(notes, octShifts, components);renderAll();};
+  rotLeft.onclick=()=>{pushUndo();rotateRight(notes, octShifts, components);renderAll();};
+  rotRight.onclick=()=>{pushUndo();rotateLeft(notes, octShifts, components);renderAll();};
   globUp.onclick=()=>{pushUndo();notes=transposeNotes(notes, scaleSemis(scale.id).length,1);renderAll();};
   globDown.onclick=()=>{pushUndo();notes=transposeNotes(notes, scaleSemis(scale.id).length,-1);renderAll();};
   dupBtn.onclick=()=>{
