@@ -174,15 +174,31 @@ export function keySignatureFrom(options){
   return names[idx];
 }
 
-export function applyKeySignature(stave, accArr, clef='treble'){
+import { getKeySignature } from '../../shared/scales.js';
+
+const DOUBLE_SHARP = '\uD834\uDD2A';
+const DOUBLE_FLAT = '\uD834\uDD2B';
+const BECUADRO = '\u266E';
+
+export function baseKeyHadSharp(note, root){
+  const ks = getKeySignature('DIAT', root);
+  return ks.some(a => a.startsWith(note) && a.includes('#'));
+}
+
+export function baseKeyHadFlat(note, root){
+  const ks = getKeySignature('DIAT', root);
+  return ks.some(a => a.startsWith(note) && a.includes('b'));
+}
+
+export function applyKeySignature(stave, accArr, clef='treble', root=null){
   const ks = new KeySignature('C');
   if (!accArr || accArr.length === 0) {
     ks.addToStave(stave);
     return ks;
   }
   // Determinar tipo de alteraciones per gestionar becuadros
-  const hasSharps = accArr.some(acc => acc.includes('#') || acc.includes('\uD834\uDD2A'));
-  const hasFlats = accArr.some(acc => acc.includes('b') || acc.includes('\uD834\uDD2B'));
+  const hasSharps = accArr.some(acc => acc.includes('#') || acc.includes(DOUBLE_SHARP));
+  const hasFlats = accArr.some(acc => acc.includes('b') || acc.includes(DOUBLE_FLAT));
   const offset = clef === 'bass' ? 1 : 0;
   let orientation;
   const first = accArr[0] || '';
@@ -201,19 +217,32 @@ export function applyKeySignature(stave, accArr, clef='treble'){
     if(!m) return;
     const note = m[1].toUpperCase();
     let sign = m[2] || '';
-    sign = sign.replace('\u266E', 'n')
+    sign = sign.replace(BECUADRO, 'n')
                .replace('♮', 'n')
-               .replace('\uD834\uDD2A', '##')
-               .replace('\uD834\uDD2B', 'bb');
+               .replace(DOUBLE_SHARP, '##')
+               .replace(DOUBLE_FLAT, 'bb');
     let line;
     if(sign.startsWith('b')){
       line = FLAT_LINES[FLAT_ORDER.indexOf(note)];
     }else if(sign.startsWith('#')){
       line = SHARP_LINES[SHARP_ORDER.indexOf(note)];
     }else{
-      line = orientation === 'flat'
-           ? FLAT_LINES[FLAT_ORDER.indexOf(note)]
-           : SHARP_LINES[SHARP_ORDER.indexOf(note)];
+      if(root !== null){
+        if(baseKeyHadSharp(note, root)){
+          line = SHARP_LINES[SHARP_ORDER.indexOf(note)];
+        }else if(baseKeyHadFlat(note, root)){
+          line = FLAT_LINES[FLAT_ORDER.indexOf(note)];
+        }else{
+          line = orientation === 'flat'
+               ? FLAT_LINES[FLAT_ORDER.indexOf(note)]
+               : SHARP_LINES[SHARP_ORDER.indexOf(note)];
+        }
+      }else{
+        line = orientation === 'flat'
+             ? FLAT_LINES[FLAT_ORDER.indexOf(note)]
+             : SHARP_LINES[SHARP_ORDER.indexOf(note)];
+      }
+      sign = 'n';
     }
     list.push({ type: sign || 'n', line: line + offset });
   });

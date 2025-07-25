@@ -23,11 +23,11 @@ export function drawPentagram(container, midis = [], options = {}) {
   const treble = new Stave(20, 40, 360);
   treble.addClef('treble');
   // Sólo aplicamos la armadura en notación inglesa. Eliminamos la conversión a solfeo.
-  applyKeySignature(treble, ksArray, 'treble');
+  applyKeySignature(treble, ksArray, 'treble', options.root);
   const bass = new Stave(20, 160, 360);
   bass.addClef('bass');
   // Sólo aplicamos la armadura en notación inglesa. Eliminamos la conversión a solfeo.
-  applyKeySignature(bass, ksArray, 'bass');
+  applyKeySignature(bass, ksArray, 'bass', options.root);
   treble.setContext(context).draw();
   bass.setContext(context).draw();
 

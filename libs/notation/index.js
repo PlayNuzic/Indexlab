@@ -160,7 +160,7 @@ export function drawKeySignature(container, scaleId, root, clef='treble'){
   const stave = new Stave(10, 40, 100);
   stave.addClef(clef);
   const accList = getKeySignature(String(scaleId).toUpperCase(), root);
-  applyKeySignature(stave, accList, clef);
+  applyKeySignature(stave, accList, clef, root);
   stave.setContext(ctx).draw();
 }
 

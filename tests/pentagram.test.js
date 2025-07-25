@@ -85,7 +85,7 @@ describe('pentagram helpers', () => {
     const { drawPentagram } = loadPentagram(apply);
     const container = { innerHTML:'', setAttribute(){} };
     drawPentagram(container, [], { scaleId: 'acus', root: 0 });
-    expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'treble');
-    expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'bass');
+    expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'treble', 0);
+    expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'bass', 0);
   });
 });
