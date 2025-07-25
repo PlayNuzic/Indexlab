@@ -31,9 +31,14 @@ async function startGame(selected, level = 1){
   nextQuestion();
 }
 
-document.getElementById('mode').onchange=e=>{
-  currentMode=e.target.value;
-};
+document.querySelectorAll('#modeToggle button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    currentMode=btn.dataset.mode;
+    document.querySelectorAll('#modeToggle button').forEach(b=>{
+      b.classList.toggle('active', b===btn);
+    });
+  });
+});
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('advanceLevel').onclick=()=>{
   if(game.level < 10){
@@ -50,6 +55,10 @@ document.getElementById('instrument').onchange=async e=>{
 };
 document.getElementById('backBtn').onclick=()=>{
   document.getElementById('game').style.display='none';
+  document.getElementById('welcome').style.display='block';
+};
+document.getElementById('backBtnSummary').onclick=()=>{
+  document.getElementById('summary').style.display='none';
   document.getElementById('welcome').style.display='block';
 };
 

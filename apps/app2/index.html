@@ -14,11 +14,11 @@
     <h1>Ear Training Nuzic</h1>
     <p>Escull un mode per entrenar els intervals amb notació Nuzic.</p>
     <div class="modeSelect">
-      <label for="mode">Ear Training:</label>
-      <select id="mode">
-        <option value="iS">iS</option>
-        <option value="iA">iA</option>
-      </select>
+      <label>Ear Training:</label>
+      <div id="modeToggle">
+        <button data-mode="iS" class="active">Intervals Sonors (iS)</button>
+        <button data-mode="iA">Intervals hArmónics (iA)</button>
+      </div>
     </div>
     <ul id="levelInfo" style="list-style:none;padding:0;margin:.5rem 0;">
       <li><button data-level="1">1. Intervals dissonants (iS 1 y 2)</button></li>
@@ -62,6 +62,7 @@
       <button id="repeatLevel">Repetir nivell</button>
       <button id="advanceLevel">Avança nivell</button>
     </div>
+    <button id="backBtnSummary" class="small">&larr; Torna al menú</button>
   </section>
 
   <script src="../../libs/vendor/Tone.js"></script>
