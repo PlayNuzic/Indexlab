@@ -84,7 +84,7 @@ describe('pentagram helpers', () => {
     const apply = jest.fn();
     const { drawPentagram } = loadPentagram(apply);
     const container = { innerHTML:'', setAttribute(){} };
-    drawPentagram(container, [], { scaleId: 'acus', root: 0 });
+    drawPentagram(container, [], { scaleId: 'ACUS', root: 0 });
     expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'treble', 0);
     expect(apply).toHaveBeenCalledWith(expect.anything(), ['F#','Bb'], 'bass', 0);
   });

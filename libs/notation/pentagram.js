@@ -13,7 +13,7 @@ export function needsAccidental(parts, ksMap){
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
   const { chord = false, duration = 'q' } = options;
-  const scaleId = options.scaleId ? String(options.scaleId).toUpperCase() : '';
+  const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
   const renderer = new Renderer(container, Renderer.Backends.SVG);

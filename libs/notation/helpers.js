@@ -196,7 +196,6 @@ export function applyKeySignature(stave, accArr, clef='treble', root=null){
     ks.addToStave(stave);
     return ks;
   }
-  // Determinar tipo de alteraciones per gestionar becuadros
   const hasSharps = accArr.some(acc => acc.includes('#') || acc.includes(DOUBLE_SHARP));
   const hasFlats  = accArr.some(acc => acc.includes('b') || acc.includes(DOUBLE_FLAT));
   const offset = clef === 'bass' ? 1 : 0;

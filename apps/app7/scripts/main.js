@@ -1,7 +1,7 @@
 import { drawKeySignature } from '../../../libs/notation/index.js';
 import { motherScalesData } from '../../../shared/scales.js';
 
-const scaleIDs = ['DIAT','ACUS','ARMm','ARMM'];
+const scaleIDs = ['DIAT','ACUS','ARMme','ARMma'];
 
 window.addEventListener('DOMContentLoaded', () => {
   const staffEl = document.getElementById('staff');

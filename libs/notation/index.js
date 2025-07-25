@@ -157,7 +157,7 @@ export function drawKeySignature(container, scaleId, root){
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   renderer.resize(240, 360);
   const ctx = renderer.getContext();
-  const accList = getKeySignature(String(scaleId).toUpperCase(), root);
+  const accList = getKeySignature(String(scaleId), root);
 
   const treble = new Stave(20, 40, 200);
   treble.addClef('treble');

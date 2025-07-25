@@ -27,11 +27,11 @@ describe('getKeySignature', () => {
   test('ACUS root 9 uses natural', () => {
     expect(getKeySignature('ACUS',9)).toEqual(['F#','C#','G'+BECUADRO,'D#']);
   });
-  test('ARMm root 0', () => {
-    expect(getKeySignature('ARMm',0)).toEqual(['B'+BECUADRO,'Eb','Ab']);
+  test('ARMme root 0', () => {
+    expect(getKeySignature('ARMme',0)).toEqual(['B'+BECUADRO,'Eb','Ab']);
   });
 
-  test('ARMM root 1', () => {
-    expect(getKeySignature('ARMM',1)).toEqual(['F#','C#','G#','D#','A'+BECUADRO,'E#']);
+  test('ARMma root 1', () => {
+    expect(getKeySignature('ARMma',1)).toEqual(['F#','C#','G#','D#','A'+BECUADRO,'E#']);
   });
 });
