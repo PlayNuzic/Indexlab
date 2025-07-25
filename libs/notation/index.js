@@ -155,9 +155,9 @@ export function drawInterval(container, note1, note2, mode='iS', keySig, options
 export function drawKeySignature(container, scaleId, root, clef='treble'){
   container.innerHTML='';
   const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(80, 80);
+  renderer.resize(120, 100);
   const ctx = renderer.getContext();
-  const stave = new Stave(10, 20, 60);
+  const stave = new Stave(10, 40, 100);
   stave.addClef(clef);
   const accList = getKeySignature(String(scaleId).toUpperCase(), root);
   applyKeySignature(stave, accList, clef);
