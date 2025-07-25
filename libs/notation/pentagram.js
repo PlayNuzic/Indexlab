@@ -3,13 +3,6 @@ import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnecto
 import { midiToParts, midiToPartsByKeySig, midiSequenceToChromaticParts, applyKeySignature, parseKeySignatureArray, letterToPc } from './helpers.js';
 import { getKeySignature } from '../../shared/scales.js';
 
-const solfegeMap = { C:'do', D:'re', E:'mi', F:'fa', G:'sol', A:'la', B:'si' };
-function toSolfege(note){
-  const m = note.match(/^([A-G])(.*)$/);
-  if(!m) return note;
-  return solfegeMap[m[1]] + m[2].toLowerCase();
-}
-
 export function needsAccidental(parts, ksMap){
   if(!parts.accidental) return false;
   const basePc = letterToPc[parts.key[0]];
@@ -19,7 +12,6 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const isTestEnv = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
   const { chord = false, duration = 'q' } = options;
   const scaleId = options.scaleId ? String(options.scaleId).toUpperCase() : '';
   const ksArray = getKeySignature(scaleId, options.root);
