@@ -153,7 +153,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderStaff(){
     const sems = currentSemis();
-    noteColors = sems.map(s => pastelColor(pitchColor((s + 3) % 12)));
+    noteColors = sems.map(s => pitchColor((s + 3) % 12));
     let colors;
     if(colorNotes){
       colors = noteColors.slice();
