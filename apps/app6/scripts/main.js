@@ -115,21 +115,27 @@ window.addEventListener('DOMContentLoaded', async () => {
     return notes.slice(1).map((n,i)=>((n-notes[i]+len)%len));
   }
 
+  function currentSemis(){
+    const semsArr = scaleSemis(scale.id);
+    const len = semsArr.length;
+    return notes.map(d => (semsArr[(d + scale.rot) % len] + scale.root) % 12);
+  }
+
   function diagMidis(){
-    const sems = notes.map((d,i)=>{
-      const semsArr = scaleSemis(scale.id);
-      const len = semsArr.length;
-      return (semsArr[(d + scale.rot) % len] + scale.root) % 12;
-    });
+    const sems = currentSemis();
     return toAbsolute(sems, baseMidi).map((m,i)=>m + 12*(octShifts[i]||0));
   }
 
   function renderStaff(){
+    const sems = currentSemis();
+    noteColors = sems.map(s => pitchColor((s + 3) % 12));
+    const colors = noteColors.map((c,i)=> i===hoverIdx ? c : null);
     drawPentagram(staffEl, diagMidis(), {
       scaleId: useKeySig ? scale.id : 'CROM',
       root: useKeySig ? scale.root : 0,
       chord: true,
-      duration: 'w'
+      duration: 'w',
+      noteColors: colors
     });
   }
 
@@ -146,11 +152,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     const diagNums = notes.slice();
     const comps = ensureDuplicateComponents(notes, components);
     const intervals = getIntervals();
+    if(!noteColors.length) noteColors = currentSemis().map(s=>pitchColor((s+3)%12));
     diagNums.forEach((num,i)=>{
       const card = document.createElement('div');
       card.className='component-card';
       if(selectedCards.has(i)) card.classList.add('selected');
       card.draggable = true;
+      const color = noteColors[i] || pitchColor(((currentSemis()[i]||0)+3)%12);
+      card.style.backgroundColor = color;
+      card.onmouseenter = () => { hoverIdx = i; renderStaff(); };
+      card.onmouseleave = () => { hoverIdx = null; renderStaff(); };
       let pressTimer;
       card.onmousedown=e=>{
         if(e.shiftKey){

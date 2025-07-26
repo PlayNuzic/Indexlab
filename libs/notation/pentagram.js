@@ -12,7 +12,7 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const { chord = false, duration = 'q' } = options;
+  const { chord = false, duration = 'q', noteColors = [] } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
@@ -61,15 +61,18 @@ export function drawPentagram(container, midis = [], options = {}) {
     midis.forEach((m, idx) => {
       const parts = partsSeq[idx];
       const clef = m < 60 ? 'bass' : 'treble';
-      byClef[clef].push(parts);
+      byClef[clef].push({ parts, idx });
     });
     ['treble', 'bass'].forEach(clef => {
       if (!byClef[clef].length) return;
-      const keys = byClef[clef].map(p => p.key);
+      const keys = byClef[clef].map(obj => obj.parts.key);
       const note = new StaveNote({ keys, duration, clef });
-      byClef[clef].forEach((p, i) => {
+      byClef[clef].forEach((obj, i) => {
+        const p = obj.parts;
         const need = useKs ? needsAccidental(p, ksMap) : !!p.accidental;
         if (need) note.addModifier(new Accidental(p.accidental), i);
+        const color = noteColors[obj.idx];
+        if (color) note.setKeyStyle(i, { fillStyle: color, strokeStyle: color });
       });
       (clef === 'treble' ? trebleVoice : bassVoice).addTickable(note);
     });
@@ -81,6 +84,8 @@ export function drawPentagram(container, midis = [], options = {}) {
       const note = new StaveNote({ keys: [parts.key], duration, clef });
       const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;
       if (need) note.addModifier(new Accidental(parts.accidental), 0);
+      const color = noteColors[idx];
+      if (color) note.setStyle({ fillStyle: color, strokeStyle: color });
       const target = clef === 'treble' ? trebleVoice : bassVoice;
       const other = clef === 'treble' ? bassVoice : trebleVoice;
       target.addTickable(note);
