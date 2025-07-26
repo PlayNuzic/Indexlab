@@ -39,3 +39,21 @@ button.disabled{background:#555;color:#999;cursor:default;}
 #avatarMsg img{width:60px;height:60px;}
 #avatarBubble{background:#fffbcc;color:#222;padding:.3rem .5rem;border-radius:4px;margin-top:.2rem;opacity:0;transition:opacity .3s;max-width:150px;}
 #avatarBubble.show{opacity:1;}
+
+#avatarSelector{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.8);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+#avatarSelector h2{margin-bottom:.5rem;}
+#avatarSelector .avatar-list{display:flex;gap:.5rem;}
+#avatarSelector img{
+  width:60px;height:60px;cursor:pointer;border-radius:4px;border:2px solid transparent;
+}
+#avatarSelector img:hover{border-color:#ffbb33;}
+

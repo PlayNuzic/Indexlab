@@ -5,6 +5,7 @@ import { drawPentagram } from '../../../libs/notation/index.js';
 import { intervalColor } from '../../../shared/scales.js';
 
 const game = new EarTrainingGame({ randInt });
+const avatarFiles = ['avatar1.png','avatar2.png','avatar3.png','avatar4.png','avatar5.png'];
 const levelNames = {
   1: 'Intervals dissonants (iS 1 y 2)',
   2: 'Intervals consonants (iS 3 y 4)',
@@ -87,11 +88,29 @@ function selectProfile(idx){
 function createProfile(idx){
   const name=prompt('Nom del jugador?');
   if(!name) return;
-  const avatar=prompt('Avatar (1-5)?','1');
-  profiles[idx]={id:idx,name,avatar:`avatar${avatar||1}.png`,level:1};
-  saveProfiles();
-  renderProfiles();
-  selectProfile(idx);
+  showAvatarChooser(avatar=>{
+    profiles[idx]={id:idx,name,avatar,level:1};
+    saveProfiles();
+    renderProfiles();
+    selectProfile(idx);
+  });
+}
+
+function showAvatarChooser(cb){
+  const sel=document.getElementById('avatarSelector');
+  const list=sel.querySelector('.avatar-list');
+  list.innerHTML='';
+  avatarFiles.forEach(file=>{
+    const img=document.createElement('img');
+    img.src=`./assets/avatars/${file}`;
+    img.dataset.avatar=file;
+    img.addEventListener('click',()=>{
+      sel.style.display='none';
+      cb(file);
+    },{once:true});
+    list.appendChild(img);
+  });
+  sel.style.display='flex';
 }
 
 async function startGame(level = 1){
