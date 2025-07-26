@@ -125,20 +125,6 @@ export function drawPentagram(container, midis = [], options = {}) {
       };
 
       if(svg){
-        noteColors.forEach((c, idx) => {
-          if(!c) return;
-          const pos = getPos(idx);
-          if(!pos) return;
-          const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-          ell.setAttribute('cx', pos.x + pos.w / 2);
-          ell.setAttribute('cy', pos.y);
-          ell.setAttribute('rx', pos.w * 0.35);
-          ell.setAttribute('ry', 8);
-          ell.setAttribute('fill', c);
-          ell.setAttribute('stroke', c);
-          svg.prepend(ell);
-        });
-
         const list = [];
         if(highlightInterval) list.push(highlightInterval);
         list.push(...highlightIntervals);
