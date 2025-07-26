@@ -55,7 +55,7 @@ button#generate:hover{background:#e6a12b;}
   position:relative;
   width:400px;
   z-index:20;
-  transform:scale(2.125);
+  transform:scale(1.250);
   transform-origin:top left;
 }
 #colorLegend{
