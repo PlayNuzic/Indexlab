@@ -1,6 +1,6 @@
 import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, intervalCategory, intervalTypeBySemitone, intervalCategoryFor } from '../../../shared/scales.js';
 import { pitchColor } from '../../../libs/vendor/chromatone-theory/index.js';
 
 function pastelColor(color){
@@ -34,6 +34,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let redoStack = [];
   let selectedCards = new Set();
   let hoverIdx = null;
+  let hoverIntervalIdx = null;
   let noteColors = [];
 
   const staffEl = document.getElementById('staff');
@@ -150,13 +151,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     const sems = currentSemis();
     noteColors = sems.map(s => pastelColor(pitchColor((s + 3) % 12)));
     const colors = noteColors.map((c,i)=> i===hoverIdx ? c : null);
-    drawPentagram(staffEl, diagMidis(), {
+    const opts = {
       scaleId: useKeySig ? scale.id : 'CROM',
       root: useKeySig ? scale.root : 0,
       chord: true,
       duration: 'w',
       noteColors: colors
-    });
+    };
+    if(hoverIntervalIdx !== null){
+      const len = scaleSemis(scale.id).length;
+      const interval = getIntervals()[hoverIntervalIdx];
+      const cat = (scale.id === 'CROM' || len === 12)
+        ? intervalTypeBySemitone[interval]
+        : intervalCategoryFor(interval, len);
+      const color = intervalCategory[cat].color;
+      opts.highlightInterval = [hoverIntervalIdx, hoverIntervalIdx+1, color];
+    }
+    drawPentagram(staffEl, diagMidis(), opts);
     renderLegend();
   }
 
@@ -250,6 +261,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         const ia=document.createElement('input');
         ia.className='ia-field';
         ia.value=intervals[i];
+        ia.onmouseenter=()=>{ hoverIntervalIdx = i; renderStaff(); };
+        ia.onmouseleave=()=>{ hoverIntervalIdx = null; renderStaff(); };
         ia.onchange=()=>{
           pushUndo();
           const ints=getIntervals();
@@ -271,7 +284,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
       moveCards(grp, notes.length);
     };
-    componentsWrap.onmouseleave=()=>{ hoverIdx = null; renderStaff(); };
+    componentsWrap.onmouseleave=()=>{ hoverIdx = null; hoverIntervalIdx = null; renderStaff(); };
   }
 
   function renderAll(){

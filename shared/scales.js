@@ -91,3 +91,28 @@ export function getKeySignature(scaleId, root){
   const idx = ((root % 12) + 12) % 12;
   return table[idx] || [];
 }
+
+export const intervalCategory = {
+  resonant: { color: 'hsla(120,60%,80%,0.3)', label: 'Resonante' },
+  consonant: { color: 'hsla(200,60%,80%,0.3)', label: 'Consonante' },
+  dissonant: { color: 'hsla(0,70%,80%,0.3)', label: 'Disonante' },
+  neutral:  { color: 'hsla(45,80%,70%,0.3)', label: 'Neutro' }
+};
+
+export const intervalTypeBySemitone = {
+  0:'resonant', 1:'dissonant', 2:'dissonant',
+  3:'consonant',4:'consonant',
+  5:'resonant',6:'neutral',
+  7:'resonant',8:'consonant',9:'consonant',
+ 10:'dissonant',11:'dissonant'
+};
+
+export function intervalCategoryFor(interval, len=12){
+  interval = ((interval % len) + len) % len;
+  if(len === 12) return intervalTypeBySemitone[interval];
+  if(interval === 0) return 'resonant';
+  if(len % 2 === 0 && interval === len/2) return 'neutral';
+  if(interval === 1 || interval === len-1) return 'dissonant';
+  if(interval === 2 || interval === len-2) return 'consonant';
+  return 'resonant';
+}

@@ -12,7 +12,7 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const { chord = false, duration = 'q', noteColors = [] } = options;
+  const { chord = false, duration = 'q', noteColors = [], highlightInterval = null } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
@@ -49,6 +49,8 @@ export function drawPentagram(container, midis = [], options = {}) {
   const useKs = !noKsIds.includes(normScaleId);
   if (chord) {
     const byClef = { treble: [], bass: [] };
+    let trebleNoteObj = null;
+    let bassNoteObj = null;
     let partsSeq;
     if(useKs){
       partsSeq = midis.map(m => midiToPartsByKeySig(m, ksMap));
@@ -74,7 +76,8 @@ export function drawPentagram(container, midis = [], options = {}) {
         const color = noteColors[obj.idx];
         if (color) note.setKeyStyle(i, { fillStyle: color, strokeStyle: color });
       });
-      (clef === 'treble' ? trebleVoice : bassVoice).addTickable(note);
+      if(clef === 'treble'){ trebleNoteObj = note; trebleVoice.addTickable(note); }
+      else { bassNoteObj = note; bassVoice.addTickable(note); }
     });
   } else {
     const partsSeq = useKs ? null : midiSequenceToChromaticParts(midis);
@@ -106,6 +109,39 @@ export function drawPentagram(container, midis = [], options = {}) {
     formatter.format(voices, 280);
     if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
     if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
+
+    if(highlightInterval && (trebleNoteObj || bassNoteObj)){
+      const [i1,i2,color] = highlightInterval;
+      const svg = container.querySelector('svg');
+      const getY = idx => {
+        let pos = byClef.treble.findIndex(o=>o.idx===idx);
+        if(pos!==-1 && trebleNoteObj) return trebleNoteObj.getYs()[pos];
+        pos = byClef.bass.findIndex(o=>o.idx===idx);
+        if(pos!==-1 && bassNoteObj) return bassNoteObj.getYs()[pos];
+        return null;
+      };
+      const y1 = getY(i1);
+      const y2 = getY(i2);
+      if(y1!==null && y2!==null && svg){
+        const yTop = Math.min(y1,y2);
+        const yBot = Math.max(y1,y2);
+        const x = Math.min(
+          trebleNoteObj ? trebleNoteObj.getAbsoluteX() : Infinity,
+          bassNoteObj ? bassNoteObj.getAbsoluteX() : Infinity
+        );
+        const w = Math.max(
+          trebleNoteObj ? trebleNoteObj.getWidth() : 0,
+          bassNoteObj ? bassNoteObj.getWidth() : 0
+        );
+        const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        rect.setAttribute('x', x - 5);
+        rect.setAttribute('y', yTop - 4);
+        rect.setAttribute('width', w + 10);
+        rect.setAttribute('height', (yBot - yTop) + 8);
+        rect.setAttribute('fill', color);
+        svg.prepend(rect);
+      }
+    }
   }
   }
 }
