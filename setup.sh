@@ -41,7 +41,6 @@ corepack enable
 
 # 4. Instal·la les dependències de Node (inclòs Jest) abans que es talli la xarxa
 npm ci --ignore-scripts --no-audit --progress=false
-npm ls chromatone-theory >/dev/null || true
 npx --yes jest --version >/dev/null || true
 
 echo "✅ Entorn preparat. Pots fer git add / commit / push (HTTPS amb PAT)."
