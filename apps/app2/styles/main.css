@@ -34,5 +34,5 @@ button.disabled{background:#555;color:#999;cursor:default;}
 }
 .summary-buttons{display:flex;justify-content:center;gap:.5rem;margin-top:.5rem;}
 #levelInfo{display:flex;flex-direction:column;gap:.3rem;align-items:center;border:2px solid #ffbb33;padding:.5rem;border-radius:4px;}
-#levelInfo li.line{display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap;}
+#levelInfo li.line{display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap;margin-bottom:.5rem;}
 #levelInfo button{width:auto;max-width:none;}

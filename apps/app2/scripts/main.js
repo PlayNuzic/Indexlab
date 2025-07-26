@@ -6,12 +6,12 @@ import { drawInterval } from '../../../libs/notation/index.js';
 const game = new EarTrainingGame({ randInt });
 const levelNames = {
   1: 'Intervals dissonants (iS 1 y 2)',
-  6: 'Intervals consonants (iS 3 y 4)',
-  4: 'Intervals resonants iS(5 y 7)',
-  5: 'Intervals resonants i tritó iS(5, 6 y 7)',
-  7: 'Intervals consonants (iS 8 y 9)',
-  2: 'Intervals dissonants (iS 10 y 11)',
-  3: 'Intervals dissonants (iS 1,2,10 y 11)',
+  2: 'Intervals consonants (iS 3 y 4)',
+  3: 'Intervals resonants iS(5 y 7)',
+  4: 'Intervals resonants i tritó iS(5, 6 y 7)',
+  5: 'Intervals consonants (iS 8 y 9)',
+  6: 'Intervals dissonants (iS 10 y 11)',
+  7: 'Intervals dissonants (iS 1,2,10 y 11)',
   8: 'Intervals consonants (iS 3,4,8 y 9)',
   9: 'Mix dissonants i consonants',
   10: 'Tots els intervals'
