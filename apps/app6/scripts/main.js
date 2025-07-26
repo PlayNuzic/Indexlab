@@ -1,6 +1,7 @@
 import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
+import { pitchColor } from 'chromatone-theory';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
@@ -17,6 +18,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   let undoStack = [];
   let redoStack = [];
   let selectedCards = new Set();
+  let hoverIdx = null;
+  let noteColors = [];
 
   const staffEl = document.getElementById('staff');
   const scaleSel = document.getElementById('scaleSel');
