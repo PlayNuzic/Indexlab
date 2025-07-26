@@ -133,13 +133,18 @@ export function drawPentagram(container, midis = [], options = {}) {
           trebleNoteObj ? trebleNoteObj.getWidth() : 0,
           bassNoteObj ? bassNoteObj.getWidth() : 0
         );
-        const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-        rect.setAttribute('x', x - 5);
-        rect.setAttribute('y', yTop - 4);
-        rect.setAttribute('width', w + 10);
-        rect.setAttribute('height', (yBot - yTop) + 8);
-        rect.setAttribute('fill', color);
-        svg.prepend(rect);
+        const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+        const cx = x + w / 2;
+        const cy = (yTop + yBot) / 2;
+        const rx = (w + 10) / 2;
+        const ry = (yBot - yTop) / 2 + 4;
+        ell.setAttribute('cx', cx);
+        ell.setAttribute('cy', cy);
+        ell.setAttribute('rx', rx);
+        ell.setAttribute('ry', ry);
+        ell.setAttribute('fill', color);
+        ell.setAttribute('stroke', color);
+        svg.prepend(ell);
       }
     }
   }

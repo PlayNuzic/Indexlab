@@ -172,11 +172,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderLegend(){
-    const legend = document.getElementById('colorLegend');
-    legend.innerHTML = enNotes.map((n,i)=>{
+    const noteLegend = document.getElementById('noteLegend');
+    noteLegend.innerHTML = enNotes.map((n,i)=>{
       const col = pastelColor(pitchColor((i+3)%12));
       const txt = contrastColor(col);
       return `<span style="background:${col};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${n}</span>`;
+    }).join(' ');
+    const intLegend = document.getElementById('intervalLegend');
+    intLegend.innerHTML = Object.entries(intervalCategory).map(([k,v])=>{
+      const txt = contrastColor(v.color);
+      return `<span style="background:${v.color};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${v.label}</span>`;
     }).join(' ');
   }
 

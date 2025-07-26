@@ -93,10 +93,17 @@ export function getKeySignature(scaleId, root){
 }
 
 export const intervalCategory = {
+<<<<<<< ours
   resonant: { color: 'hsla(120,60%,80%,0.3)', label: 'Resonante' },
   consonant: { color: 'hsla(200,60%,80%,0.3)', label: 'Consonante' },
   dissonant: { color: 'hsla(0,70%,80%,0.3)', label: 'Disonante' },
   neutral:  { color: 'hsla(45,80%,70%,0.3)', label: 'Neutro' }
+=======
+  resonant: { color: 'hsla(120,70%,50%,0.5)', label: 'Resonante' },
+  consonant: { color: 'hsla(210,70%,50%,0.5)', label: 'Consonante' },
+  dissonant: { color: 'hsla(0,70%,50%,0.5)', label: 'Disonante' },
+  neutral:  { color: 'hsla(45,90%,50%,0.5)', label: 'Neutro' }
+>>>>>>> theirs
 };
 
 export const intervalTypeBySemitone = {
