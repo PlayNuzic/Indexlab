@@ -35,6 +35,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   let selectedCards = new Set();
   let hoverIdx = null;
   let hoverIntervalIdx = null;
+  let colorIntervals = false;
+  let colorNotes = false;
   let noteColors = [];
 
   const staffEl = document.getElementById('staff');
@@ -58,6 +60,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const redoBtn = document.getElementById('redoBtn');
   const generateBtn = document.getElementById('generate');
   const modeBtn = document.getElementById('modeBtn');
+  const iaColorBtn = document.getElementById('iaColorBtn');
+  const noteColorBtn = document.getElementById('noteColorBtn');
   let useKeySig = true;
   let baseMidi = 60;
   baseSelect.value = String(baseMidi);
@@ -150,7 +154,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   function renderStaff(){
     const sems = currentSemis();
     noteColors = sems.map(s => pastelColor(pitchColor((s + 3) % 12)));
-    const colors = noteColors.map((c,i)=> i===hoverIdx ? c : null);
+    let colors;
+    if(colorNotes){
+      colors = noteColors.slice();
+    }else{
+      colors = noteColors.map((c,i)=> i===hoverIdx ? c : null);
+    }
     const opts = {
       scaleId: useKeySig ? scale.id : 'CROM',
       root: useKeySig ? scale.root : 0,
@@ -158,14 +167,25 @@ window.addEventListener('DOMContentLoaded', async () => {
       duration: 'w',
       noteColors: colors
     };
-    if(hoverIntervalIdx !== null){
-      const len = scaleSemis(scale.id).length;
-      const interval = getIntervals()[hoverIntervalIdx];
+    const len = scaleSemis(scale.id).length;
+    const intervals = getIntervals();
+    if(colorIntervals){
+      opts.highlightIntervals = intervals.map((interval,i)=>{
+        const cat = (scale.id === 'CROM' || len === 12)
+          ? intervalTypeBySemitone[interval]
+          : intervalCategoryFor(interval, len);
+        const color = intervalCategory[cat].color;
+        return [i, i+1, color];
+      });
+    } else if(hoverIntervalIdx !== null){
+      const interval = intervals[hoverIntervalIdx];
       const cat = (scale.id === 'CROM' || len === 12)
         ? intervalTypeBySemitone[interval]
         : intervalCategoryFor(interval, len);
       const color = intervalCategory[cat].color;
-      opts.highlightInterval = [hoverIntervalIdx, hoverIntervalIdx+1, color];
+      opts.highlightIntervals = [[hoverIntervalIdx, hoverIntervalIdx+1, color]];
+    } else {
+      opts.highlightIntervals = [];
     }
     drawPentagram(staffEl, diagMidis(), opts);
     renderLegend();
@@ -355,6 +375,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   modeBtn.onclick=()=>{
     useKeySig = !useKeySig;
     modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
+    renderStaff();
+  };
+
+  iaColorBtn.onclick = () => {
+    colorIntervals = !colorIntervals;
+    iaColorBtn.classList.toggle('active', colorIntervals);
+    renderStaff();
+  };
+
+  noteColorBtn.onclick = () => {
+    colorNotes = !colorNotes;
+    noteColorBtn.classList.toggle('active', colorNotes);
     renderStaff();
   };
 

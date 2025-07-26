@@ -12,7 +12,7 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const { chord = false, duration = 'q', noteColors = [], highlightInterval = null } = options;
+  const { chord = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [] } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
@@ -110,41 +110,59 @@ export function drawPentagram(container, midis = [], options = {}) {
     if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
     if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
 
-    if(highlightInterval && (trebleNoteObj || bassNoteObj)){
-      const [i1,i2,color] = highlightInterval;
+    if(trebleNoteObj || bassNoteObj){
       const svg = container.querySelector('svg');
-      const getY = idx => {
+      const getPos = idx => {
         let pos = byClef.treble.findIndex(o=>o.idx===idx);
-        if(pos!==-1 && trebleNoteObj) return trebleNoteObj.getYs()[pos];
+        if(pos!==-1 && trebleNoteObj){
+          return { y: trebleNoteObj.getYs()[pos], x: trebleNoteObj.getAbsoluteX(), w: trebleNoteObj.getWidth() };
+        }
         pos = byClef.bass.findIndex(o=>o.idx===idx);
-        if(pos!==-1 && bassNoteObj) return bassNoteObj.getYs()[pos];
+        if(pos!==-1 && bassNoteObj){
+          return { y: bassNoteObj.getYs()[pos], x: bassNoteObj.getAbsoluteX(), w: bassNoteObj.getWidth() };
+        }
         return null;
       };
-      const y1 = getY(i1);
-      const y2 = getY(i2);
-      if(y1!==null && y2!==null && svg){
-        const yTop = Math.min(y1,y2);
-        const yBot = Math.max(y1,y2);
-        const x = Math.min(
-          trebleNoteObj ? trebleNoteObj.getAbsoluteX() : Infinity,
-          bassNoteObj ? bassNoteObj.getAbsoluteX() : Infinity
-        );
-        const w = Math.max(
-          trebleNoteObj ? trebleNoteObj.getWidth() : 0,
-          bassNoteObj ? bassNoteObj.getWidth() : 0
-        );
-        const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-        const cx = x + w / 2;
-        const cy = (yTop + yBot) / 2;
-        const rx = (w + 10) / 2;
-        const ry = (yBot - yTop) / 2 + 4;
-        ell.setAttribute('cx', cx);
-        ell.setAttribute('cy', cy);
-        ell.setAttribute('rx', rx);
-        ell.setAttribute('ry', ry);
-        ell.setAttribute('fill', color);
-        ell.setAttribute('stroke', color);
-        svg.prepend(ell);
+
+      if(svg){
+        noteColors.forEach((c, idx) => {
+          if(!c) return;
+          const pos = getPos(idx);
+          if(!pos) return;
+          const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+          ell.setAttribute('cx', pos.x + pos.w / 2);
+          ell.setAttribute('cy', pos.y);
+          ell.setAttribute('rx', pos.w * 0.35);
+          ell.setAttribute('ry', 8);
+          ell.setAttribute('fill', c);
+          ell.setAttribute('stroke', c);
+          svg.prepend(ell);
+        });
+
+        const list = [];
+        if(highlightInterval) list.push(highlightInterval);
+        list.push(...highlightIntervals);
+        list.forEach(([i1,i2,color]) => {
+          const p1 = getPos(i1);
+          const p2 = getPos(i2);
+          if(!p1 || !p2) return;
+          const yTop = Math.min(p1.y,p2.y);
+          const yBot = Math.max(p1.y,p2.y);
+          const x = Math.min(p1.x,p2.x);
+          const w = Math.max(p1.w,p2.w);
+          const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+          const cx = x + w / 2;
+          const cy = (yTop + yBot) / 2;
+          const rx = (w + 10) / 2;
+          const ry = (yBot - yTop) / 2 + 4;
+          ell.setAttribute('cx', cx);
+          ell.setAttribute('cy', cy);
+          ell.setAttribute('rx', rx);
+          ell.setAttribute('ry', ry);
+          ell.setAttribute('fill', color);
+          ell.setAttribute('stroke', color);
+          svg.prepend(ell);
+        });
       }
     }
   }
