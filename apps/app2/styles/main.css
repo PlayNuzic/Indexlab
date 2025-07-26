@@ -16,7 +16,7 @@ button.small{font-size:.8rem;padding:.3rem .7rem;margin-top:.5rem;}
 }
 .modeSelect{display:flex;flex-direction:column;gap:.5rem;margin:.5rem 0;}
 #modeToggle{display:flex;gap:.5rem;justify-content:center;}
-#modeToggle button{background:#cca316;}
+#modeToggle button{background:#b3a55c;}
 #modeToggle button.active{background:#ffbb33;}
 select{padding:.4rem;}
 a{color:#ffbb33;}
