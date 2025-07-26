@@ -3,16 +3,16 @@ class EarTrainingGame {
     this.randInt = options.randInt || ((a, b) => Math.floor(Math.random() * (b - a + 1)) + a);
     this.requiredToLevelUp = 5;
     this.intervals = {
-      1: [0, 1, 2, 12],               // dissonant seconds
-      2: [0, 10, 11, 12],             // dissonant sevenths
-      3: [0, 1, 2, 10, 11, 12],       // all dissonants
-      4: [0, 5, 7, 12],               // resonant fourth & fifth
-      5: [0, 5, 6, 7, 12],            // resonant + tritone
-      6: [0, 3, 4, 12],               // consonant thirds
-      7: [0, 8, 9, 12],               // consonant sixths
-      8: [0, 3, 4, 8, 9, 12],         // consonant thirds & sixths
-      9: [0, 1, 2, 3, 4, 8, 9, 10, 11, 12], // mix dissonant & consonant
-      10: [0,1,2,3,4,5,6,7,8,9,10,11,12]    // all intervals
+      1: [0, 1, 2, 12],                       // dissonant seconds
+      2: [0, 3, 4, 12],                       // consonant thirds
+      3: [0, 5, 7, 12],                       // resonant fourth & fifth
+      4: [0, 5, 6, 7, 12],                    // resonant fourth, tritone & fifth
+      5: [0, 8, 9, 12],                       // consonant sixths
+      6: [0, 10, 11, 12],                     // dissonant sevenths
+      7: [0, 1, 2, 10, 11, 12],               // extremes dissonants
+      8: [0, 3, 4, 8, 9, 12],                 // consonant thirds & sixths
+      9: [0, 1, 2, 3, 4, 8, 9, 10, 11, 12],   // mix dissonant & consonant
+      10: [0,1,2,3,4,5,6,7,8,9,10,11,12]      // all intervals
     };
     this.start('iS', 1);
   }

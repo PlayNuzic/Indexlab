@@ -13,8 +13,8 @@ const levelNames = {
   6: 'Intervals dissonants (iS 10 y 11)',
   7: 'Intervals dissonants (iS 1,2,10 y 11)',
   8: 'Intervals consonants (iS 3,4,8 y 9)',
-  9: 'Mix dissonants i consonants',
-  10: 'Tots els intervals'
+  9: 'Mix dissonants i consonants: iS(1,2,3,4,8,9,10,11)',
+  10: 'Tots els intervals: iS(1,2,3,4,5,6,7,8,9,10,11)'
 };
 
 let currentMode = 'iS';
