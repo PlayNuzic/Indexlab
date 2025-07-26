@@ -47,10 +47,10 @@ export function drawPentagram(container, midis = [], options = {}) {
   const normScaleId = scaleId.toUpperCase();
   const noKsIds = ['CROM','OCT','HEX','TON'];
   const useKs = !noKsIds.includes(normScaleId);
+  let byClef = { treble: [], bass: [] };
+  let trebleNoteObj = null;
+  let bassNoteObj = null;
   if (chord) {
-    const byClef = { treble: [], bass: [] };
-    let trebleNoteObj = null;
-    let bassNoteObj = null;
     let partsSeq;
     if(useKs){
       partsSeq = midis.map(m => midiToPartsByKeySig(m, ksMap));
