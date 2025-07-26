@@ -1,7 +1,7 @@
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   eAToNotes, rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../shared/cards.js';
-import { pitchColor as noteColor } from 'chromatone-theory';
+import { pitchColor as noteColor } from '../vendor/chromatone-theory/index.js';
 
 export function init(container, {
   notes = [],

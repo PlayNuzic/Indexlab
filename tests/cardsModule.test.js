@@ -8,7 +8,7 @@ function loadCardsModule(){
     .replace(/export function/g,'function')
     .replace(/export const/g,'const');
   code = code.replace(/import[^;]+from '\.\.\/\.\.\/shared\/cards.js';/, shared);
-  code = code.replace(/import\s+\{[^}]*pitchColor[^}]*\}\s+from 'chromatone-theory';/, 'const noteColor = n => `hsl(${(n%12)*30},100%,50%)`;');
+  code = code.replace(/import\s+\{[^}]*pitchColor[^}]*\}\s+from '\.\.\/vendor\/chromatone-theory\/index.js';/, 'const noteColor = n => `hsl(${(n%12)*30},100%,50%)`;');
   code = code.replace(/export function/g,'function');
   code += '\nmodule.exports = { init };';
   const mod = { exports:{} };
