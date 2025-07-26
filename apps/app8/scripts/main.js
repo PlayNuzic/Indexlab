@@ -52,6 +52,16 @@ function renderProfiles(){
   updateLevelButtons();
 }
 
+document.getElementById('clearProfiles').onclick=()=>{
+  if(confirm('Segur que vols esborrar tots els perfils?')){
+    localStorage.removeItem('profiles');
+    profiles=[];
+    currentProfile=null;
+    renderProfiles();
+    updateLevelButtons();
+  }
+};
+
 function updateLevelButtons(){
   document.querySelectorAll('#levelInfo button').forEach(btn=>{
     const lvl=parseInt(btn.dataset.level,10);
@@ -160,7 +170,13 @@ function submitAnswer(value){
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${game.mode}(${game.currentInterval})`;
     const notationEl = document.getElementById('notation');
     const color = intervalColor(game.currentInterval);
-    drawPentagram(notationEl, [game.note1, game.note2], { highlightIntervals:[[0,1,color]], scaleId:'CROM', root:0 });
+    drawPentagram(notationEl, [game.note1, game.note2], {
+      chord: game.mode==='iA',
+      duration: game.mode==='iA' ? 'h' : 'q',
+      highlightIntervals:[[0,1,color]],
+      scaleId:'CROM',
+      root:0
+    });
     consecutiveFails=0; consecutiveWins++;
     if(consecutiveWins>=3) showAvatarMessage('Molt bé!');
     const proceed = () => {
@@ -183,7 +199,14 @@ function submitAnswer(value){
       document.getElementById('feedback').textContent=`\u274C Era ${game.mode}(${game.currentInterval})`;
       const notationEl = document.getElementById('notation');
       const color = intervalColor(game.currentInterval);
-      drawPentagram(notationEl, [game.note1, game.note2], { highlightIntervals:[[0,1,color]], noteColors:['transparent','transparent'], scaleId:'CROM', root:0 });
+      drawPentagram(notationEl, [game.note1, game.note2], {
+        chord: game.mode==='iA',
+        duration: game.mode==='iA' ? 'h' : 'q',
+        highlightIntervals:[[0,1,color]],
+        noteColors:['transparent','transparent'],
+        scaleId:'CROM',
+        root:0
+      });
       consecutiveWins=0; consecutiveFails++;
       if(consecutiveFails>=3) showAvatarMessage('No et rendeixis!');
       setTimeout(nextMixedQuestion,1000);
@@ -250,6 +273,9 @@ function initButtons(){
       b.disabled=true;
     }else{
       b.addEventListener('click',()=>submitAnswer(i));
+      const color = intervalColor(Math.abs(i));
+      b.style.background = color;
+      b.style.color = '#000';
     }
     wrap.appendChild(b);
   };
