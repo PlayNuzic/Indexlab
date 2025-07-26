@@ -1,0 +1,41 @@
+body{font-family:'Ubuntu',sans-serif;background:#2b1c4a;color:#f0f0f0;text-align:center;padding:2rem;}
+section{margin-bottom:2rem;}
+.controls{display:flex;justify-content:center;gap:.5rem;margin:.5rem 0;}
+button{padding:.5rem 1rem;background:#ffbb33;border:none;border-radius:4px;color:#222;cursor:pointer;font-size:calc(1rem + 2pt);}
+button:hover{background:#e6a12b;}
+button.small{font-size:.8rem;padding:.3rem .7rem;margin-top:.5rem;}
+#score{font-weight:bold;margin:.3rem 0;}
+#quickAns{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;margin-top:.5rem;}
+#quickAns div{flex-basis:100%;height:0;}
+#notation{
+  margin:0 auto 1rem auto;
+  background:#eee;
+  display:inline-block;
+  padding:.5rem;
+  border-radius:4px;
+}
+.profiles{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin:.5rem 0;}
+.profile-slot{width:80px;height:80px;background:#444;border:2px dashed #ffbb33;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;}
+.profile-slot img{width:60px;height:60px;border-radius:4px;}
+.profile-slot p{margin:0;font-size:.8rem;color:#ffbb33;}
+.profile-slot.active{border-style:solid;}
+select{padding:.4rem;}
+a{color:#ffbb33;}
+a:hover{text-decoration:underline;}
+button.disabled{background:#555;color:#999;cursor:default;}
+#attempts{list-style:none;padding:0;margin:.5rem 0;}
+#attempts li{display:flex;justify-content:center;gap:1rem;}
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.summary-buttons{display:flex;justify-content:center;gap:.5rem;margin-top:.5rem;}
+#levelInfo{display:flex;flex-direction:column;gap:.3rem;align-items:center;border:2px solid #ffbb33;padding:.5rem;border-radius:4px;}
+#levelInfo li.line{display:flex;gap:.3rem;justify-content:center;flex-wrap:wrap;margin-bottom:.5rem;}
+#levelInfo button{width:auto;max-width:none;}
+#avatarMsg{position:absolute;top:0;right:0;display:flex;flex-direction:column;align-items:center;}
+#avatarMsg img{width:60px;height:60px;}
+#avatarBubble{background:#fffbcc;color:#222;padding:.3rem .5rem;border-radius:4px;margin-top:.2rem;opacity:0;transition:opacity .3s;max-width:150px;}
+#avatarBubble.show{opacity:1;}

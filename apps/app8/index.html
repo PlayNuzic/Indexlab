@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ear Training Nuzic</title>
+  <link rel="stylesheet" href="../../libs/shared-ui/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="icon" href="favicon.ico" />
+</head>
+<body>
+  <section id="welcome">
+    <h1>Ear Training Nuzic</h1>
+    <p>Selecciona un perfil i comença l’entrenament d’intervals.</p>
+    <div id="profiles" class="profiles"></div>
+    <ul id="levelInfo" style="list-style:none;padding:0;margin:.5rem 0;">
+      <li class="line">
+        <button data-level="1">1. Intervals dissonants (iS 1 y 2)</button>
+        <button data-level="2">2. Intervals consonants (iS 3 y 4)</button>
+        <button data-level="3">3. Intervals resonants iS (5 y 7)</button>
+        <button data-level="4">4. Intervals resonants i Neutre iS (5, 6 y 7)</button>
+      </li>
+      <li class="line">
+        <button data-level="5">5. Intervals consonants (iS 8 y 9)</button>
+        <button data-level="6">6. Intervals dissonants (iS 10 y 11)</button>
+        <button data-level="7">7. Intervals dissonants (iS 1,2,10 y 11)</button>
+        <button data-level="8">8. Intervals consonants (iS 3,4,8 y 9)</button>
+      </li>
+      <li class="line">
+        <button data-level="9">9. Mix dissonants i consonants</button>
+        <button data-level="10">10. Tots els intervals</button>
+      </li>
+    </ul>
+    <div id="instrumentWrap" style="margin-top:.5rem;">
+      <label for="instrument">Instrument:</label>
+      <select id="instrument">
+        <option value="sine">Sintetitzador</option>
+        <option value="piano" selected>Piano</option>
+      </select>
+    </div>
+    <p style="margin-top:1rem"><a href="../../index.html">&larr; Torna a l’índex</a></p>
+  </section>
+
+  <section id="game" style="display:none">
+    <div id="notation"></div>
+    <div id="avatarMsg"><img id="avatarImg"><div id="avatarBubble"></div></div>
+    <p id="question"></p>
+    <p id="score"></p>
+    <div class="controls">
+      <button id="playBtn">Escolta de nou</button>
+    </div>
+    <div id="quickAns"></div>
+    <p id="feedback"></p>
+    <button id="backBtn" class="small">&larr; Torna al menú</button>
+  </section>
+
+  <section id="summary" style="display:none">
+    <p id="result"></p>
+    <p id="totals"></p>
+    <ul id="attempts"></ul>
+    <div class="summary-buttons">
+      <button id="repeatLevel">Repetir nivell</button>
+      <button id="advanceLevel">Avança nivell</button>
+    </div>
+    <button id="backBtnSummary" class="small">&larr; Torna al menú</button>
+  </section>
+
+  <script src="../../libs/vendor/Tone.js"></script>
+  <script type="module" src="./scripts/main.js"></script>
+</body>
+</html>
