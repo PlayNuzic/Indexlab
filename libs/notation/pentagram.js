@@ -74,7 +74,7 @@ export function drawPentagram(container, midis = [], options = {}) {
         const need = useKs ? needsAccidental(p, ksMap) : !!p.accidental;
         if (need) note.addModifier(new Accidental(p.accidental), i);
         const color = noteColors[obj.idx];
-        if (color) note.setKeyStyle(i, { fillStyle: color, strokeStyle: color });
+        if (color) note.setKeyStyle(i, { fillStyle: color, strokeStyle: '#000' });
       });
       if(clef === 'treble'){ trebleNoteObj = note; trebleVoice.addTickable(note); }
       else { bassNoteObj = note; bassVoice.addTickable(note); }
@@ -88,7 +88,7 @@ export function drawPentagram(container, midis = [], options = {}) {
       const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;
       if (need) note.addModifier(new Accidental(parts.accidental), 0);
       const color = noteColors[idx];
-      if (color) note.setStyle({ fillStyle: color, strokeStyle: color });
+      if (color) note.setStyle({ fillStyle: color, strokeStyle: '#000' });
       const target = clef === 'treble' ? trebleVoice : bassVoice;
       const other = clef === 'treble' ? bassVoice : trebleVoice;
       target.addTickable(note);
@@ -139,14 +139,15 @@ export function drawPentagram(container, midis = [], options = {}) {
           const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
           const cx = x + w / 2;
           const cy = (yTop + yBot) / 2;
-          const rx = (w + 10) / 2;
-          const ry = (yBot - yTop) / 2 + 4;
+          const rx = (w + 6) / 2;
+          const ry = (yBot - yTop) / 2 + 3;
           ell.setAttribute('cx', cx);
           ell.setAttribute('cy', cy);
           ell.setAttribute('rx', rx);
           ell.setAttribute('ry', ry);
           ell.setAttribute('fill', color);
           ell.setAttribute('stroke', color);
+          ell.setAttribute('pointer-events', 'none');
           svg.prepend(ell);
         });
       }
