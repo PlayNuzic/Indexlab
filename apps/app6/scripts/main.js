@@ -2,6 +2,21 @@ import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { pitchColor } from '../../../libs/vendor/chromatone-theory/index.js';
+
+function pastelColor(color){
+  const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
+  if(!m) return color;
+  const h = Number(m[1]);
+  const a = m[4] || 1;
+  return `hsla(${h},60%,85%,${a})`;
+}
+
+function contrastColor(color){
+  const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
+  if(!m) return '#000';
+  const l = Number(m[3]);
+  return l > 60 ? '#000' : '#fff';
+}
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
@@ -64,6 +79,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   refreshRot();
   scaleSel.value = scale.id;
   rootSel.value = scale.root;
+
+  const enNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
   function pushUndo(){
     undoStack.push({
@@ -131,7 +148,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderStaff(){
     const sems = currentSemis();
-    noteColors = sems.map(s => pitchColor((s + 3) % 12));
+    noteColors = sems.map(s => pastelColor(pitchColor((s + 3) % 12)));
     const colors = noteColors.map((c,i)=> i===hoverIdx ? c : null);
     drawPentagram(staffEl, diagMidis(), {
       scaleId: useKeySig ? scale.id : 'CROM',
@@ -140,6 +157,16 @@ window.addEventListener('DOMContentLoaded', async () => {
       duration: 'w',
       noteColors: colors
     });
+    renderLegend();
+  }
+
+  function renderLegend(){
+    const legend = document.getElementById('colorLegend');
+    legend.innerHTML = enNotes.map((n,i)=>{
+      const col = pastelColor(pitchColor((i+3)%12));
+      const txt = contrastColor(col);
+      return `<span style="background:${col};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${n}</span>`;
+    }).join(' ');
   }
 
   function moveCards(indices, target){
@@ -155,14 +182,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     const diagNums = notes.slice();
     const comps = ensureDuplicateComponents(notes, components);
     const intervals = getIntervals();
-    if(!noteColors.length) noteColors = currentSemis().map(s=>pitchColor((s+3)%12));
+    noteColors = currentSemis().map(s => pastelColor(pitchColor((s+3)%12)));
     diagNums.forEach((num,i)=>{
       const card = document.createElement('div');
       card.className='component-card';
       if(selectedCards.has(i)) card.classList.add('selected');
       card.draggable = true;
-      const color = noteColors[i] || pitchColor(((currentSemis()[i]||0)+3)%12);
+      const color = noteColors[i];
       card.style.backgroundColor = color;
+      card.style.color = contrastColor(color);
       card.onmouseenter = () => { hoverIdx = i; renderStaff(); };
       card.onmouseleave = () => { hoverIdx = null; renderStaff(); };
       let pressTimer;
@@ -243,6 +271,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
       moveCards(grp, notes.length);
     };
+    componentsWrap.onmouseleave=()=>{ hoverIdx = null; renderStaff(); };
   }
 
   function renderAll(){
@@ -329,4 +358,5 @@ window.addEventListener('DOMContentLoaded', async () => {
   transposeControls.style.display='none';
 
   renderAll();
+  renderLegend();
 });

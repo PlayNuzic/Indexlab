@@ -54,6 +54,15 @@ button#generate:hover{background:#e6a12b;}
   position:relative;
   width:400px;
   z-index:20;
+  transform:scale(2.5);
+  transform-origin:top left;
+}
+#colorLegend{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:.3rem;
+  margin-top:.3rem;
 }
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}
@@ -172,10 +181,9 @@ button#generate:hover{background:#e6a12b;}
 .component-card.drop-hover{outline:2px solid var(--accent);}
 .component-card.drop-flash{animation:flash-border 0.15s ease-in-out;}
 @keyframes flash-border{from{outline:2px solid var(--accent);}to{outline:2px solid transparent;}}
-.component-card .note{font-weight:bold;font-size:1.2rem;}
+.component-card .note{font-weight:bold;font-size:1.325rem;}
 .component-card .label{
-  font-size:1.1rem;
-  color:#6ee7b7;
+  font-size:1.225rem;
   font-weight:bold;
   margin-top:auto;
   margin-bottom:0.2rem;
