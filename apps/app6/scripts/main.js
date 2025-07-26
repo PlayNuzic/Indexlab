@@ -1,6 +1,6 @@
 import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis, intervalCategory, intervalTypeBySemitone, intervalCategoryFor } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, intervalColor, intervalCategory, intervalTypeBySemitone, intervalCategoryFor } from '../../../shared/scales.js';
 import { pitchColor } from '../../../libs/vendor/chromatone-theory/index.js';
 
 function pastelColor(color){
@@ -170,19 +170,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     const len = scaleSemis(scale.id).length;
     const intervals = getIntervals();
     if(colorIntervals){
-      opts.highlightIntervals = intervals.map((interval,i)=>{
-        const cat = (scale.id === 'CROM' || len === 12)
-          ? intervalTypeBySemitone[interval]
-          : intervalCategoryFor(interval, len);
-        const color = intervalCategory[cat].color;
-        return [i, i+1, color];
-      });
+      opts.highlightIntervals = intervals.map((interval,i)=>[
+        i,
+        i+1,
+        intervalColor(interval, len)
+      ]);
     } else if(hoverIntervalIdx !== null){
       const interval = intervals[hoverIntervalIdx];
-      const cat = (scale.id === 'CROM' || len === 12)
-        ? intervalTypeBySemitone[interval]
-        : intervalCategoryFor(interval, len);
-      const color = intervalCategory[cat].color;
+      const color = intervalColor(interval, len);
       opts.highlightIntervals = [[hoverIntervalIdx, hoverIntervalIdx+1, color]];
     } else {
       opts.highlightIntervals = [];
@@ -401,10 +396,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  document.getElementById('tabEA').onclick=()=>{mode='eA';seqPrefix.textContent='eA(';
-    transposeControls.style.display='none'; renderAll();};
-  document.getElementById('tabAc').onclick=()=>{mode='Ac';seqPrefix.textContent='Ac(';
-    transposeControls.style.display='flex'; renderAll();};
+  const tabEA = document.getElementById('tabEA');
+  const tabAc = document.getElementById('tabAc');
+  tabEA.onclick=()=>{
+    mode='eA';
+    tabEA.classList.add('active');
+    tabAc.classList.remove('active');
+    seqPrefix.textContent='eA(';
+    transposeControls.style.display='none';
+    renderAll();
+  };
+  tabAc.onclick=()=>{
+    mode='Ac';
+    tabAc.classList.add('active');
+    tabEA.classList.remove('active');
+    seqPrefix.textContent='Ac(';
+    transposeControls.style.display='flex';
+    renderAll();
+  };
   transposeControls.style.display='none';
 
   renderAll();

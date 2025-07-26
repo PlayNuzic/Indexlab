@@ -116,3 +116,21 @@ export function intervalCategoryFor(interval, len=12){
   if(interval === 2 || interval === len-2) return 'consonant';
   return 'resonant';
 }
+
+export function intervalColor(interval, len=12){
+  const cat = intervalCategoryFor(interval, len);
+  const base = intervalCategory[cat].color;
+  const m = base.match(/hsla\((\d+),(\d+)%,(\d+)%,?(\d+(?:\.\d+)?)?\)/);
+  if(!m) return base;
+  const hue = Number(m[1]);
+  const sat = Number(m[2]);
+  const light = Number(m[3]);
+  const alpha = m[4] || 1;
+  const candidates = [];
+  for(let i=0;i<len;i++) if(intervalCategoryFor(i,len)===cat) candidates.push(i);
+  const idx = candidates.indexOf(((interval%len)+len)%len);
+  const step = 8;
+  const newL = Math.max(20, Math.min(80, light + step*(idx - (candidates.length-1)/2)));
+  return `hsla(${hue},${sat}%,${newL}%,${alpha})`;
+}
+

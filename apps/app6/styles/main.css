@@ -21,11 +21,11 @@ h1{margin-bottom:1rem;color:#fff;}
 .tabs{display:flex;gap:.5rem;}
 .tabs button{padding:.4rem 1rem;border:none;border-radius:4px;background:#444;color:#fff;cursor:pointer;}
 .tabs button.active{background:var(--accent);color:#222;}
-.seqInput{display:flex;align-items:center;gap:.3rem;}
+.seqInput{display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;justify-content:center;}
 .seqInput input{padding:.3rem;width:120px;text-align:center;}
 .transpose-controls{display:none;flex-direction:column;margin-left:.3rem;}
 .transpose-controls button{padding:.1rem;font-size:.8rem;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;line-height:1;}
-button#generate{padding:.4rem 1rem;background:var(--accent);border:none;border-radius:4px;color:#222;cursor:pointer;}
+button#generate{padding:.4rem 1rem;background:var(--accent);border:2px solid #f00;border-radius:4px;color:#222;cursor:pointer;}
 button#generate:hover{background:#e6a12b;}
 #modeBtn{padding:.4rem 1rem;background:#555;border:none;border-radius:4px;color:#fff;cursor:pointer;}
 .action-row #iaColorBtn,.action-row #noteColorBtn{padding:.4rem 1rem;background:#555;border:none;border-radius:4px;color:#fff;cursor:pointer;}
@@ -67,12 +67,8 @@ button#generate:hover{background:#e6a12b;}
   transform-origin:top left;
 }
 #legendWrap{
-  position:absolute;
-  top:calc(100% + .2rem);
-  left:0;
   width:100%;
   margin:0;
-  z-index:25;
 }
 #legendWrap summary{
   cursor:pointer;

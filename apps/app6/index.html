@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cartas-componentes y Pentagrama</title>
+  <title>Componentes-Colores-Pentagrama</title>
   <link rel="stylesheet" href="../../libs/shared-ui/index.css">
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles/main.css">
   <link rel="icon" href="favicon.ico" />
 </head>
 <body>
-  <h1>Cartas-componentes y Pentagrama</h1>
+  <h1>Componentes-Colores-Pentagrama</h1>
   <div id="app-wrap">
   <div id="controls-box" class="controls">
     <div class="scale-controls">
@@ -18,11 +18,11 @@
       <label>Mode/Rot. <select id="rotSel"></select></label>
       <label>Arrel Nm <select id="rootSel"></select></label>
     </div>
-    <div class="tabs">
-      <button id="tabEA" class="active">eA</button>
-      <button id="tabAc">Ac</button>
-    </div>
     <div class="seqInput">
+      <div class="tabs">
+        <button id="tabEA" class="active">eA</button>
+        <button id="tabAc">Ac</button>
+      </div>
       <span id="seqPrefix">eA(</span>
       <input id="seq" type="text" placeholder="3 4 3">
       <span>)</span>
@@ -30,13 +30,13 @@
         <option value="60" selected>C4</option>
         <option value="48">C3</option>
       </select>
+      <button id="generate">Generar</button>
       <div id="transposeControls" class="transpose-controls">
         <button id="transposeUp" title="Puja">&#9650;</button>
         <button id="transposeDown" title="Baixa">&#9660;</button>
       </div>
     </div>
     <div class="action-row">
-      <button id="generate">Generar</button>
       <button id="modeBtn">Armadura</button>
       <button id="iaColorBtn">Colores iA</button>
       <button id="noteColorBtn">Colores N</button>
@@ -60,13 +60,13 @@
       <button id="redoBtn" title="Refer">&#8635;</button>
     </div>
     </div>
+    <details id="legendWrap" open>
+      <summary>Colores</summary>
+      <div id="noteLegend"></div>
+      <div id="intervalLegend"></div>
+    </details>
     <div id="staff-area">
       <div id="staff"></div>
-      <details id="legendWrap" open>
-        <summary>Colores</summary>
-        <div id="noteLegend"></div>
-        <div id="intervalLegend"></div>
-      </details>
     </div>
   </div>
   </div>
