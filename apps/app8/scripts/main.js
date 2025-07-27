@@ -51,16 +51,33 @@ function renderProfiles(){
     wrap.appendChild(div);
   }
   updateLevelButtons();
+  updateProfileButtons();
 }
 
 document.getElementById('clearProfiles').onclick=()=>{
-  if(confirm('Segur que vols esborrar tots els perfils?')){
-    localStorage.removeItem('profiles');
-    profiles=[];
+  if(!currentProfile) return;
+  if(confirm('Segur que vols esborrar aquest perfil?')){
+    profiles[currentProfile.id]=null;
+    saveProfiles();
     currentProfile=null;
     renderProfiles();
     updateLevelButtons();
+    updateProfileButtons();
   }
+};
+
+document.getElementById('editProfile').onclick=()=>{
+  if(!currentProfile) return;
+  const name=prompt('Nom del jugador?', currentProfile.name);
+  if(!name) return;
+  showAvatarChooser(avatar=>{
+    currentProfile.name=name;
+    currentProfile.avatar=avatar;
+    profiles[currentProfile.id]=currentProfile;
+    saveProfiles();
+    renderProfiles();
+    selectProfile(currentProfile.id);
+  });
 };
 
 function updateLevelButtons(){
@@ -72,6 +89,16 @@ function updateLevelButtons(){
   });
 }
 
+function updateProfileButtons(){
+  const disabled = !currentProfile;
+  const delBtn = document.getElementById('clearProfiles');
+  const editBtn = document.getElementById('editProfile');
+  delBtn.disabled = disabled;
+  editBtn.disabled = disabled;
+  delBtn.classList.toggle('disabled', disabled);
+  editBtn.classList.toggle('disabled', disabled);
+}
+
 function selectProfile(idx){
   const p=profiles[idx];
   if(p){
@@ -80,6 +107,7 @@ function selectProfile(idx){
       el.classList.toggle('active',i===idx);
     });
     updateLevelButtons();
+    updateProfileButtons();
   }else{
     createProfile(idx);
   }
@@ -274,6 +302,7 @@ function showSummary(){
     profiles[currentProfile.id]=currentProfile;
     saveProfiles();
     renderProfiles();
+    updateProfileButtons();
   }
 }
 
