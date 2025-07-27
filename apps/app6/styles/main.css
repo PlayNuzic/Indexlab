@@ -17,9 +17,9 @@ h1{margin-bottom:1rem;color:#fff;}
   gap:1.5rem;
   width:100%;
 }
-#staff-area{display:flex;flex-direction:row;align-items:flex-start;justify-content:center;gap:.5rem;position:relative;}
-#staff{width:500px;height:425px;display:flex;justify-content:center;margin:.3rem 0;margin-left:0;position:relative;z-index:40;}
-#seqContainer{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:500px;height:425px;}
+#staff-area{display:flex;flex-direction:row;align-items:flex-start;justify-content:center;gap: 4rem;position:relative;}
+#staff{width:500px;height:400px;display:flex;justify-content:center;margin:.3rem 0;margin-left:0;position:relative;z-index:40;}
+#seqContainer{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:500px;height:400px;}
 #seqStaff{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
 .seq-staff svg{
   background:#fff;
