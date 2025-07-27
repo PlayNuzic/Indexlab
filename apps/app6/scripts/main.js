@@ -20,6 +20,8 @@ function contrastColor(color){
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
+const { initSnapshots, saveSnapshot: saveSnapData, loadSnapshot: loadSnapData, resetSnapshots: resetSnapData } = window.SnapUtils;
+const Presets = window.Presets;
 
 window.addEventListener('DOMContentLoaded', async () => {
   await init('piano');
@@ -38,6 +40,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   let colorIntervals = false;
   let colorNotes = false;
   let noteColors = [];
+  let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app6Snapshots') || 'null'));
+  let activeSnapshot = null;
+  let lastSaved = null;
+  let recording = false;
+  let recordStart = 0;
+  let recorded = [];
+  let recordBpm = 120;
+  let playing = false;
+  let playTimers = [];
+  let taps = [];
 
   const staffEl = document.getElementById('staff');
   const scaleSel = document.getElementById('scaleSel');
@@ -62,6 +74,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   const modeBtn = document.getElementById('modeBtn');
   const iaColorBtn = document.getElementById('iaColorBtn');
   const noteColorBtn = document.getElementById('noteColorBtn');
+  const snapWrap = document.getElementById('snapshots');
+  const resetSnapsBtn = document.getElementById('resetSnaps');
+  const downloadSnapsBtn = document.getElementById('downloadSnaps');
+  const uploadSnapsBtn = document.getElementById('uploadSnaps');
+  const snapsFileInput = document.getElementById('snapsFile');
+  const saveBtn = document.getElementById('saveBtn');
+  const bpmInput = document.getElementById('bpm');
+  const tapBtn = document.getElementById('tapBtn');
+  const recBtn = document.getElementById('recBtn');
+  const playSeqBtn = document.getElementById('playSeq');
+  const midiBtn = document.getElementById('midiBtn');
   let useKeySig = true;
   let baseMidi = 60;
   baseSelect.value = String(baseMidi);
@@ -152,37 +175,54 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderStaff(){
-    const sems = currentSemis();
-    noteColors = sems.map(s => pitchColor((s + 3) % 12));
-    let colors;
-    if(colorNotes){
-      colors = noteColors.slice();
-    }else{
-      colors = noteColors.map((c,i)=> i===hoverIdx ? c : null);
+    const seq = snapshots.filter(s=>s);
+    if(!seq.length){
+      const sems=currentSemis();
+      noteColors=sems.map(s=>pitchColor((s+3)%12));
+      const colors=colorNotes?noteColors.slice():noteColors.map((c,i)=>i===hoverIdx?c:null);
+      const opts={scaleId:useKeySig?scale.id:'CROM',root:useKeySig?scale.root:0,chord:true,duration:'w',noteColors:colors};
+      const len=scaleSemis(scale.id).length;
+      const intervals=getIntervals();
+      if(colorIntervals){
+        opts.highlightIntervals=intervals.map((int,i)=>[i,i+1,intervalColor(int,len)]);
+      }else if(hoverIntervalIdx!==null){
+        const int=intervals[hoverIntervalIdx];
+        const col=intervalColor(int,len);
+        opts.highlightIntervals=[[hoverIntervalIdx,hoverIntervalIdx+1,col]];
+      }
+      drawPentagram(staffEl, diagMidis(), opts);
+      renderLegend();
+      return;
     }
-    const opts = {
-      scaleId: useKeySig ? scale.id : 'CROM',
-      root: useKeySig ? scale.root : 0,
-      chord: true,
-      duration: 'w',
-      noteColors: colors
-    };
-    const len = scaleSemis(scale.id).length;
-    const intervals = getIntervals();
-    if(colorIntervals){
-      opts.highlightIntervals = intervals.map((interval,i)=>[
-        i,
-        i+1,
-        intervalColor(interval, len)
-      ]);
-    } else if(hoverIntervalIdx !== null){
-      const interval = intervals[hoverIntervalIdx];
-      const color = intervalColor(interval, len);
-      opts.highlightIntervals = [[hoverIntervalIdx, hoverIntervalIdx+1, color]];
-    } else {
-      opts.highlightIntervals = [];
-    }
-    drawPentagram(staffEl, diagMidis(), opts);
+    staffEl.innerHTML='';
+    seq.forEach((snap,idx)=>{
+      const div=document.createElement('div');
+      div.style.display='inline-block';
+      const sems=snap.notes.map((d=>{
+        const semsArr=scaleSemis(snap.scale.id); const len=semsArr.length; return (semsArr[(d+snap.scale.rot)%len]+snap.scale.root)%12; }));
+      const midis=toAbsolute(sems, snap.baseMidi);
+      drawPentagram(div, midis, {scaleId:useKeySig?snap.scale.id:'CROM',root:useKeySig?snap.scale.root:0,chord:true,duration:'w'});
+      div.querySelector('svg').style.width='200px';
+      div.querySelector('svg').style.transform='scale(0.7)';
+      div.querySelector('svg').style.transformOrigin='top left';
+      div.onclick=async e=>{
+        await ensureAudio();
+        if(e.shiftKey){
+          playMelody(midis.slice().sort((a,b)=>a-b),60/150*(e.altKey?0.5:1));
+        }else playChord(midis,2);
+        if(recording && Date.now()-recordStart>=4*(60000/recordBpm)){
+          const beat=(Date.now()-recordStart)/(60000/recordBpm);
+          recorded.push({beat,notes:midis.slice(),melodic:e.shiftKey,fast:e.shiftKey&&e.altKey});
+        }
+      };
+      staffEl.appendChild(div);
+      if(idx<seq.length-1){
+        const spacer=document.createElement('span');
+        spacer.style.display='inline-block';
+        spacer.style.width='10px';
+        staffEl.appendChild(spacer);
+      }
+    });
     renderLegend();
   }
 
@@ -198,6 +238,55 @@ window.addEventListener('DOMContentLoaded', async () => {
       const txt = contrastColor(v.color);
       return `<span style="background:${v.color};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${v.label}</span>`;
     }).join(' ');
+  }
+
+  function renderSnapshots(){
+    snapWrap.innerHTML = '';
+    for(let i=0;i<10;i++){
+      const b = document.createElement('button');
+      b.textContent = String.fromCharCode(65+i);
+      b.classList.toggle('saved', !!snapshots[i]);
+      b.classList.toggle('active', activeSnapshot===i);
+      b.draggable = true;
+      b.ondragstart = e => { e.dataTransfer.setData('text/plain', i); };
+      b.ondragover = e => e.preventDefault();
+      b.ondrop = e => {
+        e.preventDefault();
+        const from = Number(e.dataTransfer.getData('text/plain'));
+        const to = i;
+        if(from===to) return;
+        const [moved] = snapshots.splice(from,1);
+        snapshots.splice(to,0,moved);
+        if(activeSnapshot===from) activeSnapshot=to;
+        else if(from<activeSnapshot && activeSnapshot<=to) activeSnapshot--;
+        else if(to<=activeSnapshot && activeSnapshot<from) activeSnapshot++;
+        localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
+        renderSnapshots();
+        renderStaff();
+      };
+      b.onclick = () => {
+        const data = loadSnapData(snapshots, i);
+        if(!data) return;
+        notes = data.notes.slice();
+        baseMidi = data.baseMidi;
+        baseSelect.value = String(baseMidi);
+        scale = {...data.scale};
+        scaleSel.value = scale.id;
+        rootSel.value = scale.root;
+        refreshRot();
+        rotSel.value = scale.rot;
+        octShifts = Array(notes.length).fill(0);
+        components = generateComponents(notes);
+        activeSnapshot = i;
+        renderAll();
+        renderSnapshots();
+      };
+      snapWrap.appendChild(b);
+      if(lastSaved===i){
+        b.classList.add('lp-complete');
+        setTimeout(()=>{ b.classList.remove('lp-complete'); lastSaved=null; },300);
+      }
+    }
   }
 
   function moveCards(indices, target){
@@ -385,6 +474,144 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderStaff();
   };
 
+  function stopPlayback(){
+    playTimers.forEach(clearTimeout);
+    playTimers = [];
+    playing = false;
+    playSeqBtn.textContent = 'Reproduir';
+  }
+
+  saveBtn.onclick = () => {
+    const freeIdx = snapshots.findIndex(s=>s===null);
+    if(activeSnapshot!==null){
+      const overwrite = freeIdx===-1 || confirm('Sobreescriure preset '+String.fromCharCode(65+activeSnapshot)+'? Cancel·la per guardar nou');
+      if(overwrite){
+        saveSnapData(snapshots, activeSnapshot, notes, baseMidi, scale);
+        lastSaved = activeSnapshot;
+      }else if(freeIdx!==-1){
+        saveSnapData(snapshots, freeIdx, notes, baseMidi, scale);
+        activeSnapshot = freeIdx;
+        lastSaved = freeIdx;
+      }
+    }else if(freeIdx!==-1){
+      saveSnapData(snapshots, freeIdx, notes, baseMidi, scale);
+      activeSnapshot = freeIdx;
+      lastSaved = freeIdx;
+    }else{
+      alert('No hi ha ranures lliures de preset.');
+      return;
+    }
+    localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
+    renderSnapshots();
+    renderStaff();
+  };
+
+  resetSnapsBtn.onclick = () => {
+    snapshots = resetSnapData();
+    activeSnapshot = null;
+    lastSaved = null;
+    localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
+    renderSnapshots();
+    renderStaff();
+  };
+
+  downloadSnapsBtn.onclick = () => {
+    Presets.exportPresets(snapshots, 'app6-presets.json');
+  };
+
+  uploadSnapsBtn.onclick = () => {
+    Presets.importPresets(snapsFileInput, data => {
+      snapshots = initSnapshots(data);
+      activeSnapshot = null;
+      localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
+      renderSnapshots();
+      renderStaff();
+    });
+  };
+
+  tapBtn.onclick = () => {
+    const now = Date.now();
+    if(taps.length && now - taps[taps.length-1] > 2000) taps=[];
+    taps.push(now);
+    if(taps.length>=3){
+      const diffs=taps.slice(1).map((t,i)=>t-taps[i]);
+      const bpm=60000/(diffs.reduce((a,b)=>a+b,0)/diffs.length);
+      bpmInput.value=bpm.toFixed(1);
+      taps=[];
+    }
+  };
+
+  recBtn.onclick = async () => {
+    await ensureAudio();
+    if(recording){
+      recording=false;
+      recBtn.textContent='Gravar';
+    }else{
+      recordBpm=parseFloat(bpmInput.value)||120;
+      recorded=[];
+      const interval=60000/recordBpm;
+      recordStart=Date.now();
+      for(let i=0;i<4;i++){
+        recorded.push({beat:i,notes:[84],melodic:false});
+        setTimeout(()=>playChord([84],60/recordBpm),i*interval);
+      }
+      recording=true;
+      recBtn.textContent='Atura';
+    }
+  };
+
+  playSeqBtn.onclick = async () => {
+    await ensureAudio();
+    if(playing){
+      stopPlayback();
+      return;
+    }
+    if(!recorded.length) return;
+    const bpm=parseFloat(bpmInput.value)||120;
+    playing=true;
+    playSeqBtn.textContent='Atura';
+    recorded.forEach(ev=>{
+      const t=ev.beat*60000/bpm;
+      const id=setTimeout(()=>{
+        const chordDur=4*(60/bpm);
+        const melodicDur=(60/bpm)*(ev.fast?0.5:1);
+        ev.melodic?playMelody(ev.notes,melodicDur):playChord(ev.notes,chordDur);
+      },t);
+      playTimers.push(id);
+    });
+    const last=recorded[recorded.length-1];
+    const end=last.beat*60000/bpm+2000;
+    playTimers.push(setTimeout(stopPlayback,end));
+  };
+
+  midiBtn.onclick = () => {
+    if(!recorded.length) return;
+    const midi=new Midi();
+    const bpm=parseFloat(bpmInput.value)||120;
+    midi.header.setTempo(bpm);
+    const ppq=480;
+    const track=midi.addTrack();
+    recorded.forEach(ev=>{
+      const baseTick=Math.round(ev.beat*ppq);
+      if(ev.melodic){
+        const step=ev.fast?ppq/2:ppq;
+        ev.notes.forEach((n,i)=>{
+          track.addNote({midi:n,ticks:baseTick+i*step,durationTicks:step});
+        });
+      }else{
+        ev.notes.forEach(n=>track.addNote({midi:n,ticks:baseTick,durationTicks:ppq}));
+      }
+    });
+    const blob=new Blob([midi.toArray()],{type:'audio/midi'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='sequence.mid';
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(a.href);
+    a.remove();
+  };
+
   staffEl.addEventListener('click', async e => {
     await ensureAudio();
     const midis = diagMidis();
@@ -393,6 +620,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       playMelody(midis.slice().sort((a,b)=>a-b), dur, 0);
     } else {
       playChord(midis, 2);
+    }
+    if(recording && Date.now()-recordStart >= 4*(60000/recordBpm)){
+      const beat=(Date.now()-recordStart)/(60000/recordBpm);
+      recorded.push({beat,notes:midis.slice(),melodic:e.shiftKey,fast:e.shiftKey&&e.altKey});
     }
   });
 
@@ -418,4 +649,5 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   renderAll();
   renderLegend();
+  renderSnapshots();
 });

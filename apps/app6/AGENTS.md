@@ -1,6 +1,7 @@
 # Instruccions de Codex
 
 Aquesta app comparteix la configuració amb l'arrel. Consulta l'arrel `AGENTS.md` per executar `setup.sh` i els tests. Aquesta app utilitza els mòduls compartits `libs/notation` i `shared/cards.js`.
+S'ha incorporat el mòdul de presets compartit (`shared/presets.js`) juntament amb un `snapshotUtils.js` propi per gestionar `app6Snapshots`.
 
 ## Tests
 Des del directori arrel executa:

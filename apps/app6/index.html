@@ -60,10 +60,36 @@
       <button id="redoBtn" title="Refer">&#8635;</button>
     </div>
     </div>
+    <div class="preset-row">
+      <button id="downloadSnaps" title="Descarrega presets">&#x2B07;</button>
+      <button id="uploadSnaps" title="Carrega presets">&#x2B06;</button>
+      <input type="file" id="snapsFile" accept="application/json" style="display:none">
+      <button id="resetSnaps" title="Reset presets">&times;</button>
+      <div id="snapshots" class="snapshots"></div>
+      <button id="saveBtn">Guardar</button>
+    </div>
+    <div class="rec-controls">
+      <label>BPM <input id="bpm" type="number" value="120"></label>
+      <button id="tapBtn">Tap</button>
+      <button id="recBtn">Gravar</button>
+      <button id="playSeq">Reproduir</button>
+      <button id="midiBtn">MIDI</button>
+    </div>
     <details id="legendWrap" open>
       <summary>Colores</summary>
       <div id="noteLegend"></div>
       <div id="intervalLegend"></div>
+    </details>
+    <details id="infoWrap">
+      <summary>Instruccions d'ús</summary>
+      <div class="card info">
+        <p><strong>Guardar presets:</strong> Fes clic a <em>Guardar</em> per desar l'acord actual al següent preset disponible (A-J). Pots arrossegar els botons per reordenar.</p>
+        <p><strong>Carregar/Sobreescriure:</strong> Clica un preset per carregar-lo. En prémer <em>Guardar</em> pots triar si sobrescriure'l o guardar-lo en un nou espai lliure.</p>
+        <p><strong>Exportar/Importar:</strong> Els botons ↓ i ↑ permeten descarregar tots els presets a fitxer o carregar-ne.</p>
+        <p><strong>Reproducció:</strong> Ajusta el tempo amb <em>BPM</em> o <em>Tap</em>. Prem <em>Gravar</em> per començar (conteig de 4) i clica els acords al pentagrama. Després usa <em>Reproduir</em> o <em>MIDI</em>.</p>
+        <p><strong>Arpegi:</strong> Shift+clic reprodueix l'acord com arpegi. Amb Alt+Shift sona més ràpid.</p>
+        <p><strong>Canvi d'armadura:</strong> En mode Armadura, una línia vertical indica un canvi de tonalitat entre presets.</p>
+      </div>
     </details>
     <div id="staff-area">
       <div id="staff"></div>
@@ -72,6 +98,9 @@
   </div>
   <script src="../app5/scripts/helpers.js"></script>
   <script src="../../libs/vendor/Tone.js"></script>
+  <script src="../../libs/vendor/Midi.js"></script>
+  <script src="../../shared/presets.js"></script>
+  <script src="./scripts/snapshotUtils.js"></script>
   <script type="module" src="./scripts/main.js"></script>
 </body>
 </html>
