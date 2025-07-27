@@ -43,6 +43,13 @@
     </div>
   </div>
   <div id="main-area">
+    <div class="rec-controls">
+      <label>BPM <input id="bpm" type="number" value="120"></label>
+      <button id="tapBtn">Tap</button>
+      <button id="recBtn">Gravar</button>
+      <button id="playSeq">Reproduir</button>
+      <button id="midiBtn">MIDI</button>
+    </div>
     <div id="components-area">
     <div id="components-row">
       <button id="rotLeft" title="Rotar esquerra">&#x25C0;</button>
@@ -68,12 +75,11 @@
       <div id="snapshots" class="snapshots"></div>
       <button id="saveBtn">Guardar</button>
     </div>
-    <div class="rec-controls">
-      <label>BPM <input id="bpm" type="number" value="120"></label>
-      <button id="tapBtn">Tap</button>
-      <button id="recBtn">Gravar</button>
-      <button id="playSeq">Reproduir</button>
-      <button id="midiBtn">MIDI</button>
+    <div id="staff-area">
+      <div id="staff"></div>
+      <div id="seqContainer">
+        <div id="seqStaff" class="seq-staff"></div>
+      </div>
     </div>
     <details id="legendWrap" open>
       <summary>Colores</summary>
@@ -91,12 +97,6 @@
         <p><strong>Canvi d'armadura:</strong> En mode Armadura, una línia vertical indica un canvi de tonalitat entre presets.</p>
       </div>
     </details>
-    <div id="staff-area">
-      <div id="staff"></div>
-      <div id="seqContainer">
-        <div id="seqStaff" class="seq-staff"></div>
-      </div>
-    </div>
   </div>
   </div>
   <script src="../app5/scripts/helpers.js"></script>
