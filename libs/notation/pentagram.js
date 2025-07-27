@@ -110,6 +110,7 @@ export function drawPentagram(container, midis = [], options = {}) {
       if (need) note.addModifier(new Accidental(parts.accidental), 0);
       const color = noteColors[idx];
       if (color) note.setStyle({ fillStyle: color, strokeStyle: '#000' });
+      byClef[clef].push({ parts, idx });
       const target = clef === 'treble' ? trebleVoice : bassVoice;
       const other = clef === 'treble' ? bassVoice : trebleVoice;
       target.addTickable(note);
