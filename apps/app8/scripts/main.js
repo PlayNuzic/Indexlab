@@ -143,16 +143,6 @@ function showAvatarChooser(cb){
   sel.style.display='flex';
 }
 
-async function startGame(level = 1){
-  nextMode = 'iA';
-  game.start('iS', level);
-  const avatar=prompt('Avatar (1-5)?','1');
-  profiles[idx]={id:idx,name,avatar:`avatar${avatar||1}.png`,level:1};
-  saveProfiles();
-  renderProfiles();
-  selectProfile(idx);
-}
-
 async function startGame(level = 1, opts = {}){
   nextMode = 'iA';
   if(opts.practice){
