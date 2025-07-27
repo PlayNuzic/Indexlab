@@ -261,10 +261,11 @@ function submitAnswer(value){
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${game.mode}(${game.currentInterval})`;
     const notationEl = document.getElementById('notation');
     const color = intervalColor(game.currentInterval);
+    const highlight = [[0,1,color]];
     drawPentagram(notationEl, [game.note1, game.note2], {
       chord: game.mode==='iA',
       duration: game.mode==='iA' ? 'h' : 'q',
-      highlightIntervals:[[0,1,color]],
+      highlightIntervals: highlight,
       noteColors:[],
       scaleId:'CROM',
       root:0

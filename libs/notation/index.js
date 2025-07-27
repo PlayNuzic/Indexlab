@@ -177,4 +177,4 @@ export function drawKeySignature(container, scaleId, root){
 }
 
 export * from './helpers.js';
-export { drawPentagram } from './pentagram.js';
+export { drawPentagram, drawIntervalEllipse } from './pentagram.js';

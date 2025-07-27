@@ -3,6 +3,27 @@ import { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, StaveConnecto
 import { midiToParts, midiToPartsByKeySig, midiSequenceToChromaticParts, applyKeySignature, parseKeySignatureArray, letterToPc } from './helpers.js';
 import { getKeySignature } from '../../shared/scales.js';
 
+export function drawIntervalEllipse(svg, p1, p2, color){
+  const yTop = Math.min(p1.y, p2.y);
+  const yBot = Math.max(p1.y, p2.y);
+  const xLeft = Math.min(p1.x, p2.x);
+  const dx = Math.abs(p1.x - p2.x);
+  const width = dx + Math.max(p1.w, p2.w);
+  const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+  const cx = xLeft + width / 2;
+  const cy = (yTop + yBot) / 2;
+  const rx = (width + 6) / 2;
+  const ry = (yBot - yTop) / 2 + 3;
+  ell.setAttribute('cx', cx);
+  ell.setAttribute('cy', cy);
+  ell.setAttribute('rx', rx);
+  ell.setAttribute('ry', ry);
+  ell.setAttribute('fill', color);
+  ell.setAttribute('stroke', color);
+  ell.setAttribute('pointer-events', 'none');
+  svg.prepend(ell);
+}
+
 export function needsAccidental(parts, ksMap){
   if(!parts.accidental) return false;
   const basePc = letterToPc[parts.key[0]];
@@ -132,23 +153,7 @@ export function drawPentagram(container, midis = [], options = {}) {
           const p1 = getPos(i1);
           const p2 = getPos(i2);
           if(!p1 || !p2) return;
-          const yTop = Math.min(p1.y,p2.y);
-          const yBot = Math.max(p1.y,p2.y);
-          const x = Math.min(p1.x,p2.x);
-          const w = Math.max(p1.w,p2.w);
-          const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-          const cx = x + w / 2;
-          const cy = (yTop + yBot) / 2;
-          const rx = (w + 6) / 2;
-          const ry = (yBot - yTop) / 2 + 3;
-          ell.setAttribute('cx', cx);
-          ell.setAttribute('cy', cy);
-          ell.setAttribute('rx', rx);
-          ell.setAttribute('ry', ry);
-          ell.setAttribute('fill', color);
-          ell.setAttribute('stroke', color);
-          ell.setAttribute('pointer-events', 'none');
-          svg.prepend(ell);
+          drawIntervalEllipse(svg, p1, p2, color);
         });
       }
     }
