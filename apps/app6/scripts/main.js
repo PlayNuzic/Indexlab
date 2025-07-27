@@ -52,6 +52,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let taps = [];
 
   const staffEl = document.getElementById('staff');
+  const seqStaffEl = document.getElementById('seqStaff');
   const scaleSel = document.getElementById('scaleSel');
   const rotSel = document.getElementById('rotSel');
   const rootSel = document.getElementById('rootSel');
@@ -176,25 +177,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderStaff(){
     const seq = snapshots.filter(s=>s);
-    if(!seq.length){
-      const sems=currentSemis();
-      noteColors=sems.map(s=>pitchColor((s+3)%12));
-      const colors=colorNotes?noteColors.slice():noteColors.map((c,i)=>i===hoverIdx?c:null);
-      const opts={scaleId:useKeySig?scale.id:'CROM',root:useKeySig?scale.root:0,chord:true,duration:'w',noteColors:colors};
-      const len=scaleSemis(scale.id).length;
-      const intervals=getIntervals();
-      if(colorIntervals){
-        opts.highlightIntervals=intervals.map((int,i)=>[i,i+1,intervalColor(int,len)]);
-      }else if(hoverIntervalIdx!==null){
-        const int=intervals[hoverIntervalIdx];
-        const col=intervalColor(int,len);
-        opts.highlightIntervals=[[hoverIntervalIdx,hoverIntervalIdx+1,col]];
-      }
-      drawPentagram(staffEl, diagMidis(), opts);
-      renderLegend();
-      return;
+    const sems=currentSemis();
+    noteColors=sems.map(s=>pitchColor((s+3)%12));
+    const colors=colorNotes?noteColors.slice():noteColors.map((c,i)=>i===hoverIdx?c:null);
+    const opts={scaleId:useKeySig?scale.id:'CROM',root:useKeySig?scale.root:0,chord:true,duration:'w',noteColors:colors};
+    const len=scaleSemis(scale.id).length;
+    const intervals=getIntervals();
+    if(colorIntervals){
+      opts.highlightIntervals=intervals.map((int,i)=>[i,i+1,intervalColor(int,len)]);
+    }else if(hoverIntervalIdx!==null){
+      const int=intervals[hoverIntervalIdx];
+      const col=intervalColor(int,len);
+      opts.highlightIntervals=[[hoverIntervalIdx,hoverIntervalIdx+1,col]];
     }
-    staffEl.innerHTML='';
+    drawPentagram(staffEl, diagMidis(), opts);
+    seqStaffEl.innerHTML='';
     seq.forEach((snap,idx)=>{
       const div=document.createElement('div');
       div.style.display='inline-block';
@@ -215,12 +212,12 @@ window.addEventListener('DOMContentLoaded', async () => {
           recorded.push({beat,notes:midis.slice(),melodic:e.shiftKey,fast:e.shiftKey&&e.altKey});
         }
       };
-      staffEl.appendChild(div);
+      seqStaffEl.appendChild(div);
       if(idx<seq.length-1){
         const spacer=document.createElement('span');
         spacer.style.display='inline-block';
         spacer.style.width='10px';
-        staffEl.appendChild(spacer);
+        seqStaffEl.appendChild(spacer);
       }
     });
     renderLegend();
@@ -585,22 +582,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
 
   midiBtn.onclick = () => {
-    if(!recorded.length) return;
-    const midi=new Midi();
-    const bpm=parseFloat(bpmInput.value)||120;
+    const seq = snapshots.filter(s=>s);
+    if(!seq.length) return;
+    const midi = new Midi();
+    const bpm = parseFloat(bpmInput.value)||120;
     midi.header.setTempo(bpm);
-    const ppq=480;
-    const track=midi.addTrack();
-    recorded.forEach(ev=>{
-      const baseTick=Math.round(ev.beat*ppq);
-      if(ev.melodic){
-        const step=ev.fast?ppq/2:ppq;
-        ev.notes.forEach((n,i)=>{
-          track.addNote({midi:n,ticks:baseTick+i*step,durationTicks:step});
-        });
-      }else{
-        ev.notes.forEach(n=>track.addNote({midi:n,ticks:baseTick,durationTicks:ppq}));
-      }
+    const ppq = 480;
+    const track = midi.addTrack();
+    seq.forEach((snap,idx)=>{
+      const sems=snap.notes.map(d=>{
+        const arr=scaleSemis(snap.scale.id); const len=arr.length; return (arr[(d+snap.scale.rot)%len]+snap.scale.root)%12;});
+      const mids=toAbsolute(sems,snap.baseMidi);
+      const tick=idx*ppq*4;
+      mids.forEach(n=>track.addNote({midi:n,ticks:tick,durationTicks:ppq*4}));
     });
     const blob=new Blob([midi.toArray()],{type:'audio/midi'});
     const a=document.createElement('a');
