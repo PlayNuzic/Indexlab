@@ -407,6 +407,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     notes = mode==='eA' ? eAToNotes(nums, len) : nums.map(n=>((n%len)+len)%len);
     octShifts = Array(notes.length).fill(0);
     components = generateComponents(notes);
+    activeSnapshot = null;
+    lastSaved = null;
     renderAll();
   };
 

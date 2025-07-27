@@ -17,8 +17,14 @@ h1{margin-bottom:1rem;color:#fff;}
   gap:1.5rem;
   width:100%;
 }
-#staff-area{display:flex;flex-direction:column;align-items:center;gap:.3rem;position:relative;}
+#staff-area{display:flex;flex-direction:row;align-items:flex-start;gap:.3rem;position:relative;}
+#seqContainer{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:500px;height:425px;}
 #seqStaff{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+.seq-staff svg{
+  background:#fff;
+  border-radius:8px;
+  padding:.3rem;
+}
 .tabs{display:flex;gap:.5rem;}
 .tabs button{padding:.4rem 1rem;border:none;border-radius:4px;background:#444;color:#fff;cursor:pointer;}
 .tabs button.active{background:var(--accent);color:#222;}
