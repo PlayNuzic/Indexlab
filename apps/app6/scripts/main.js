@@ -293,7 +293,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         renderSnapshots();
         renderStaff();
       };
-      b.onclick = () => {
+      b.onclick = async () => {
         const data = loadSnapData(snapshots, i);
         if(!data) return;
         notes = data.notes.slice();
@@ -309,6 +309,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         activeSnapshot = i;
         renderAll();
         renderSnapshots();
+        await ensureAudio();
+        playChord(diagMidis(), 2);
       };
       snapWrap.appendChild(b);
       if(lastSaved===i){
