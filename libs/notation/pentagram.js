@@ -69,8 +69,6 @@ export function drawPentagram(container, midis = [], options = {}) {
   const noKsIds = ['CROM','OCT','HEX','TON'];
   const useKs = !noKsIds.includes(normScaleId);
   let byClef = { treble: [], bass: [] };
-  let trebleNoteObj = null;
-  let bassNoteObj = null;
   if (chord) {
     let partsSeq;
     if(useKs){
@@ -96,9 +94,11 @@ export function drawPentagram(container, midis = [], options = {}) {
         if (need) note.addModifier(new Accidental(p.accidental), i);
         const color = noteColors[obj.idx];
         if (color) note.setKeyStyle(i, { fillStyle: color, strokeStyle: '#000' });
+        obj.note = note;
+        obj.keyIndex = i;
       });
-      if(clef === 'treble'){ trebleNoteObj = note; trebleVoice.addTickable(note); }
-      else { bassNoteObj = note; bassVoice.addTickable(note); }
+      if(clef === 'treble'){ trebleVoice.addTickable(note); }
+      else { bassVoice.addTickable(note); }
     });
   } else {
     const partsSeq = useKs ? null : midiSequenceToChromaticParts(midis);
@@ -110,7 +110,7 @@ export function drawPentagram(container, midis = [], options = {}) {
       if (need) note.addModifier(new Accidental(parts.accidental), 0);
       const color = noteColors[idx];
       if (color) note.setStyle({ fillStyle: color, strokeStyle: '#000' });
-      byClef[clef].push({ parts, idx });
+      byClef[clef].push({ parts, idx, note, keyIndex: 0 });
       const target = clef === 'treble' ? trebleVoice : bassVoice;
       const other = clef === 'treble' ? bassVoice : trebleVoice;
       target.addTickable(note);
@@ -132,31 +132,29 @@ export function drawPentagram(container, midis = [], options = {}) {
     if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
     if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
 
-    if(trebleNoteObj || bassNoteObj){
-      const svg = container.querySelector('svg');
-      const getPos = idx => {
-        let pos = byClef.treble.findIndex(o=>o.idx===idx);
-        if(pos!==-1 && trebleNoteObj){
-          return { y: trebleNoteObj.getYs()[pos], x: trebleNoteObj.getAbsoluteX(), w: trebleNoteObj.getWidth() };
-        }
-        pos = byClef.bass.findIndex(o=>o.idx===idx);
-        if(pos!==-1 && bassNoteObj){
-          return { y: bassNoteObj.getYs()[pos], x: bassNoteObj.getAbsoluteX(), w: bassNoteObj.getWidth() };
-        }
-        return null;
-      };
-
-      if(svg){
-        const list = [];
-        if(highlightInterval) list.push(highlightInterval);
-        list.push(...highlightIntervals);
-        list.forEach(([i1,i2,color]) => {
-          const p1 = getPos(i1);
-          const p2 = getPos(i2);
-          if(!p1 || !p2) return;
-          drawIntervalEllipse(svg, p1, p2, color);
-        });
+    const svg = container.querySelector('svg');
+    const getPos = idx => {
+      let obj = byClef.treble.find(o => o.idx === idx);
+      if(obj && obj.note){
+        return { y: obj.note.getYs()[obj.keyIndex], x: obj.note.getAbsoluteX(), w: obj.note.getWidth() };
       }
+      obj = byClef.bass.find(o => o.idx === idx);
+      if(obj && obj.note){
+        return { y: obj.note.getYs()[obj.keyIndex], x: obj.note.getAbsoluteX(), w: obj.note.getWidth() };
+      }
+      return null;
+    };
+
+    if(svg){
+      const list = [];
+      if(highlightInterval) list.push(highlightInterval);
+      list.push(...highlightIntervals);
+      list.forEach(([i1,i2,color]) => {
+        const p1 = getPos(i1);
+        const p2 = getPos(i2);
+        if(!p1 || !p2) return;
+        drawIntervalEllipse(svg, p1, p2, color);
+      });
     }
   }
   }
