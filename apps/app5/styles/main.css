@@ -51,6 +51,7 @@ button#generate:hover{background:#e6a12b;}
   position:relative;
   width:400px;
   z-index:20;
+  user-select:none;
 }
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}

@@ -195,6 +195,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     seq.forEach((snap,idx)=>{
       const div=document.createElement('div');
       div.style.display='inline-block';
+      div.draggable = true;
+      div.ondragstart = e => { e.dataTransfer.setData('text/plain', idx); };
+      div.ondragover = e => e.preventDefault();
+      div.ondrop = e => {
+        e.preventDefault();
+        const from = Number(e.dataTransfer.getData('text/plain'));
+        const to = idx;
+        if(from===to) return;
+        const [moved] = snapshots.splice(from,1);
+        snapshots.splice(to,0,moved);
+        if(activeSnapshot===from) activeSnapshot=to;
+        else if(from<activeSnapshot && activeSnapshot<=to) activeSnapshot--;
+        else if(to<=activeSnapshot && activeSnapshot<from) activeSnapshot++;
+        localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
+        renderSnapshots();
+        renderStaff();
+      };
       const sems=snap.notes.map((d=>{
         const semsArr=scaleSemis(snap.scale.id); const len=semsArr.length; return (semsArr[(d+snap.scale.rot)%len]+snap.scale.root)%12; }));
       const midis=toAbsolute(sems, snap.baseMidi);
@@ -220,6 +237,21 @@ window.addEventListener('DOMContentLoaded', async () => {
         seqStaffEl.appendChild(spacer);
       }
     });
+    seqStaffEl.ondragover = e => e.preventDefault();
+    seqStaffEl.ondrop = e => {
+      e.preventDefault();
+      const from = Number(e.dataTransfer.getData('text/plain'));
+      const to = seq.length;
+      if(from===to) return;
+      const [moved] = snapshots.splice(from,1);
+      snapshots.splice(to,0,moved);
+      if(activeSnapshot===from) activeSnapshot=to;
+      else if(from<activeSnapshot && activeSnapshot<=to) activeSnapshot--;
+      else if(to<=activeSnapshot && activeSnapshot<from) activeSnapshot++;
+      localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
+      renderSnapshots();
+      renderStaff();
+    };
     renderLegend();
   }
 
