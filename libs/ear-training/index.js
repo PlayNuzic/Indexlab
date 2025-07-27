@@ -35,7 +35,13 @@ class EarTrainingGame {
     if (this.mode === 'iS') {
       opts = [...opts, ...opts.filter(n => n !== 0).map(n => -n)];
     }
-    this.currentInterval = opts[this.randInt(0, opts.length - 1)];
+    const weighted = [];
+    opts.forEach(i => {
+      const abs = Math.abs(i);
+      const w = abs === 0 || abs === 12 ? 1 : 4;
+      for(let j=0;j<w;j++) weighted.push(i);
+    });
+    this.currentInterval = weighted[this.randInt(0, weighted.length - 1)];
     this.note1 = 60 + this.randInt(0, 11);
     this.note2 = this.note1 + this.currentInterval;
   }
@@ -67,9 +73,9 @@ class EarTrainingGame {
       this.repeat = false;
       return { correct: true, levelUp };
     }
-    this.wrongLevel++;
-    this.wrongTotal++;
     if (!this.repeat) {
+      this.wrongLevel++;
+      this.wrongTotal++;
       this.repeat = true;
       return { correct: false, retry: true };
     }

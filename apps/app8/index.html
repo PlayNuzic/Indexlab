@@ -16,6 +16,7 @@
     <div id="profiles" class="profiles"></div>
     <button id="clearProfiles" class="small">Esborra perfils</button>
     <button id="editProfile" class="small">Edita perfil</button>
+    <button id="showStats" class="small">Estadístiques</button>
     <ul id="levelInfo" style="list-style:none;padding:0;margin:.5rem 0;">
       <li class="line">
         <button data-level="1">1. Intervals dissonants (iS 1 y 2)</button>
@@ -68,10 +69,23 @@
     </div>
     <button id="backBtnSummary" class="small">&larr; Torna al menú</button>
   </section>
+  <div id="practicePopup" class="modal" style="display:none">
+    <h2>Nivell de pràctica superat!</h2>
+    <p id="practiceStats"></p>
+    <div class="summary-buttons">
+      <button id="practiceNext">Siguiente nivell</button>
+      <button id="practiceMenu">Menú</button>
+    </div>
+  </div>
 
   <div id="avatarSelector" class="modal" style="display:none">
     <h2>Escull avatar</h2>
     <div class="avatar-list"></div>
+  </div>
+  <div id="statsPopup" class="modal" style="display:none">
+    <h2>Dades del perfil</h2>
+    <pre id="statsContent"></pre>
+    <button id="closeStats" class="small">Tancar</button>
   </div>
   <script src="../../libs/vendor/Tone.js"></script>
   <script type="module" src="./scripts/main.js"></script>

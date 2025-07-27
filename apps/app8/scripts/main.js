@@ -200,6 +200,31 @@ document.querySelectorAll('#levelInfo button').forEach(btn=>{
 });
 
 renderProfiles();
+document.getElementById('showStats').onclick=()=>{
+  if(!currentProfile) return;
+  const pre=document.getElementById('statsContent');
+  pre.textContent=JSON.stringify(currentProfile,null,2);
+  document.getElementById('statsPopup').style.display='flex';
+};
+document.getElementById('closeStats').onclick=()=>{
+  document.getElementById('statsPopup').style.display='none';
+};
+document.getElementById('practiceNext').onclick=()=>{
+  const lvl = practiceInfo ? practiceInfo.baseLevel : game.level;
+  practiceInfo = null;
+  document.getElementById('practicePopup').style.display='none';
+  startGame(lvl);
+};
+document.getElementById('practiceMenu').onclick=()=>{
+  const lvl = practiceInfo ? practiceInfo.baseLevel : game.level;
+  practiceInfo = null;
+  document.getElementById('practicePopup').style.display='none';
+  document.getElementById('game').style.display='none';
+  document.getElementById('welcome').style.display='block';
+  renderProfiles();
+  updateLevelButtons();
+  updateProfileButtons();
+};
 
 function playNotes(){
   if(game.mode==='iS'){
@@ -238,6 +263,7 @@ function submitAnswer(value){
       chord: game.mode==='iA',
       duration: game.mode==='iA' ? 'h' : 'q',
       highlightIntervals:[[0,1,color]],
+      noteColors:[color,color],
       scaleId:'CROM',
       root:0
     });
@@ -262,15 +288,12 @@ function submitAnswer(value){
     }else{
       document.getElementById('feedback').textContent=`\u274C Era ${game.mode}(${game.currentInterval})`;
       const notationEl = document.getElementById('notation');
+      notationEl.innerHTML='';
       const color = intervalColor(game.currentInterval);
-      drawPentagram(notationEl, [game.note1, game.note2], {
-        chord: game.mode==='iA',
-        duration: game.mode==='iA' ? 'h' : 'q',
-        highlightIntervals:[[0,1,color]],
-        noteColors:['transparent','transparent'],
-        scaleId:'CROM',
-        root:0
-      });
+      const ball=document.createElement('div');
+      ball.className='fail-ball';
+      ball.style.background=color;
+      notationEl.appendChild(ball);
       consecutiveWins=0; consecutiveFails++;
       if(consecutiveFails>=3) showAvatarMessage('No et rendeixis!');
       setTimeout(nextMixedQuestion,1000);
@@ -280,10 +303,10 @@ function submitAnswer(value){
 
 function showSummary(){
   if(practiceInfo){
-    showAvatarMessage('Has millorat aquests intervals!');
-    const back = practiceInfo.baseLevel;
-    practiceInfo = null;
-    setTimeout(()=>startGame(back), 1000);
+    const stats = `Encerts: ${game.correctLevel} · Errors: ${game.wrongLevel}`;
+    document.getElementById('practiceStats').textContent = stats;
+    document.getElementById('game').style.display='none';
+    document.getElementById('practicePopup').style.display='flex';
     return;
   }
   document.getElementById("game").style.display="none";
