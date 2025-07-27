@@ -78,18 +78,30 @@ button#generate:hover{background:#e6a12b;}
 #legendWrap{
   width:100%;
   margin:0;
+  align-self:flex-start;
+  text-align:left;
 }
 #legendWrap summary{
   cursor:pointer;
   margin-bottom:.2rem;
   width:100%;
-  text-align:center;
+  text-align:left;
+}
+#infoWrap summary{
+  cursor:pointer;
+  margin-bottom:.2rem;
+  width:100%;
+  text-align:left;
 }
 #noteLegend,#intervalLegend{
   display:flex;
   flex-wrap:wrap;
-  justify-content:center;
+  justify-content:flex-start;
   gap:.3rem;
+}
+#infoWrap{
+  align-self:flex-start;
+  text-align:left;
 }
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}
@@ -150,6 +162,7 @@ button#generate:hover{background:#e6a12b;}
   margin-top:1rem;
   width:100%;
   max-width:none;
+  text-align:left;
 }
 .card.info[hidden]{
   display:none;
