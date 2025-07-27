@@ -25,6 +25,8 @@ let currentProfile = null;
 let nextMode = 'iA';
 let consecutiveFails = 0;
 let consecutiveWins = 0;
+let practiceInfo = null;
+let practiceIntervals = [];
 
 function saveProfiles(){
   localStorage.setItem('profiles', JSON.stringify(profiles));
@@ -144,6 +146,27 @@ function showAvatarChooser(cb){
 async function startGame(level = 1){
   nextMode = 'iA';
   game.start('iS', level);
+  const avatar=prompt('Avatar (1-5)?','1');
+  profiles[idx]={id:idx,name,avatar:`avatar${avatar||1}.png`,level:1};
+  saveProfiles();
+  renderProfiles();
+  selectProfile(idx);
+}
+
+async function startGame(level = 1, opts = {}){
+  nextMode = 'iA';
+  if(opts.practice){
+    practiceInfo = { baseLevel: level };
+    const set = opts.intervals || [];
+    practiceIntervals = set;
+    game.intervals[0] = [...set, 0, 12];
+    game.requiredToLevelUp = set.length || 1;
+    game.start('iS', 0);
+  }else{
+    practiceInfo = null;
+    game.requiredToLevelUp = 5;
+    game.start('iS', level);
+  }
   document.getElementById('welcome').style.display='none';
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
@@ -162,6 +185,9 @@ document.getElementById('advanceLevel').onclick=()=>{
 
 document.getElementById('repeatLevel').onclick=()=>{
   resetForNextLevel();
+};
+document.getElementById('practiceLevel').onclick=()=>{
+  startGame(game.level, { practice: true, intervals: practiceIntervals });
 };
 document.getElementById('instrument').onchange=async e=>{
   await loadInstrument(e.target.value);
@@ -204,7 +230,8 @@ function nextMixedQuestion(){
   }
   playNotes();
   const q = { question: game.question, level: game.level };
-  document.getElementById('question').textContent=`Pregunta ${q.question} · Nivell ${q.level} – ${levelNames[q.level]}`;
+  const levelLabel = practiceInfo ? `Nivell ${practiceInfo.baseLevel} - Pr\u00e0ctica` : `Nivell ${q.level}`;
+  document.getElementById('question').textContent=`Pregunta ${q.question} · ${levelLabel} – ${levelNames[q.level]}`;
   document.getElementById('feedback').textContent='';
   document.getElementById('notation').innerHTML='';
   initButtons();
@@ -262,6 +289,13 @@ function submitAnswer(value){
 }
 
 function showSummary(){
+  if(practiceInfo){
+    showAvatarMessage('Has millorat aquests intervals!');
+    const back = practiceInfo.baseLevel;
+    practiceInfo = null;
+    setTimeout(()=>startGame(back), 1000);
+    return;
+  }
   document.getElementById("game").style.display="none";
   const total = game.correctLevel + game.wrongLevel;
   const percent = total ? Math.round(game.correctLevel*100/total) : 0;
@@ -275,6 +309,9 @@ function showSummary(){
     if(!grouped[key]) grouped[key]={ok:0, fail:0};
     if(a.correct) grouped[key].ok++; else grouped[key].fail++;
   });
+  const failedIntervals = Object.keys(grouped)
+    .filter(k => grouped[k].fail > 0)
+    .map(k => parseInt(k.match(/\(([-\d]+)\)/)[1]));
   Object.keys(grouped)
     .sort((a,b)=>{
       const ai=parseInt(a.match(/\(([-\d]+)\)/)[1]);
@@ -297,6 +334,13 @@ function showSummary(){
       list.appendChild(li);
     });
   document.getElementById("summary").style.display="block";
+  const practiceBtn = document.getElementById('practiceLevel');
+  if(percent < 50 && failedIntervals.length){
+    practiceIntervals = failedIntervals;
+    practiceBtn.style.display = 'inline-block';
+  }else{
+    practiceBtn.style.display = 'none';
+  }
   if(currentProfile && currentProfile.level<=game.level){
     currentProfile.level = game.level+1;
     profiles[currentProfile.id]=currentProfile;
