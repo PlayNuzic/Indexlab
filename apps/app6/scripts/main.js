@@ -304,8 +304,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         rootSel.value = scale.root;
         refreshRot();
         rotSel.value = scale.rot;
-        octShifts = Array(notes.length).fill(0);
-        components = generateComponents(notes);
+        octShifts = data.octShifts ? data.octShifts.slice() : Array(notes.length).fill(0);
+        components = data.components ? data.components.slice() : generateComponents(notes);
         activeSnapshot = i;
         renderAll();
         renderSnapshots();
@@ -517,15 +517,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(activeSnapshot!==null){
       const overwrite = freeIdx===-1 || confirm('Sobreescriure preset '+String.fromCharCode(65+activeSnapshot)+'? Cancel·la per guardar nou');
       if(overwrite){
-        saveSnapData(snapshots, activeSnapshot, notes, baseMidi, scale);
+        saveSnapData(snapshots, activeSnapshot, notes, baseMidi, scale, octShifts, components);
         lastSaved = activeSnapshot;
       }else if(freeIdx!==-1){
-        saveSnapData(snapshots, freeIdx, notes, baseMidi, scale);
+        saveSnapData(snapshots, freeIdx, notes, baseMidi, scale, octShifts, components);
         activeSnapshot = freeIdx;
         lastSaved = freeIdx;
       }
     }else if(freeIdx!==-1){
-      saveSnapData(snapshots, freeIdx, notes, baseMidi, scale);
+      saveSnapData(snapshots, freeIdx, notes, baseMidi, scale, octShifts, components);
       activeSnapshot = freeIdx;
       lastSaved = freeIdx;
     }else{
