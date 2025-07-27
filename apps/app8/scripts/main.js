@@ -110,6 +110,7 @@ function selectProfile(idx){
     });
     updateLevelButtons();
     updateProfileButtons();
+    setAvatar();
   }else{
     createProfile(idx);
   }
@@ -160,6 +161,7 @@ async function startGame(level = 1, opts = {}){
   document.getElementById('welcome').style.display='none';
   document.getElementById('summary').style.display='none';
   document.getElementById('game').style.display='block';
+  setAvatar();
   initButtons();
   await loadInstrument(document.getElementById('instrument').value || 'piano');
   updateScore();
@@ -263,7 +265,7 @@ function submitAnswer(value){
       chord: game.mode==='iA',
       duration: game.mode==='iA' ? 'h' : 'q',
       highlightIntervals:[[0,1,color]],
-      noteColors:[color,color],
+      noteColors:[],
       scaleId:'CROM',
       root:0
     });
@@ -408,6 +410,12 @@ function resetForNextLevel(){
   initButtons();
   updateScore();
   nextMixedQuestion();
+}
+
+function setAvatar(){
+  if(currentProfile){
+    document.getElementById('avatarImg').src = `./assets/avatars/${currentProfile.avatar}`;
+  }
 }
 
 function showAvatarMessage(text){
