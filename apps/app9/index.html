@@ -46,7 +46,19 @@
   <div id="main-area">
     <div id="components-area">
     <div id="components-row">
+      <button id="rotLeft" title="Rotar esquerra">&#x25C0;</button>
       <div id="components-wrap"></div>
+      <button id="rotRight" title="Rotar dreta">&#x25B6;</button>
+      <div id="transp-controls">
+        <button id="globUp" title="Transposa amunt">&#9650;</button>
+        <button id="globDown" title="Transposa avall">&#9660;</button>
+      </div>
+    </div>
+    <div id="comp-actions">
+      <button id="dupBtn">Duplicar</button>
+      <button id="reduceBtn">Reducir</button>
+      <button id="undoBtn" title="Desfer">&#8634;</button>
+      <button id="redoBtn" title="Refer">&#8635;</button>
     </div>
     </div>
     <div id="voicing-box">
@@ -56,6 +68,7 @@
           <option value="perm">Permutaci&oacute;</option>
         </select>
       </label>
+      <label><input type="checkbox" id="toggleMini" checked> Mostrar</label>
       <div id="miniWrap" class="seq-staff"></div>
     </div>
     <div class="preset-row">

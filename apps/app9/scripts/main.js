@@ -2,12 +2,14 @@ import { init as initCards } from '../../../libs/cards/index.js';
 import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init as initSound, playChord } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
-import { generateRotationVoicings, generatePermutationVoicings, eAToNotes } from '../../../shared/cards.js';
+import { generateRotationVoicings, generatePermutationVoicings, eAToNotes,
+  transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
+  duplicateCards, omitCards, generateComponents } from '../../../shared/cards.js';
 import { findChordRoot } from '../../../shared/hindemith.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
   await initSound('piano');
-  const { parseNums, eAToNotes: eaToNotes, toAbsolute } = window.Helpers;
+  const { parseNums, eAToNotes: eaToNotes, notesToEA, notesToAc, toAbsolute } = window.Helpers;
 
   const scaleSel = document.getElementById('scaleSel');
   const rotSel = document.getElementById('rotSel');
@@ -20,6 +22,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const cardsWrap = document.getElementById('components-wrap');
   const voicingModeSel = document.getElementById('voicingMode');
   const miniWrap = document.getElementById('miniWrap');
+  const toggleMini = document.getElementById('toggleMini');
   const staffEl = document.getElementById('staff');
   const snapshotsEl = document.getElementById('snapshots');
   const saveBtn = document.getElementById('saveBtn');
@@ -34,6 +37,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rootInfo = document.getElementById('rootInfo');
   const rootClose = document.getElementById('rootClose');
   const rootContent = document.getElementById('rootContent');
+  const rotLeft = document.getElementById('rotLeft');
+  const rotRight = document.getElementById('rotRight');
+  const globUp = document.getElementById('globUp');
+  const globDown = document.getElementById('globDown');
+  const dupBtn = document.getElementById('dupBtn');
+  const reduceBtn = document.getElementById('reduceBtn');
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  const transposeControls = document.getElementById('transposeControls');
+  const transposeUp = document.getElementById('transposeUp');
+  const transposeDown = document.getElementById('transposeDown');
 
   let mode = 'eA';
   let scale = { id: 'DIAT', rot: 0, root: 0 };
@@ -45,9 +59,33 @@ window.addEventListener('DOMContentLoaded', async () => {
   let flashTimer = null;
   let snapshots = window.SnapUtils.initSnapshots(JSON.parse(localStorage.getItem('app9Snapshots')||'null'));
   let activeSnapshot = null;
-  let cardsApi = initCards(cardsWrap, { notes, scaleLen: scaleSemis(scale.id).length });
+  let cardsApi = initCards(cardsWrap, { notes, scaleLen: scaleSemis(scale.id).length, showIntervals:true });
+  let undoStack=[];
+  let redoStack=[];
+  let lastSaved=null;
 
   const enNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  function pushUndo(){
+    undoStack.push(notes.slice());
+    if(undoStack.length>5) undoStack.shift();
+    redoStack=[];
+  }
+
+  function undoAction(){
+    if(!undoStack.length) return;
+    redoStack.push(notes.slice());
+    notes=undoStack.pop();
+    renderAll();
+  }
+
+  function redoAction(){
+    if(!redoStack.length) return;
+    undoStack.push(notes.slice());
+    if(undoStack.length>5) undoStack.shift();
+    notes=redoStack.pop();
+    renderAll();
+  }
 
   function refreshSelectors(){
     const ids = Object.keys(motherScalesData);
@@ -65,7 +103,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderCards(){
     cardsWrap.innerHTML='';
-    cardsApi = initCards(cardsWrap, { notes, scaleLen: scaleSemis(scale.id).length });
+    cardsApi = initCards(cardsWrap, { notes, scaleLen: scaleSemis(scale.id).length, showIntervals:true });
   }
 
   function renderStaff(){
@@ -77,9 +115,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderMini(){
     miniWrap.innerHTML='';
+    if(!toggleMini.checked) return;
+    const comps = generateComponents(notes);
     const groups = voicingModeSel.value==='rot'
-      ? generatePermutationVoicings(notes)
-      : generateRotationVoicings(notes);
+      ? generateRotationVoicings(notes)
+      : generatePermutationVoicings(notes);
     groups.forEach(g=>{
       g.voicings.forEach(v=>{
         const mdiv=document.createElement('div');
@@ -87,7 +127,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         drawPentagram(mdiv, midis, { chord:true, noteColors:[] });
         mdiv.onclick=()=>{ notes = eAToNotes(v); renderAll(); playChord(midis,2); };
         const info=document.createElement('div');
-        info.textContent=v.join(' ');
+        let order;
+        if(voicingModeSel.value==='rot'){
+          const idx=comps.indexOf(g.bassComponent);
+          order=comps.slice(idx).concat(comps.slice(0,idx)).join(' ');
+        }else{
+          order=g.pattern;
+        }
+        info.textContent=order;
         const wrap=document.createElement('div');
         wrap.appendChild(mdiv); wrap.appendChild(info);
         miniWrap.appendChild(wrap);
@@ -129,32 +176,62 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderStaff();
     renderMini();
     renderSnapshots();
+    seqInput.value = mode==='eA'
+      ? notesToEA(notes, scaleSemis(scale.id).length)
+      : notesToAc(notes);
   }
 
   generateBtn.onclick=()=>{
     const nums = parseNums(seqInput.value);
     if(mode==='eA') notes = eaToNotes(nums, scaleSemis(scale.id).length);
     else notes = nums.map(n=>((n%12)+12)%12);
+    activeSnapshot = null;
     renderAll();
   };
 
-  tabEA.onclick=()=>{ mode='eA'; tabEA.classList.add('active'); tabAc.classList.remove('active'); seqPrefix.textContent='eA('; };
-  tabAc.onclick=()=>{ mode='Ac'; tabAc.classList.add('active'); tabEA.classList.remove('active'); seqPrefix.textContent='Ac('; };
+  tabEA.onclick=()=>{ mode='eA'; tabEA.classList.add('active'); tabAc.classList.remove('active'); seqPrefix.textContent='eA('; transposeControls.style.display='none'; renderAll(); };
+  tabAc.onclick=()=>{ mode='Ac'; tabAc.classList.add('active'); tabEA.classList.remove('active'); seqPrefix.textContent='Ac('; transposeControls.style.display='flex'; renderAll(); };
 
   baseSel.onchange=()=>{ baseMidi = parseInt(baseSel.value,10); renderStaff(); };
   scaleSel.onchange=()=>{ scale.id=scaleSel.value; refreshSelectors(); renderAll(); };
   rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderAll(); };
   rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderStaff(); };
   voicingModeSel.onchange=renderMini;
+  toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
+
+  rotLeft.onclick=()=>{ pushUndo(); rotLeftLib(notes); renderAll(); };
+  rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes); renderAll(); };
+  globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,1); renderAll(); };
+  globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,-1); renderAll(); };
+  dupBtn.onclick=()=>{ pushUndo(); notes=notes.concat(notes); renderAll(); };
+  reduceBtn.onclick=()=>{ pushUndo(); if(notes.length>1){ notes.pop(); renderAll(); } };
+  undoBtn.onclick=undoAction;
+  redoBtn.onclick=redoAction;
+  transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,1); renderAll(); };
+  transposeDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,-1); renderAll(); };
 
   saveBtn.onclick=()=>{
     const free=snapshots.findIndex(s=>s===null);
-    const idx=activeSnapshot!==null?activeSnapshot:free;
-    if(idx===-1) return;
-    saveSnapshot(idx);
-    activeSnapshot=idx;
+    if(activeSnapshot!==null){
+      const overwrite = free===-1 || confirm('Sobreescriure preset '+String.fromCharCode(65+activeSnapshot)+'? Cancel·la per guardar nou');
+      if(overwrite){
+        saveSnapshot(activeSnapshot);
+        lastSaved=activeSnapshot;
+      }else if(free!==-1){
+        saveSnapshot(free);
+        activeSnapshot=free;
+        lastSaved=free;
+      }
+    }else if(free!==-1){
+      saveSnapshot(free);
+      activeSnapshot=free;
+      lastSaved=free;
+    }else{
+      alert('No hi ha ranures lliures de preset.');
+      return;
+    }
   };
-  resetSnapsBtn.onclick=()=>{ snapshots = window.SnapUtils.resetSnapshots(); activeSnapshot=null; localStorage.setItem('app9Snapshots', JSON.stringify(snapshots)); renderSnapshots(); };
+  resetSnapsBtn.onclick=()=>{ snapshots = window.SnapUtils.resetSnapshots(); activeSnapshot=null; lastSaved=null; localStorage.setItem('app9Snapshots', JSON.stringify(snapshots)); renderSnapshots(); };
   downloadBtn.onclick=()=>{ window.Presets.exportPresets(snapshots, 'app9-presets.json'); };
   uploadBtn.onclick=()=>{ window.Presets.importPresets(snapsFile, data=>{ snapshots = window.SnapUtils.initSnapshots(data); localStorage.setItem('app9Snapshots', JSON.stringify(snapshots)); renderSnapshots(); }); };
 
@@ -164,8 +241,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     highlightRoot = !highlightRoot;
     rootBtn.classList.toggle('active', highlightRoot);
     if(highlightRoot){
-      const pc = findChordRoot(notes);
-      rootContent.textContent = `PC: ${notes.map(n=>n%12).join(' ')}\nRoot: ${pc}`;
+      const semis = notes.map(d=>{
+        const arr=scaleSemis(scale.id);const len=arr.length;return (arr[(d+scale.rot)%len]+scale.root)%12;});
+      const pcs=[...new Set(semis.map(n=>n%12))];
+      const pc=findChordRoot(semis);
+      rootContent.textContent=`Pitch Class: ${pcs.join(' ')}\nRaíz: ${pc}`;
       rootInfo.hidden=false;
       flashTimer=setInterval(()=>{ rootBtn.classList.toggle('flash'); },400);
     }else{
@@ -175,6 +255,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderStaff();
   };
   rootClose.onclick=()=>{ highlightRoot=false; rootBtn.classList.remove('active'); rootInfo.hidden=true; if(flashTimer){ clearInterval(flashTimer); flashTimer=null; } renderStaff(); };
+
+  staffEl.addEventListener('click', async () => {
+    const abs = toAbsolute(notes, baseMidi);
+    await initSound('piano');
+    playChord(abs,2);
+  });
+
+  miniWrap.style.display = toggleMini.checked ? '' : 'none';
 
   renderAll();
 });
