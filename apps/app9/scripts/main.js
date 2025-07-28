@@ -5,7 +5,7 @@ import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { generateRotationVoicings, generatePermutationVoicings, eAToNotes,
   transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
   duplicateCards, omitCards, generateComponents } from '../../../shared/cards.js';
-import { findChordRoot } from '../../../shared/hindemith.js';
+import { findChordRoot, intervalRoot } from '../../../shared/hindemith.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
   await initSound('piano');
@@ -55,6 +55,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let notes = eaToNotes([2,2,1], scaleSemis(scale.id).length);
   let colorIntervals = false;
   let colorNotes = false;
+  let useKeySig = true;
   let highlightRoot = false;
   let flashTimer = null;
   let snapshots = window.SnapUtils.initSnapshots(JSON.parse(localStorage.getItem('app9Snapshots')||'null'));
@@ -110,7 +111,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     const abs = toAbsolute(notes, baseMidi);
     let colors = [];
     if(colorNotes) colors = notes.map(n=>window.Helpers.noteColor ? window.Helpers.noteColor(n%12) : '');
-    drawPentagram(staffEl, abs, { chord:true, noteColors:colors, scaleId:scale.id, root:scale.root });
+    if(colorIntervals) colors = notes.map((n,i)=>window.Helpers.intervalColor ? window.Helpers.intervalColor((n-notes[0]+12)%12) : '');
+    const options = { chord:true, noteColors:colors };
+    if(useKeySig){
+      options.scaleId = scale.id;
+      options.root = scale.root;
+    }else{
+      options.scaleId = 'CROM';
+      options.root = 0;
+    }
+    drawPentagram(staffEl, abs, options);
   }
 
   function renderMini(){
@@ -118,14 +128,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(!toggleMini.checked) return;
     const comps = generateComponents(notes);
     const groups = voicingModeSel.value==='rot'
-      ? generateRotationVoicings(notes)
-      : generatePermutationVoicings(notes);
+      ? generateRotationVoicings(notes, {voices:notes.length})
+      : generatePermutationVoicings(notes, {voices:notes.length});
     groups.forEach(g=>{
-      g.voicings.forEach(v=>{
+      const list = voicingModeSel.value==='perm' ? [g.voicings[0]] : g.voicings;
+      list.forEach(v=>{
         const mdiv=document.createElement('div');
-        const midis=toAbsolute(eAToNotes(v), baseMidi);
+        const midis=toAbsolute(eAToNotes(v, scaleSemis(scale.id).length), baseMidi);
         drawPentagram(mdiv, midis, { chord:true, noteColors:[] });
-        mdiv.onclick=()=>{ notes = eAToNotes(v); renderAll(); playChord(midis,2); };
+        mdiv.onclick=()=>{ pushUndo(); notes = eAToNotes(v, scaleSemis(scale.id).length); renderAll(); playChord(midis,2); };
         const info=document.createElement('div');
         let order;
         if(voicingModeSel.value==='rot'){
@@ -182,9 +193,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   generateBtn.onclick=()=>{
+    pushUndo();
     const nums = parseNums(seqInput.value);
-    if(mode==='eA') notes = eaToNotes(nums, scaleSemis(scale.id).length);
-    else notes = nums.map(n=>((n%12)+12)%12);
+    if(mode==='eA'){
+      notes = eaToNotes(nums, scaleSemis(scale.id).length);
+      if(notes.length>1 && notes[0]===notes[notes.length-1]) notes.pop();
+    }else{
+      notes = nums.map(n=>((n%12)+12)%12);
+    }
     activeSnapshot = null;
     renderAll();
   };
@@ -235,8 +251,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   downloadBtn.onclick=()=>{ window.Presets.exportPresets(snapshots, 'app9-presets.json'); };
   uploadBtn.onclick=()=>{ window.Presets.importPresets(snapsFile, data=>{ snapshots = window.SnapUtils.initSnapshots(data); localStorage.setItem('app9Snapshots', JSON.stringify(snapshots)); renderSnapshots(); }); };
 
-  iaColorBtn.onclick=()=>{ colorIntervals=!colorIntervals; iaColorBtn.classList.toggle('active', colorIntervals); renderStaff(); };
-  noteColorBtn.onclick=()=>{ colorNotes=!colorNotes; noteColorBtn.classList.toggle('active', colorNotes); renderStaff(); };
+  modeBtn.onclick=()=>{ useKeySig=!useKeySig; modeBtn.textContent=useKeySig?'Armadura':'Accidentals'; renderStaff(); };
+  iaColorBtn.onclick=()=>{ colorIntervals=!colorIntervals; iaColorBtn.classList.toggle('active', colorIntervals); if(colorIntervals){ colorNotes=false; noteColorBtn.classList.remove('active'); } renderStaff(); };
+  noteColorBtn.onclick=()=>{ colorNotes=!colorNotes; noteColorBtn.classList.toggle('active', colorNotes); if(colorNotes){ colorIntervals=false; iaColorBtn.classList.remove('active'); } renderStaff(); };
   rootBtn.onclick=()=>{
     highlightRoot = !highlightRoot;
     rootBtn.classList.toggle('active', highlightRoot);
@@ -245,7 +262,17 @@ window.addEventListener('DOMContentLoaded', async () => {
         const arr=scaleSemis(scale.id);const len=arr.length;return (arr[(d+scale.rot)%len]+scale.root)%12;});
       const pcs=[...new Set(semis.map(n=>n%12))];
       const pc=findChordRoot(semis);
-      rootContent.textContent=`Pitch Class: ${pcs.join(' ')}\nRaíz: ${pc}`;
+      let just=[];
+      for(let i=0;i<pcs.length;i++){
+        for(let j=i+1;j<pcs.length;j++){
+          const interval=(pcs[j]-pcs[i]+12)%12;
+          const pos=intervalRoot[interval];
+          if(pos==='lower' && pcs[i]===pc) just.push(interval);
+          if(pos==='upper' && pcs[j]===pc) just.push(interval);
+        }
+      }
+      just=[...new Set(just)].sort((a,b)=>a-b);
+      rootContent.textContent=`Pitch Class: ${pcs.join(' ')}\nRaíz: ${pc}\niA: ${just.join(' ')}`;
       rootInfo.hidden=false;
       flashTimer=setInterval(()=>{ rootBtn.classList.toggle('flash'); },400);
     }else{
@@ -255,6 +282,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderStaff();
   };
   rootClose.onclick=()=>{ highlightRoot=false; rootBtn.classList.remove('active'); rootInfo.hidden=true; if(flashTimer){ clearInterval(flashTimer); flashTimer=null; } renderStaff(); };
+
+  let dragging=false,dx=0,dy=0;
+  rootInfo.addEventListener('mousedown',e=>{
+    if(e.target.tagName==='BUTTON') return;
+    dragging=true;dx=e.offsetX;dy=e.offsetY;rootInfo.style.right='auto';
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging) return;
+    rootInfo.style.left=(e.clientX-dx)+'px';
+    rootInfo.style.top=(e.clientY-dy)+'px';
+  });
+  document.addEventListener('mouseup',()=>{dragging=false;});
 
   staffEl.addEventListener('click', async () => {
     const abs = toAbsolute(notes, baseMidi);
