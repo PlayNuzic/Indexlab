@@ -2,8 +2,7 @@ import { init as initCards } from '../../../libs/cards/index.js';
 import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init as initSound, playChord } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
-import { generateRotationVoicings, generatePermutationVoicings, eAToNotes,
-  transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
+import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
   duplicateCards, omitCards, generateComponents } from '../../../shared/cards.js';
 import { findChordRoot, intervalRoot } from '../../../shared/hindemith.js';
 
@@ -110,6 +109,31 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderAll();
   }
 
+  function fitNotes(){
+    const len = scaleSemis(scale.id).length;
+    notes = notes.map(n => ((n % len) + len) % len);
+  }
+
+  function rotations(arr){
+    return arr.map((_,i)=>arr.slice(i).concat(arr.slice(0,i)));
+  }
+
+  function permuteFixedBass(arr){
+    if(arr.length<=1) return [arr.slice()];
+    const rest=arr.slice(1);
+    const out=[];
+    function permute(prefix, remaining){
+      if(!remaining.length){ out.push([arr[0], ...prefix]); return; }
+      remaining.forEach((val,idx)=>{
+        const next=remaining.slice();
+        next.splice(idx,1);
+        permute(prefix.concat(val), next);
+      });
+    }
+    permute([], rest);
+    return out;
+  }
+
   function refreshSelectors(){
     const ids = Object.keys(motherScalesData);
     scaleSel.innerHTML='';
@@ -149,29 +173,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     miniWrap.innerHTML='';
     if(!toggleMini.checked) return;
     const comps = generateComponents(notes);
-    const groups = voicingModeSel.value==='rot'
-      ? generateRotationVoicings(notes, {voices:notes.length})
-      : generatePermutationVoicings(notes, {voices:notes.length});
-    groups.forEach(g=>{
-      const list = voicingModeSel.value==='perm' ? [g.voicings[0]] : g.voicings;
-      list.forEach(v=>{
-        const mdiv=document.createElement('div');
-        const midis=toAbsolute(eAToNotes(v, scaleSemis(scale.id).length), baseMidi);
-        drawPentagram(mdiv, midis, { chord:true, noteColors:[] });
-        mdiv.onclick=()=>{ pushUndo(); notes = eAToNotes(v, scaleSemis(scale.id).length); renderAll(); playChord(midis,2); };
-        const info=document.createElement('div');
-        let order;
-        if(voicingModeSel.value==='rot'){
-          const idx=comps.indexOf(g.bassComponent);
-          order=comps.slice(idx).concat(comps.slice(0,idx)).join(' ');
-        }else{
-          order=g.pattern;
-        }
-        info.textContent=order;
-        const wrap=document.createElement('div');
-        wrap.appendChild(mdiv); wrap.appendChild(info);
-        miniWrap.appendChild(wrap);
-      });
+    const pairs = notes.map((n,i)=>({note:n, comp:comps[i]}));
+    let sets;
+    if(voicingModeSel.value==='rot'){
+      sets = rotations(pairs).map(arr=>({notes:arr.map(p=>p.note), comps:arr.map(p=>p.comp)}));
+    }else{
+      const perms = permuteFixedBass(pairs);
+      sets = perms.map(arr=>({notes:arr.map(p=>p.note), comps:arr.map(p=>p.comp)}));
+    }
+    sets.forEach(obj=>{
+      const mdiv=document.createElement('div');
+      const midis=toAbsolute(eAToNotes(obj.notes, scaleSemis(scale.id).length), baseMidi);
+      drawPentagram(mdiv, midis, { chord:true, noteColors:[] });
+      mdiv.onclick=()=>{ pushUndo(); notes = obj.notes.slice(); renderAll(); playChord(midis,2); };
+      const info=document.createElement('div');
+      info.textContent=obj.comps.join(' ');
+      const wrap=document.createElement('div');
+      wrap.appendChild(mdiv); wrap.appendChild(info);
+      miniWrap.appendChild(wrap);
     });
   }
 
@@ -205,6 +224,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderAll(){
+    fitNotes();
     renderCards();
     renderStaff();
     renderMini();
@@ -224,6 +244,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }else{
       notes = nums.map(n=>((n%12)+12)%12);
     }
+    fitNotes();
     activeSnapshot = null;
     renderAll();
   };
@@ -238,16 +259,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   voicingModeSel.onchange=renderMini;
   toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
 
-  rotLeft.onclick=()=>{ pushUndo(); rotLeftLib(notes); renderAll(); };
-  rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes); renderAll(); };
-  globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,1); renderAll(); };
-  globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,-1); renderAll(); };
+  rotLeft.onclick=()=>{ pushUndo(); rotLeftLib(notes); fitNotes(); renderAll(); };
+  rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes); fitNotes(); renderAll(); };
+  globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,1); fitNotes(); renderAll(); };
+  globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,-1); fitNotes(); renderAll(); };
   dupBtn.onclick=()=>{ pushUndo(); notes=notes.concat(notes); renderAll(); };
   reduceBtn.onclick=()=>{ pushUndo(); if(notes.length>1){ notes.pop(); renderAll(); } };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
-  transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,1); renderAll(); };
-  transposeDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,-1); renderAll(); };
+  transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,1); fitNotes(); renderAll(); };
+  transposeDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,-1); fitNotes(); renderAll(); };
 
   saveBtn.onclick=()=>{
     const free=snapshots.findIndex(s=>s===null);

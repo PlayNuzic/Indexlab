@@ -3,6 +3,21 @@ import { generateComponents, ensureDuplicateComponents, transposeNotes,
   duplicateCards, omitCards, addCard } from '../../shared/cards.js';
 import { pitchColor as noteColor } from '../vendor/chromatone-theory/index.js';
 
+function pastelColor(color){
+  const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
+  if(!m) return color;
+  const h = Number(m[1]);
+  const a = m[4] || 1;
+  return `hsla(${h},60%,85%,${a})`;
+}
+
+function contrastColor(color){
+  const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
+  if(!m) return '#000';
+  const l = Number(m[3]);
+  return l > 60 ? '#000' : '#fff';
+}
+
 export function init(container, {
   notes = [],
   scaleLen = 12,
@@ -138,7 +153,12 @@ export function init(container, {
       const note=document.createElement('div');
       note.className='note';
       note.textContent=n;
-      note.style.color = noteColor(Number(n));
+      const baseCol = noteColor((Number(n)+3)%12);
+      const bgCol = pastelColor(baseCol);
+      const fgCol = contrastColor(bgCol);
+      card.style.backgroundColor = bgCol;
+      card.style.color = fgCol;
+      note.style.color = fgCol;
       const label=document.createElement('div'); label.className='label'; label.textContent=state.components[i];
       card.appendChild(up); card.appendChild(down); card.appendChild(close); card.appendChild(note); card.appendChild(label);
       wrap.appendChild(card);
