@@ -99,6 +99,21 @@ export const intervalCategory = {
   neutral:  { color: 'hsla(45,90%,50%,0.5)', label: 'Neutro' }
 };
 
+export const intervalColorBySemitone = {
+  0: intervalCategory.resonant.color,
+  1: intervalCategory.dissonant.color,
+  2: 'hsla(15,70%,50%,0.5)',
+  3: 'hsla(190,70%,50%,0.5)',
+  4: intervalCategory.consonant.color,
+  5: 'hsla(150,70%,50%,0.5)',
+  6: intervalCategory.neutral.color,
+  7: 'hsla(150,70%,50%,0.5)',
+  8: intervalCategory.consonant.color,
+  9: 'hsla(190,70%,50%,0.5)',
+ 10: 'hsla(15,70%,50%,0.5)',
+ 11: intervalCategory.dissonant.color,
+};
+
 export const intervalTypeBySemitone = {
   0:'resonant', 1:'dissonant', 2:'dissonant',
   3:'consonant',4:'consonant',
@@ -118,6 +133,10 @@ export function intervalCategoryFor(interval, len=12){
 }
 
 export function intervalColor(interval, len=12){
+  interval = ((interval % len) + len) % len;
+  if(len === 12){
+    return intervalColorBySemitone[interval];
+  }
   const cat = intervalCategoryFor(interval, len);
   const base = intervalCategory[cat].color;
   const m = base.match(/hsla\((\d+),(\d+)%,(\d+)%,?(\d+(?:\.\d+)?)?\)/);
@@ -128,7 +147,7 @@ export function intervalColor(interval, len=12){
   const alpha = m[4] || 1;
   const candidates = [];
   for(let i=0;i<len;i++) if(intervalCategoryFor(i,len)===cat) candidates.push(i);
-  const idx = candidates.indexOf(((interval%len)+len)%len);
+  const idx = candidates.indexOf(interval);
   const step = 8;
   const newL = Math.max(20, Math.min(80, light + step*(idx - (candidates.length-1)/2)));
   return `hsla(${hue},${sat}%,${newL}%,${alpha})`;
