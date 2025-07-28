@@ -244,9 +244,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         const semsArr=scaleSemis(snap.scale.id); const len=semsArr.length; return (semsArr[(d+snap.scale.rot)%len]+snap.scale.root)%12; }));
       const midis=toAbsolute(sems, snap.baseMidi);
       drawPentagram(div, midis, {scaleId:useKeySig?snap.scale.id:'CROM',root:useKeySig?snap.scale.root:0,chord:true,duration:'w'});
-      div.querySelector('svg').style.width='200px';
-      div.querySelector('svg').style.transform='scale(0.7)';
-      div.querySelector('svg').style.transformOrigin='top left';
+      const svg = div.querySelector('svg');
+      svg.style.width = '140px';
+      svg.style.transform = 'none';
+      svg.style.transformOrigin = 'top left';
+      div.style.width = '140px';
       div.onclick=async e=>{
         await ensureAudio();
         if(e.shiftKey){
