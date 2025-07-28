@@ -160,7 +160,7 @@ async function startGame(level = 1, opts = {}){
     practiceInfo = { baseLevel: level };
     if(currentProfile){
       currentProfile.practice = currentProfile.practice || {};
-      const p = currentProfile.practice[level] || { sessions: 0, intervals: [] };
+      const p = currentProfile.practice[level] || { sessions: 0, intervals: [], history: [] };
       p.sessions += 1;
       set.forEach(i=>{ if(!p.intervals.includes(i)) p.intervals.push(i); });
       currentProfile.practice[level] = p;
@@ -264,9 +264,6 @@ function nextMixedQuestion(){
   }
   playNotes();
   document.getElementById('modeTitle').textContent = game.mode === 'iA' ? 'interval harm\u00f2nic' : 'interval sonor';
-  const helpEl = document.getElementById('modeHelp');
-  helpEl.textContent = 'Fila superior: ascendents \u00b7 Fila inferior: descendents';
-  helpEl.style.display = game.mode === 'iS' ? 'block' : 'none';
   const q = { question: game.question, level: game.level };
   const levelLabel = practiceInfo ? `Nivell ${practiceInfo.baseLevel} - Pr\u00e0ctica` : `Nivell ${q.level}`;
   document.getElementById('question').textContent=`Pregunta ${q.question} · ${levelLabel} – ${levelNames[q.level]}`;
@@ -330,6 +327,18 @@ function showSummary(){
   if(practiceInfo){
     const stats = `Encerts: ${game.correctLevel} · Errors: ${game.wrongLevel}`;
     document.getElementById('practiceStats').textContent = stats;
+    if(currentProfile){
+      const lvl = practiceInfo.baseLevel;
+      const p = currentProfile.practice && currentProfile.practice[lvl];
+      if(p){
+        const total = game.correctLevel + game.wrongLevel;
+        const pct = total ? Math.round(game.correctLevel*100/total) : 0;
+        p.history = p.history || [];
+        p.history.push(pct);
+        currentProfile.practice[lvl] = p;
+        saveProfiles();
+      }
+    }
     document.getElementById('game').style.display='none';
     document.getElementById('practicePopup').style.display='flex';
     return;
@@ -410,11 +419,21 @@ function initButtons(){
     wrap.appendChild(b);
   };
   positives.forEach(create);
+  if(game.mode === 'iS'){
+    const lbl=document.createElement('span');
+    lbl.textContent='Ascendents';
+    lbl.className='row-label';
+    wrap.appendChild(lbl);
+  }
   if(negatives.length){
     const br=document.createElement('div');
     br.style.flexBasis='100%';
     wrap.appendChild(br);
     negatives.forEach(create);
+    const lbl=document.createElement('span');
+    lbl.textContent='Descendents';
+    lbl.className='row-label';
+    wrap.appendChild(lbl);
   }
 }
 
@@ -480,7 +499,13 @@ function generateStatsHTML(profile){
       const info = profile.practice[l];
       const ivals = (info.intervals||[]).sort((a,b)=>a-b).map(i=>`iS(${i}) iA(${i})`).join(' ');
       const sessions = info.sessions || 0;
-      html += `<li>Nivell ${l}: ${sessions} sessions · ${ivals}</li>`;
+      let improvement = '';
+      if(info.history && info.history.length>1){
+        const diff = info.history[info.history.length-1] - info.history[0];
+        const sign = diff>0 ? '+' : '';
+        improvement = ` · Millora: ${sign}${diff}%`;
+      }
+      html += `<li>Nivell ${l}: ${sessions} sessions · ${ivals}${improvement}</li>`;
     });
     html += '</ul>';
   }
