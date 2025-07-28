@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Permutacions i Rotacions d'Acords</title>
+  <link rel="stylesheet" href="../../libs/shared-ui/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="icon" href="favicon.ico" />
+</head>
+<body>
+  <h1>Permutacions i Rotacions d'Acords</h1>
+  <div id="app-wrap">
+  <div id="controls-box" class="controls">
+    <div class="scale-controls">
+      <label>Escala <select id="scaleSel"></select></label>
+      <label>Mode/Rot. <select id="rotSel"></select></label>
+      <label>Arrel Nm <select id="rootSel"></select></label>
+    </div>
+    <div class="seqInput">
+      <div class="tabs">
+        <button id="tabEA" class="active">eA</button>
+        <button id="tabAc">Ac</button>
+      </div>
+      <span id="seqPrefix">eA(</span>
+      <input id="seq" type="text" placeholder="3 4 3">
+      <span>)</span>
+      <select id="baseNote">
+        <option value="60" selected>C4</option>
+        <option value="48">C3</option>
+      </select>
+      <button id="generate">Generar</button>
+      <div id="transposeControls" class="transpose-controls">
+        <button id="transposeUp" title="Puja">&#9650;</button>
+        <button id="transposeDown" title="Baixa">&#9660;</button>
+      </div>
+    </div>
+    <div class="action-row">
+      <button id="modeBtn">Armadura</button>
+      <button id="iaColorBtn">Colores iA</button>
+      <button id="noteColorBtn">Colores N</button>
+      <button id="rootBtn">Root</button>
+    </div>
+  </div>
+  <div id="main-area">
+    <div id="components-area">
+    <div id="components-row">
+      <div id="components-wrap"></div>
+    </div>
+    </div>
+    <div id="voicing-box">
+      <label>Mode
+        <select id="voicingMode">
+          <option value="rot">Rotaci&oacute;</option>
+          <option value="perm">Permutaci&oacute;</option>
+        </select>
+      </label>
+      <div id="miniWrap" class="seq-staff"></div>
+    </div>
+    <div class="preset-row">
+      <button id="downloadSnaps" title="Descarrega presets">&#x2B07;</button>
+      <button id="uploadSnaps" title="Carrega presets">&#x2B06;</button>
+      <input type="file" id="snapsFile" accept="application/json" style="display:none">
+      <button id="resetSnaps" title="Reset presets">&times;</button>
+      <div id="snapshots" class="snapshots"></div>
+      <button id="saveBtn">Guardar</button>
+    </div>
+    <div id="staff-area">
+      <div id="staff"></div>
+    </div>
+    <div id="helpContainer">
+    <details id="legendWrap">
+      <summary>Colores</summary>
+      <div id="noteLegend"></div>
+      <div id="intervalLegend"></div>
+    </details>
+    </div>
+    <div id="rootInfo" hidden>
+      <button id="rootClose">&times;</button>
+      <div id="rootContent"></div>
+    </div>
+  </div>
+  </div>
+  <script src="../app5/scripts/helpers.js"></script>
+  <script src="../../libs/vendor/Tone.js"></script>
+  <script src="../../libs/vendor/Midi.js"></script>
+  <script src="../../shared/presets.js"></script>
+  <script src="./scripts/snapshotUtils.js"></script>
+  <script type="module" src="./scripts/main.js"></script>
+</body>
+</html>
