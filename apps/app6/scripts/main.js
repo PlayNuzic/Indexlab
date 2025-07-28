@@ -2,6 +2,7 @@ import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis, intervalColor, intervalCategory, intervalTypeBySemitone, intervalCategoryFor } from '../../../shared/scales.js';
 import { pitchColor } from '../../../libs/vendor/chromatone-theory/index.js';
+import { findChordRoot } from '../../../shared/hindemith.js';
 
 function pastelColor(color){
   const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
@@ -40,6 +41,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   let colorIntervals = false;
   let colorNotes = false;
   let noteColors = [];
+  let highlightRoot = false;
+  let rootFlash = false;
+  let rootFlashTimer = null;
+  let rootPc = null;
   let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app6Snapshots') || 'null'));
   let activeSnapshot = null;
   let lastSaved = null;
@@ -75,6 +80,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const modeBtn = document.getElementById('modeBtn');
   const iaColorBtn = document.getElementById('iaColorBtn');
   const noteColorBtn = document.getElementById('noteColorBtn');
+  const rootBtn = document.getElementById('rootBtn');
   const snapWrap = document.getElementById('snapshots');
   const resetSnapsBtn = document.getElementById('resetSnaps');
   const downloadSnapsBtn = document.getElementById('downloadSnaps');
@@ -206,7 +212,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     snapshots.forEach((s,i)=>{ if(s){ seq.push(s); seqIdx.push(i); } });
     const sems=currentSemis();
     noteColors=sems.map(s=>pitchColor((s+3)%12));
-    const colors=colorNotes?noteColors.slice():noteColors.map((c,i)=>i===hoverIdx?c:null);
+    let colors=colorNotes?noteColors.slice():noteColors.map((c,i)=>i===hoverIdx?c:null);
+    if(highlightRoot && rootPc!==null){
+      colors = colors.map((c,i)=>{
+        if(sems[i]%12===rootPc){
+          return rootFlash ? '#fff' : '#f00';
+        }
+        return c;
+      });
+    }
     const opts={scaleId:useKeySig?scale.id:'CROM',root:useKeySig?scale.root:0,chord:true,duration:'w',noteColors:colors};
     const len=scaleSemis(scale.id).length;
     const intervals=getIntervals();
@@ -550,6 +564,31 @@ window.addEventListener('DOMContentLoaded', async () => {
     noteColorBtn.classList.toggle('active', colorNotes);
     renderStaff();
   };
+
+  rootBtn.onmousedown = () => {
+    rootPc = findChordRoot(currentSemis());
+    if(rootPc === null) return;
+    highlightRoot = true;
+    rootFlash = true;
+    renderStaff();
+    rootFlashTimer = setInterval(() => {
+      rootFlash = !rootFlash;
+      renderStaff();
+    }, 400);
+  };
+
+  const stopRootFlash = () => {
+    highlightRoot = false;
+    rootFlash = false;
+    if(rootFlashTimer){
+      clearInterval(rootFlashTimer);
+      rootFlashTimer = null;
+    }
+    renderStaff();
+  };
+
+  rootBtn.onmouseup = stopRootFlash;
+  rootBtn.onmouseleave = stopRootFlash;
 
   function stopPlayback(){
     playTimers.forEach(clearTimeout);
