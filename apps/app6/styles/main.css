@@ -16,6 +16,7 @@ h1{margin-bottom:1rem;color:#fff;}
   align-items:center;
   gap:1.5rem;
   width:100%;
+  position:relative;
 }
 #staff-area{
   display:flex;
@@ -30,7 +31,7 @@ h1{margin-bottom:1rem;color:#fff;}
   height:400px;
   display:flex;
   justify-content:center;
-  margin:.3rem auto;
+  margin:.3rem auto 5rem;
   position:relative;
   z-index:40;
 }
@@ -98,10 +99,18 @@ button#generate:hover{background:#e6a12b;}
   transform-origin:top left;
   user-select:none;
 }
+#helpContainer{
+  position:absolute;
+  top:1rem;
+  left:1rem;
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+  max-width:16rem;
+  z-index:50;
+}
 #legendWrap{
-  width:100%;
-  margin:1rem;
-  align-self:flex-start;
+  margin:0;
   text-align:left;
 }
 #legendWrap summary{
@@ -123,7 +132,7 @@ button#generate:hover{background:#e6a12b;}
   gap:.3rem;
 }
 #infoWrap{
-  align-self:flex-start;
+  margin:0;
   text-align:left;
 }
 #error{color:#ff7a7a;height:1.2em;}

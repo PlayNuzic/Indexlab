@@ -192,8 +192,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     return toAbsolute(sems, baseMidi).map((m,i)=>m + 12*(octShifts[i]||0));
   }
 
+  function rootMidi(snap){
+    const arr = scaleSemis(snap.scale.id);
+    const len = arr.length;
+    const semi = (arr[(snap.notes[0]+snap.scale.rot)%len]+snap.scale.root)%12;
+    const shift = snap.octShifts ? (snap.octShifts[0]||0)*12 : 0;
+    return snap.baseMidi + semi + shift;
+  }
+
   function renderStaff(){
-    const seq = snapshots.filter(s=>s);
+    const seq = [];
+    const seqIdx = [];
+    snapshots.forEach((s,i)=>{ if(s){ seq.push(s); seqIdx.push(i); } });
     const sems=currentSemis();
     noteColors=sems.map(s=>pitchColor((s+3)%12));
     const colors=colorNotes?noteColors.slice():noteColors.map((c,i)=>i===hoverIdx?c:null);
@@ -249,10 +259,24 @@ window.addEventListener('DOMContentLoaded', async () => {
       };
       seqStaffEl.appendChild(div);
       if(idx<seq.length-1){
-        const spacer=document.createElement('span');
-        spacer.style.display='inline-block';
-        spacer.style.width='10px';
-        seqStaffEl.appendChild(spacer);
+        const nextSnap = seq[idx+1];
+        let intervalVal = rootMidi(nextSnap) - rootMidi(snap);
+        const ia=document.createElement('input');
+        ia.className='ia-field';
+        ia.value=intervalVal;
+        ia.style.borderColor=intervalCategory[intervalCategoryFor(intervalVal,12)].color;
+        ia.onchange=()=>{
+          const val=parseInt(ia.value,10);
+          if(isNaN(val)) return;
+          const delta=val-intervalVal;
+          for(let j=idx+1;j<seq.length;j++){
+            snapshots[seqIdx[j]].baseMidi+=delta;
+          }
+          localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
+          renderSnapshots();
+          renderStaff();
+        };
+        seqStaffEl.appendChild(ia);
       }
     });
     seqStaffEl.ondragover = e => e.preventDefault();
