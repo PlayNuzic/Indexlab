@@ -39,12 +39,18 @@ h1{margin-bottom:1rem;color:#fff;}
   display:flex;
   flex-wrap:wrap;
   justify-content:center;
-  align-items:flex-start;
+  align-items:center;
   width:1250px;
   height:300px;
   margin:0 auto;
 }
-#seqStaff{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+#seqStaff{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  justify-content:center;
+  align-items:center;
+}
 .seq-staff svg{
   background:#fff;
   border-radius:8px;
@@ -323,15 +329,16 @@ button#generate:hover{background:#e6a12b;}
   gap:.4rem;
 }
 .ia-field{
-  width:2.2rem;
-  height:2.2rem;
+  width:3.3rem;
+  height:3.3rem;
   text-align:center;
   background:#333;
   color:#fff;
-  border:1px solid #6366f1;
+  border:2px solid #6366f1;
   border-radius:4px;
-  font-size:.9rem;
+  font-size:1rem;
   padding:.1rem;
+  margin:0 1rem;
 }
 #comp-actions{display:flex;gap:.4rem;margin-top:.4rem;justify-content:center;}
 #comp-actions button{padding:.3rem .6rem;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;}
