@@ -17,6 +17,15 @@ function loadCardsModule(){
   return mod.exports.init;
 }
 
+function loadSharedCards(){
+  const code = fs.readFileSync(path.join(__dirname, '../shared/cards.js'), 'utf8');
+  const transformed = code.replace(/export function/g,'function').replace(/export const/g,'const') +
+    '\nmodule.exports = { generateRotationVoicings, generatePermutationVoicings };';
+  const mod = { exports:{} };
+  new Function('module','exports', transformed)(mod, mod.exports);
+  return mod.exports;
+}
+
 test('init creates cards and rotates', () => {
   document.body.innerHTML = '<div id="wrap"></div>';
   const init = loadCardsModule();
@@ -26,4 +35,27 @@ test('init creates cards and rotates', () => {
   api.rotateLeft();
   const first = document.querySelector('.component-card .note').textContent;
   expect(first).toBe('1');
+});
+
+describe('voicing helpers', () => {
+  const { generateRotationVoicings, generatePermutationVoicings } = loadSharedCards();
+
+  test('triad rotations', () => {
+    const rot = generateRotationVoicings([4,3], { voices:3 });
+    expect(rot.length).toBe(3);
+    expect(rot[0].bassComponent).toBe('a');
+    expect(rot[0].voicings[0]).toEqual([4,3]);
+  });
+
+  test('triad permutation patterns', () => {
+    const per = generatePermutationVoicings([4,3], { voices:3 });
+    expect(per.length).toBe(2);
+    expect(per[0].pattern).toBe('a b c');
+    expect(per[0].voicings[0]).toEqual([4,3]);
+  });
+
+  test('major seventh rotation count', () => {
+    const rot = generateRotationVoicings([4,3,4], { voices:4 });
+    expect(rot.length).toBe(4);
+  });
 });

@@ -101,3 +101,119 @@ export function addCard(state, note, comp, shift=0, index=state.notes.length){
   octShifts.splice(index,0,shift);
   components.splice(index,0,comp);
 }
+
+// -------- voicing generators --------
+
+// internal helper to generate all unique permutations for an array that may
+// contain duplicate values.
+function uniquePermutations(items){
+  const counts=new Map();
+  items.forEach(i=>counts.set(i,(counts.get(i)||0)+1));
+  const keys=[...counts.keys()];
+  const out=[];
+  function permute(path){
+    if(path.length===items.length){ out.push(path.slice()); return; }
+    for(const k of keys){
+      if(counts.get(k)>0){
+        counts.set(k,counts.get(k)-1);
+        path.push(k);
+        permute(path);
+        path.pop();
+        counts.set(k,counts.get(k)+1);
+      }
+    }
+  }
+  permute([]);
+  return out;
+}
+
+// convert an array of intervals or notes to absolute notes anchored at root.
+function normalizeNotes(seq, root=0, voices){
+  let notes;
+  if(voices && seq.length===voices-1){
+    notes=eAToNotes(seq);
+  }else if(!voices && seq.length && seq.reduce((a,b)=>a+b,0)<=11){
+    // heuristic: treat as intervals when their sum stays within an octave
+    notes=eAToNotes(seq);
+  }else{
+    notes=seq.slice();
+  }
+  return transposeNotes(notes,12,root);
+}
+
+// common routine to compute all unique voiced permutations for given notes.
+function computeVoicings(notes){
+  const comps=generateComponents(notes);
+  const base=new Map();
+  comps.forEach((c,i)=>{ if(!base.has(c)) base.set(c,notes[i]); });
+  const perms=uniquePermutations(comps);
+  const seen=new Set();
+  const voicings=[];
+  for(const p of perms){
+    const vals=[];
+    for(const c of p){
+      let v=base.get(c);
+      if(vals.length){ while(v<=vals[vals.length-1]) v+=12; }
+      vals.push(v);
+    }
+    const key=vals.join(',');
+    if(seen.has(key)) continue;
+    seen.add(key);
+    const ints=vals.slice(1).map((n,i)=>n-vals[i]);
+    voicings.push({perm:p,vals,intervals:ints,range:vals[vals.length-1]-vals[0]});
+  }
+  return voicings;
+}
+
+/**
+ * Generate all unique chord voicings grouped by bass component (rotation).
+ * @param {number[]} seq Array of intervals between voices or modular notes.
+ * @param {object|number} [opts] optional root or options object.
+ * @param {number} [opts.rootNote=0] anchor pitch for the root component.
+ * @param {number} [opts.voices] number of voices if `seq` contains intervals.
+ * @returns {{bassComponent:string, voicings:number[][]}[]}
+ */
+export function generateRotationVoicings(seq, opts={}){
+  if(typeof opts==='number') opts={rootNote:opts};
+  const {rootNote=0, voices}=opts;
+  const notes=normalizeNotes(seq, rootNote, voices);
+  const voicings=computeVoicings(notes);
+  const groups=new Map();
+  for(const v of voicings){
+    const bass=v.perm[0];
+    if(!groups.has(bass)) groups.set(bass,[]);
+    groups.get(bass).push(v);
+  }
+  return [...groups.entries()].sort((a,b)=>a[0].localeCompare(b[0]))
+    .map(([bass,vs])=>({bassComponent:bass,
+      voicings:vs.sort((x,y)=>x.range-y.range).map(v=>v.intervals)}));
+}
+
+/**
+ * Generate all unique chord voicings grouped by permutation pattern.
+ * @param {number[]} seq Array of intervals between voices or modular notes.
+ * @param {object|number} [opts] optional root or options object.
+ * @param {number} [opts.rootNote=0] anchor pitch for the root component.
+ * @param {number} [opts.voices] number of voices if `seq` contains intervals.
+ * @returns {{pattern:string, voicings:number[][]}[]}
+ */
+export function generatePermutationVoicings(seq, opts={}){
+  if(typeof opts==='number') opts={rootNote:opts};
+  const {rootNote=0, voices}=opts;
+  const notes=normalizeNotes(seq, rootNote, voices);
+  const voicings=computeVoicings(notes);
+  const groups=new Map();
+  for(const v of voicings){
+    const idx=v.perm.indexOf('a');
+    const patt=v.perm.slice(idx).concat(v.perm.slice(0,idx)).join(' ');
+    if(!groups.has(patt)) groups.set(patt,[]);
+    groups.get(patt).push(v);
+  }
+  const arr=[...groups.entries()].map(([pattern,vs])=>{
+    const span=Math.min(...vs.map(v=>v.range));
+    return {pattern,span,voicings:vs.sort((x,y)=>x.perm[0].localeCompare(y.perm[0])).map(v=>v.intervals)};
+  });
+  arr.sort((a,b)=>a.span-b.span);
+  arr.forEach(g=>delete g.span);
+  return arr;
+}
