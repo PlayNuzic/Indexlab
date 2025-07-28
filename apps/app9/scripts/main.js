@@ -65,6 +65,28 @@ window.addEventListener('DOMContentLoaded', async () => {
   let redoStack=[];
   let lastSaved=null;
 
+  function updateRootInfo(){
+    const semis = notes.map(d=>{
+      const arr = scaleSemis(scale.id);
+      const len = arr.length;
+      return (arr[(d + scale.rot) % len] + scale.root) % 12;
+    });
+    const pcs = [...new Set(semis.map(n => n % 12))];
+    const pc = findChordRoot(semis);
+    let just = [];
+    for(let i=0;i<pcs.length;i++){
+      for(let j=i+1;j<pcs.length;j++){
+        const interval = (pcs[j]-pcs[i]+12)%12;
+        const pos = intervalRoot[interval];
+        if(pos==='lower' && pcs[i]===pc) just.push(interval);
+        if(pos==='upper' && pcs[j]===pc) just.push(interval);
+      }
+    }
+    just = [...new Set(just)].sort((a,b)=>a-b);
+    rootContent.textContent =
+      `Pitch Class: ${pcs.join(' ')}\nRaíz: ${pc}\niA: ${just.join(' ')}`;
+  }
+
   const enNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
   function pushUndo(){
@@ -186,6 +208,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderCards();
     renderStaff();
     renderMini();
+    if(highlightRoot) updateRootInfo();
     renderSnapshots();
     seqInput.value = mode==='eA'
       ? notesToEA(notes, scaleSemis(scale.id).length)
@@ -258,21 +281,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     highlightRoot = !highlightRoot;
     rootBtn.classList.toggle('active', highlightRoot);
     if(highlightRoot){
-      const semis = notes.map(d=>{
-        const arr=scaleSemis(scale.id);const len=arr.length;return (arr[(d+scale.rot)%len]+scale.root)%12;});
-      const pcs=[...new Set(semis.map(n=>n%12))];
-      const pc=findChordRoot(semis);
-      let just=[];
-      for(let i=0;i<pcs.length;i++){
-        for(let j=i+1;j<pcs.length;j++){
-          const interval=(pcs[j]-pcs[i]+12)%12;
-          const pos=intervalRoot[interval];
-          if(pos==='lower' && pcs[i]===pc) just.push(interval);
-          if(pos==='upper' && pcs[j]===pc) just.push(interval);
-        }
-      }
-      just=[...new Set(just)].sort((a,b)=>a-b);
-      rootContent.textContent=`Pitch Class: ${pcs.join(' ')}\nRaíz: ${pc}\niA: ${just.join(' ')}`;
+      updateRootInfo();
       rootInfo.hidden=false;
       flashTimer=setInterval(()=>{ rootBtn.classList.toggle('flash'); },400);
     }else{
