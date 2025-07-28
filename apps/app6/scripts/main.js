@@ -46,7 +46,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   let rootFlashTimer = null;
   let rootPc = null;
   let snapshots = initSnapshots(JSON.parse(localStorage.getItem('app6Snapshots') || 'null'));
-  let activeSnapshot = null;
+  let activeSnapshot = null; // snapshot being auto-saved
+  let selectedSnapshot = null; // currently selected preset button
   let lastSaved = null;
   let recording = false;
   let recordStart = 0;
@@ -250,6 +251,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         if(activeSnapshot===from) activeSnapshot=to;
         else if(from<activeSnapshot && activeSnapshot<=to) activeSnapshot--;
         else if(to<=activeSnapshot && activeSnapshot<from) activeSnapshot++;
+        if(selectedSnapshot===from) selectedSnapshot=to;
+        else if(from<selectedSnapshot && selectedSnapshot<=to) selectedSnapshot--;
+        else if(to<=selectedSnapshot && selectedSnapshot<from) selectedSnapshot++;
         localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
         renderSnapshots();
         renderStaff();
@@ -310,6 +314,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       if(activeSnapshot===from) activeSnapshot=to;
       else if(from<activeSnapshot && activeSnapshot<=to) activeSnapshot--;
       else if(to<=activeSnapshot && activeSnapshot<from) activeSnapshot++;
+      if(selectedSnapshot===from) selectedSnapshot=to;
+      else if(from<selectedSnapshot && selectedSnapshot<=to) selectedSnapshot--;
+      else if(to<=selectedSnapshot && selectedSnapshot<from) selectedSnapshot++;
       localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
       renderSnapshots();
       renderStaff();
@@ -337,7 +344,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const b = document.createElement('button');
       b.textContent = String.fromCharCode(65+i);
       b.classList.toggle('saved', !!snapshots[i]);
-      b.classList.toggle('active', activeSnapshot===i);
+      b.classList.toggle('active', selectedSnapshot===i);
       b.draggable = true;
       b.ondragstart = e => { e.dataTransfer.setData('text/plain', i); };
       b.ondragover = e => e.preventDefault();
@@ -351,6 +358,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         if(activeSnapshot===from) activeSnapshot=to;
         else if(from<activeSnapshot && activeSnapshot<=to) activeSnapshot--;
         else if(to<=activeSnapshot && activeSnapshot<from) activeSnapshot++;
+        if(selectedSnapshot===from) selectedSnapshot=to;
+        else if(from<selectedSnapshot && selectedSnapshot<=to) selectedSnapshot--;
+        else if(to<=selectedSnapshot && selectedSnapshot<from) selectedSnapshot++;
         localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
         renderSnapshots();
         renderStaff();
@@ -368,6 +378,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         rotSel.value = scale.rot;
         octShifts = data.octShifts ? data.octShifts.slice() : Array(notes.length).fill(0);
         components = data.components ? data.components.slice() : generateComponents(notes);
+        selectedSnapshot = i;
         activeSnapshot = i;
         renderAll();
         renderSnapshots();
@@ -607,24 +618,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   saveBtn.onclick = () => {
     const freeIdx = snapshots.findIndex(s=>s===null);
-    if(activeSnapshot!==null){
-      const overwrite = freeIdx===-1 || confirm('Sobreescriure preset '+String.fromCharCode(65+activeSnapshot)+'? Cancel·la per guardar nou');
-      if(overwrite){
-        saveSnapData(snapshots, activeSnapshot, notes, baseMidi, scale, octShifts, components);
-        lastSaved = activeSnapshot;
-      }else if(freeIdx!==-1){
-        saveSnapData(snapshots, freeIdx, notes, baseMidi, scale, octShifts, components);
-        activeSnapshot = freeIdx;
-        lastSaved = freeIdx;
+    let target = activeSnapshot;
+    if(target===null){
+      if(freeIdx!==-1){
+        target = freeIdx;
+      }else if(selectedSnapshot!==null){
+        target = selectedSnapshot;
+      }else{
+        alert('No hi ha ranures lliures de preset.');
+        return;
       }
-    }else if(freeIdx!==-1){
-      saveSnapData(snapshots, freeIdx, notes, baseMidi, scale, octShifts, components);
-      activeSnapshot = freeIdx;
-      lastSaved = freeIdx;
-    }else{
-      alert('No hi ha ranures lliures de preset.');
-      return;
     }
+    saveSnapData(snapshots, target, notes, baseMidi, scale, octShifts, components);
+    activeSnapshot = target;
+    selectedSnapshot = target;
+    lastSaved = target;
     localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
     renderSnapshots();
     renderStaff();
@@ -633,6 +641,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   resetSnapsBtn.onclick = () => {
     snapshots = resetSnapData();
     activeSnapshot = null;
+    selectedSnapshot = null;
     lastSaved = null;
     localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
     renderSnapshots();
@@ -647,6 +656,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     Presets.importPresets(snapsFileInput, data => {
       snapshots = initSnapshots(data);
       activeSnapshot = null;
+      selectedSnapshot = null;
       localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
       renderSnapshots();
       renderStaff();
