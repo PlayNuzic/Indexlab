@@ -46,6 +46,8 @@
   </section>
 
   <section id="game" style="display:none">
+    <h2 id="modeTitle" class="mode-title"></h2>
+    <p id="modeHelp" class="mode-help" style="display:none"></p>
     <div id="notation"></div>
     <div id="avatarMsg"><img id="avatarImg"><div id="avatarBubble"></div></div>
     <p id="question"></p>
@@ -84,7 +86,7 @@
   </div>
   <div id="statsPopup" class="modal" style="display:none">
     <h2>Dades del perfil</h2>
-    <pre id="statsContent"></pre>
+    <div id="statsContent" class="stats-content"></div>
     <button id="closeStats" class="small">Tancar</button>
   </div>
   <script src="../../libs/vendor/Tone.js"></script>

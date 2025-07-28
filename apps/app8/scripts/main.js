@@ -104,6 +104,8 @@ function updateProfileButtons(){
 function selectProfile(idx){
   const p=profiles[idx];
   if(p){
+    if(!p.stats) p.stats = { iA:{perInterval:{}}, iS:{perInterval:{}} };
+    if(!p.practice) p.practice = {};
     currentProfile=p;
     Array.from(document.querySelectorAll('.profile-slot')).forEach((el,i)=>{
       el.classList.toggle('active',i===idx);
@@ -120,7 +122,14 @@ function createProfile(idx){
   const name=prompt('Nom del jugador?');
   if(!name) return;
   showAvatarChooser(avatar=>{
-    profiles[idx]={id:idx,name,avatar,level:1};
+    profiles[idx]={
+      id:idx,
+      name,
+      avatar,
+      level:1,
+      stats:{iA:{perInterval:{}},iS:{perInterval:{}}},
+      practice:{}
+    };
     saveProfiles();
     renderProfiles();
     selectProfile(idx);
@@ -148,6 +157,11 @@ async function startGame(level = 1, opts = {}){
   nextMode = 'iA';
   if(opts.practice){
     practiceInfo = { baseLevel: level };
+    if(currentProfile){
+      currentProfile.practice = currentProfile.practice || {};
+      currentProfile.practice[level] = (currentProfile.practice[level] || 0) + 1;
+      saveProfiles();
+    }
     const set = opts.intervals || [];
     practiceIntervals = set;
     game.intervals[0] = [...set, 0, 12];
@@ -204,8 +218,8 @@ document.querySelectorAll('#levelInfo button').forEach(btn=>{
 renderProfiles();
 document.getElementById('showStats').onclick=()=>{
   if(!currentProfile) return;
-  const pre=document.getElementById('statsContent');
-  pre.textContent=JSON.stringify(currentProfile,null,2);
+  const el=document.getElementById('statsContent');
+  el.innerHTML=generateStatsHTML(currentProfile);
   document.getElementById('statsPopup').style.display='flex';
 };
 document.getElementById('closeStats').onclick=()=>{
@@ -246,6 +260,10 @@ function nextMixedQuestion(){
     game.generateQuestion();
   }
   playNotes();
+  document.getElementById('modeTitle').textContent = game.mode === 'iA' ? 'interval harm\u00f2nic' : 'interval sonor';
+  const helpEl = document.getElementById('modeHelp');
+  helpEl.textContent = 'Fila superior: ascendents \u00b7 Fila inferior: descendents';
+  helpEl.style.display = game.mode === 'iS' ? 'block' : 'none';
   const q = { question: game.question, level: game.level };
   const levelLabel = practiceInfo ? `Nivell ${practiceInfo.baseLevel} - Pr\u00e0ctica` : `Nivell ${q.level}`;
   document.getElementById('question').textContent=`Pregunta ${q.question} · ${levelLabel} – ${levelNames[q.level]}`;
@@ -305,6 +323,7 @@ function submitAnswer(value){
 }
 
 function showSummary(){
+  updateProfileStats();
   if(practiceInfo){
     const stats = `Encerts: ${game.correctLevel} · Errors: ${game.wrongLevel}`;
     document.getElementById('practiceStats').textContent = stats;
@@ -427,5 +446,50 @@ function showAvatarMessage(text){
   bubble.textContent=text;
   bubble.classList.add('show');
   setTimeout(()=>bubble.classList.remove('show'),2000);
+}
+
+function updateProfileStats(){
+  if(!currentProfile) return;
+  currentProfile.stats = currentProfile.stats || { iA:{perInterval:{}}, iS:{perInterval:{}} };
+  game.history.forEach(a=>{
+    const mode = a.mode;
+    const s = currentProfile.stats[mode];
+    s.correct = s.correct || 0;
+    s.wrong = s.wrong || 0;
+    s.perInterval[a.interval] = s.perInterval[a.interval] || { ok:0, fail:0 };
+    if(a.correct){
+      s.correct++; s.perInterval[a.interval].ok++; 
+    }else{
+      s.wrong++; s.perInterval[a.interval].fail++; 
+    }
+  });
+  saveProfiles();
+}
+
+function generateStatsHTML(profile){
+  let html = `<img src="./assets/avatars/${profile.avatar}" class="stats-avatar">`;
+  html += `<h3>${profile.name}</h3>`;
+  html += `<p>Nivell assolit: ${profile.level}</p>`;
+  const practiceLevels = Object.keys(profile.practice||{}).sort((a,b)=>a-b);
+  if(practiceLevels.length){
+    html += '<h4>Nivells de pr\u00e0ctica</h4><ul>';
+    practiceLevels.forEach(l=>{
+      html += `<li>Nivell ${l}: ${profile.practice[l]} sessions</li>`;
+    });
+    html += '</ul>';
+  }
+  html += '<h4>Percentatges</h4>';
+  ['iS','iA'].forEach(mode=>{
+    const label = mode==='iS' ? 'interval sonor' : 'interval harm\u00f2nic';
+    html += `<h5>${label}</h5><ul>`;
+    const stats = profile.stats && profile.stats[mode] ? profile.stats[mode].perInterval : {};
+    Object.keys(stats).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k=>{
+      const ok = stats[k].ok||0, fail = stats[k].fail||0;
+      const tot = ok+fail; const pct = tot?Math.round(ok*100/tot):0;
+      html += `<li>${mode}(${k}): ${pct}% (${ok}/${tot})</li>`;
+    });
+    html += '</ul>';
+  });
+  return html;
 }
 
