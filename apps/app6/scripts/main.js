@@ -262,7 +262,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       svg.style.width = '140px';
       svg.style.transform = 'none';
       svg.style.transformOrigin = 'top left';
+      svg.setAttribute('viewBox', '0 40 420 260');
+      svg.style.height = '87px';
       div.style.width = '140px';
+      div.style.height = '87px';
+      div.style.overflow = 'hidden';
       div.onclick=async e=>{
         await ensureAudio();
         if(e.shiftKey){
