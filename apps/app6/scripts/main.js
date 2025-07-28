@@ -96,6 +96,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     return (sems[(d + scale.rot) % len] + scale.root) % 12;
   };
 
+  const degDiffToSemi = (start, diff) => {
+    const sems = scaleSemis(scale.id);
+    const len = sems.length;
+    const startIdx = (start + scale.rot) % len;
+    const targetIdx = (start + diff + scale.rot) % len;
+    const sem1 = (sems[startIdx] + scale.root) % 12;
+    const sem2 = (sems[targetIdx] + scale.root) % 12;
+    let out = sem2 - sem1;
+    if (out < 0) out += 12;
+    return out;
+  };
+
+  const consecutiveSemiDiffs = () => {
+    const sems = currentSemis();
+    return sems.slice(1).map((s,i)=>((s - sems[i] + 12) % 12));
+  };
+
   const scaleIDs = Object.keys(motherScalesData);
   scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
   [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
@@ -183,11 +200,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const opts={scaleId:useKeySig?scale.id:'CROM',root:useKeySig?scale.root:0,chord:true,duration:'w',noteColors:colors};
     const len=scaleSemis(scale.id).length;
     const intervals=getIntervals();
+    const semiDiffs = consecutiveSemiDiffs();
     if(colorIntervals){
-      opts.highlightIntervals=intervals.map((int,i)=>[i,i+1,intervalColor(int,len)]);
+      opts.highlightIntervals=semiDiffs.map((sd,i)=>[i,i+1,intervalColor(sd,12)]);
     }else if(hoverIntervalIdx!==null){
-      const int=intervals[hoverIntervalIdx];
-      const col=intervalColor(int,len);
+      const sd=consecutiveSemiDiffs()[hoverIntervalIdx];
+      const col=intervalColor(sd,12);
       opts.highlightIntervals=[[hoverIntervalIdx,hoverIntervalIdx+1,col]];
     }
     drawPentagram(staffEl, diagMidis(), opts);
