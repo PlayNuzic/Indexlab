@@ -39,8 +39,8 @@ h1{margin-bottom:1rem;color:#fff;}
   flex-wrap:wrap;
   justify-content:center;
   align-items:flex-start;
-  width:750px;
-  height:400px;
+  width:1250px;
+  height:300px;
   margin:0 auto;
 }
 #seqStaff{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
@@ -100,7 +100,7 @@ button#generate:hover{background:#e6a12b;}
 }
 #legendWrap{
   width:100%;
-  margin:0;
+  margin:1rem;
   align-self:flex-start;
   text-align:left;
 }
