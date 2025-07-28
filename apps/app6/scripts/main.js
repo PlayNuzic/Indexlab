@@ -256,7 +256,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       };
       const sems=snap.notes.map((d=>{
         const semsArr=scaleSemis(snap.scale.id); const len=semsArr.length; return (semsArr[(d+snap.scale.rot)%len]+snap.scale.root)%12; }));
-      const midis=toAbsolute(sems, snap.baseMidi);
+      const midis=toAbsolute(sems, snap.baseMidi).map((m,i)=>m+12*(snap.octShifts?.[i]||0));
       drawPentagram(div, midis, {scaleId:useKeySig?snap.scale.id:'CROM',root:useKeySig?snap.scale.root:0,chord:true,duration:'w'});
       const svg = div.querySelector('svg');
       svg.style.width = '140px';
@@ -491,6 +491,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderAll(){
     fitNotes();
+    if(activeSnapshot!==null){
+      saveSnapData(snapshots, activeSnapshot, notes, baseMidi, scale, octShifts, components);
+      localStorage.setItem('app6Snapshots', JSON.stringify(snapshots));
+    }
     renderCards();
     renderStaff();
     seqInput.value = mode==='eA'? notesToEA(notes, scaleSemis(scale.id).length) : notesToAc(notes);
@@ -710,12 +714,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     const midi = new Midi();
     const bpm = parseFloat(bpmInput.value)||120;
     midi.header.setTempo(bpm);
+    midi.header.timeSignatures = [{ ticks: 0, timeSignature: [4,4] }];
     const ppq = 480;
     const track = midi.addTrack();
     seq.forEach((snap,idx)=>{
       const sems=snap.notes.map(d=>{
         const arr=scaleSemis(snap.scale.id); const len=arr.length; return (arr[(d+snap.scale.rot)%len]+snap.scale.root)%12;});
-      const mids=toAbsolute(sems,snap.baseMidi);
+      const mids=toAbsolute(sems,snap.baseMidi).map((m,i)=>m + 12*(snap.octShifts?.[i]||0));
       const tick=idx*ppq*4;
       mids.forEach(n=>track.addNote({midi:n,ticks:tick,durationTicks:ppq*4}));
     });
