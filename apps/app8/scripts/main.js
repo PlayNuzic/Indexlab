@@ -418,22 +418,24 @@ function initButtons(){
     }
     wrap.appendChild(b);
   };
-  positives.forEach(create);
   if(game.mode === 'iS'){
     const lbl=document.createElement('span');
     lbl.textContent='Ascendents';
     lbl.className='row-label';
     wrap.appendChild(lbl);
   }
+  positives.forEach(create);
   if(negatives.length){
     const br=document.createElement('div');
     br.style.flexBasis='100%';
     wrap.appendChild(br);
+    if(game.mode === 'iS'){
+      const lbl=document.createElement('span');
+      lbl.textContent='Descendents';
+      lbl.className='row-label';
+      wrap.appendChild(lbl);
+    }
     negatives.forEach(create);
-    const lbl=document.createElement('span');
-    lbl.textContent='Descendents';
-    lbl.className='row-label';
-    wrap.appendChild(lbl);
   }
 }
 
