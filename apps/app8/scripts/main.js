@@ -155,14 +155,17 @@ function showAvatarChooser(cb){
 
 async function startGame(level = 1, opts = {}){
   nextMode = 'iA';
+  const set = opts.intervals || [];
   if(opts.practice){
     practiceInfo = { baseLevel: level };
     if(currentProfile){
       currentProfile.practice = currentProfile.practice || {};
-      currentProfile.practice[level] = (currentProfile.practice[level] || 0) + 1;
+      const p = currentProfile.practice[level] || { sessions: 0, intervals: [] };
+      p.sessions += 1;
+      set.forEach(i=>{ if(!p.intervals.includes(i)) p.intervals.push(i); });
+      currentProfile.practice[level] = p;
       saveProfiles();
     }
-    const set = opts.intervals || [];
     practiceIntervals = set;
     game.intervals[0] = [...set, 0, 12];
     game.requiredToLevelUp = set.length || 1;
@@ -474,22 +477,26 @@ function generateStatsHTML(profile){
   if(practiceLevels.length){
     html += '<h4>Nivells de pr\u00e0ctica</h4><ul>';
     practiceLevels.forEach(l=>{
-      html += `<li>Nivell ${l}: ${profile.practice[l]} sessions</li>`;
+      const info = profile.practice[l];
+      const ivals = (info.intervals||[]).sort((a,b)=>a-b).map(i=>`iS(${i}) iA(${i})`).join(' ');
+      const sessions = info.sessions || 0;
+      html += `<li>Nivell ${l}: ${sessions} sessions · ${ivals}</li>`;
     });
     html += '</ul>';
   }
-  html += '<h4>Percentatges</h4>';
-  ['iS','iA'].forEach(mode=>{
-    const label = mode==='iS' ? 'interval sonor' : 'interval harm\u00f2nic';
-    html += `<h5>${label}</h5><ul>`;
-    const stats = profile.stats && profile.stats[mode] ? profile.stats[mode].perInterval : {};
-    Object.keys(stats).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k=>{
-      const ok = stats[k].ok||0, fail = stats[k].fail||0;
-      const tot = ok+fail; const pct = tot?Math.round(ok*100/tot):0;
-      html += `<li>${mode}(${k}): ${pct}% (${ok}/${tot})</li>`;
-    });
-    html += '</ul>';
+  html += '<h4>Percentatges</h4><ul>';
+  const allIntervals = new Set([
+    ...Object.keys((profile.stats && profile.stats.iS && profile.stats.iS.perInterval)||{}),
+    ...Object.keys((profile.stats && profile.stats.iA && profile.stats.iA.perInterval)||{})
+  ]);
+  Array.from(allIntervals).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(k=>{
+    const sIS = profile.stats && profile.stats.iS && profile.stats.iS.perInterval[k] || {ok:0,fail:0};
+    const sIA = profile.stats && profile.stats.iA && profile.stats.iA.perInterval[k] || {ok:0,fail:0};
+    const totIS = sIS.ok + sIS.fail; const pctIS = totIS ? Math.round(sIS.ok*100/totIS) : 0;
+    const totIA = sIA.ok + sIA.fail; const pctIA = totIA ? Math.round(sIA.ok*100/totIA) : 0;
+    html += `<li>iS(${k}): ${pctIS}% iA(${k}): ${pctIA}%</li>`;
   });
+  html += '</ul>';
   return html;
 }
 
