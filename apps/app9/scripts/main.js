@@ -1,6 +1,6 @@
 import { init as initCards } from '../../../libs/cards/index.js';
 import drawPentagram from '../../../libs/notation/pentagram.js';
-import { init as initSound, playChord } from '../../../libs/sound/index.js';
+import { init as initSound, playChord, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis, currentSemis } from '../../../shared/scales.js';
 import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
   duplicateCards, omitCards, generateComponents, rotatePairs, permutePairsFixedBass } from '../../../shared/cards.js';
@@ -65,6 +65,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let undoStack=[];
   let redoStack=[];
   let lastSaved=null;
+  let lastStaffMidis = absoluteMidis(notes);
 
   function inputLen(){
     return scaleSemis(scale.id).length;
@@ -76,6 +77,16 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function absoluteMidis(arr){
     return absoluteWithShifts(semisFromNotes(arr), baseMidi);
+  }
+
+  function playStaffIfChanged(midis){
+    if(
+      Array.isArray(lastStaffMidis) &&
+      lastStaffMidis.length === midis.length &&
+      midis.every((n,i)=>n===lastStaffMidis[i])
+    ) return;
+    lastStaffMidis = midis.slice();
+    ensureAudio().then(()=>playChord(midis,2));
   }
 
   function updateRootInfo(){
@@ -168,6 +179,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       options.root = 0;
     }
     drawPentagram(staffEl, abs, options);
+    playStaffIfChanged(abs);
   }
 
   function renderMini(){
