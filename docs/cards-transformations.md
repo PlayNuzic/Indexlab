@@ -25,3 +25,4 @@ Additional options:
 
 - `draggable` – enable drag & drop to reorder cards (default `true`).
 - `showShift` – display register arrows on each card (default `true`).
+- `components` – array of component labels to use instead of generating them.

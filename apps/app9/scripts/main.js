@@ -62,6 +62,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let snapshots = window.SnapUtils.initSnapshots(null);
   let activeSnapshot = null;
   let cardsApi = null;
+  let components = generateComponents(notes);
   let undoStack=[];
   let redoStack=[];
   let lastSaved=null;
@@ -110,23 +111,27 @@ window.addEventListener('DOMContentLoaded', async () => {
   const enNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
   function pushUndo(){
-    undoStack.push(notes.slice());
+    undoStack.push({notes:notes.slice(), components:components.slice()});
     if(undoStack.length>5) undoStack.shift();
     redoStack=[];
   }
 
   function undoAction(){
     if(!undoStack.length) return;
-    redoStack.push(notes.slice());
-    notes=undoStack.pop();
+    redoStack.push({notes:notes.slice(), components:components.slice()});
+    const snap=undoStack.pop();
+    notes=snap.notes.slice();
+    components=snap.components.slice();
     renderAll();
   }
 
   function redoAction(){
     if(!redoStack.length) return;
-    undoStack.push(notes.slice());
+    undoStack.push({notes:notes.slice(), components:components.slice()});
     if(undoStack.length>5) undoStack.shift();
-    notes=redoStack.pop();
+    const snap=redoStack.pop();
+    notes=snap.notes.slice();
+    components=snap.components.slice();
     renderAll();
   }
 
@@ -152,6 +157,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function onCardsChange(state){
     notes = state.notes.slice();
+    components = state.components.slice();
     if(highlightRoot) updateRootInfo();
     renderStaff();
     renderMini();
@@ -162,7 +168,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderCards(){
     cardsWrap.innerHTML='';
-    cardsApi = initCards(cardsWrap, { notes, scaleLen: inputLen(), showIntervals:true, onChange:onCardsChange, draggable:false, showShift:false });
+    cardsApi = initCards(cardsWrap, { notes, components, scaleLen: inputLen(), showIntervals:true, onChange:onCardsChange, draggable:false, showShift:false });
   }
 
   function renderStaff(){
@@ -185,7 +191,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   function renderMini(){
     miniWrap.innerHTML='';
     if(!toggleMini.checked) return;
-    const comps = generateComponents(notes);
+    const comps = components.slice();
     let sets;
     if(voicingMode==='rot'){
       sets = rotatePairs(notes, comps);
@@ -211,6 +217,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       info.textContent=obj.components.join(' ');
       const wrap=document.createElement('div');
       wrap.appendChild(mdiv); wrap.appendChild(info);
+      wrap.style.cursor='pointer';
+      wrap.onclick=()=>{ pushUndo(); notes=obj.notes.slice(); components=obj.components.slice(); renderAll(); };
       miniWrap.appendChild(wrap);
     });
   }
@@ -228,7 +236,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function saveSnapshot(idx){
-    window.SnapUtils.saveSnapshot(snapshots, idx, notes, baseMidi, scale);
+    window.SnapUtils.saveSnapshot(snapshots, idx, notes, baseMidi, scale, [], components);
     localStorage.setItem('app9Snapshots', JSON.stringify(snapshots));
     renderSnapshots();
   }
@@ -237,6 +245,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const data = window.SnapUtils.loadSnapshot(snapshots, idx);
     if(!data) return;
     notes = data.notes.slice();
+    components = data.components ? data.components.slice() : generateComponents(notes);
     baseMidi = data.baseMidi;
     scale = data.scale;
     activeSnapshot = idx;
@@ -266,6 +275,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }else{
       notes = nums.map(n=>((n%len)+len)%len);
     }
+    components = generateComponents(notes);
     fitNotes();
     activeSnapshot = null;
     renderAll();
@@ -288,8 +298,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   permModeBtn.onclick=()=>{ voicingMode='perm'; permModeBtn.classList.add('active'); rotModeBtn.classList.remove('active'); renderMini(); };
   toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
 
-  rotLeft.onclick=()=>{ pushUndo(); rotLeftLib(notes); fitNotes(); renderAll(); };
-  rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes); fitNotes(); renderAll(); };
+  rotLeft.onclick=()=>{ pushUndo(); rotLeftLib(notes, components); fitNotes(); renderAll(); };
+  rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes, components); fitNotes(); renderAll(); };
   globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
   globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
   undoBtn.onclick=undoAction;
