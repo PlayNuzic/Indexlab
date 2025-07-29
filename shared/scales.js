@@ -156,24 +156,30 @@ export function intervalColor(interval, len=12){
 export function degToSemi(scale, d){
   const sems = scaleSemis(scale.id);
   const len = sems.length;
-  return (sems[(d + scale.rot) % len] + scale.root) % 12;
+  const idx = ((d + scale.rot) % len + len) % len;
+  return (sems[idx] + scale.root) % 12;
 }
 
 export function degDiffToSemi(scale, start, diff){
   const sems = scaleSemis(scale.id);
   const len = sems.length;
-  const startIdx = (start + scale.rot) % len;
-  const targetIdx = (start + diff + scale.rot) % len;
-  const sem1 = (sems[startIdx] + scale.root) % 12;
-  const sem2 = (sems[targetIdx] + scale.root) % 12;
-  let out = sem2 - sem1;
-  if(out < 0) out += 12;
-  return out;
+  const s = start + scale.rot;
+  const t = start + diff + scale.rot;
+  const octs = Math.floor(t / len) - Math.floor(s / len);
+  const startIdx = ((s % len) + len) % len;
+  const targetIdx = ((t % len) + len) % len;
+  const sem1 = sems[startIdx];
+  const sem2 = sems[targetIdx];
+  return sem2 - sem1 + octs * 12;
 }
 
-export function currentSemis(scale, degrees){
+export function currentSemis(scale, degrees, shifts=[]){
   const semsArr = scaleSemis(scale.id);
   const len = semsArr.length;
-  return degrees.map(d => (semsArr[(d + scale.rot) % len] + scale.root) % 12);
+  return degrees.map((d,i) => {
+    const idx = ((d + scale.rot) % len + len) % len;
+    const base = (semsArr[idx] + scale.root) % 12;
+    return base + 12*(shifts[i] || 0);
+  });
 }
 

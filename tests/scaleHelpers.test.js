@@ -6,7 +6,7 @@ function loadModule(){
   let code = fs.readFileSync(path.resolve(__dirname,'../shared/scales.js'),'utf8');
   code = code.replace(/export const/g, 'const').replace(/export function/g, 'function');
   const context = { module: { exports: {} } };
-  vm.runInNewContext(code + '\nmodule.exports = { motherScalesData, scaleSemis };', context);
+  vm.runInNewContext(code + '\nmodule.exports = { motherScalesData, scaleSemis, degToSemi, degDiffToSemi };', context);
   return context.module.exports;
 }
 
@@ -21,5 +21,18 @@ describe('scale helpers', () => {
     const first = mod.scaleSemis('DIAT');
     mod.motherScalesData.DIAT.ee[0] = 99; // mutate source
     expect(mod.scaleSemis('DIAT')).toBe(first);
+  });
+
+  test('degToSemi handles negative degrees', () => {
+    const { degToSemi } = loadModule();
+    const scale = { id: 'DIAT', rot: 0, root: 0 };
+    expect(degToSemi(scale, -1)).toBe(11);
+  });
+
+  test('degDiffToSemi handles octave leaps', () => {
+    const { degDiffToSemi } = loadModule();
+    const scale = { id: 'DIAT', rot: 0, root: 0 };
+    expect(degDiffToSemi(scale, 0, 7)).toBe(12);
+    expect(degDiffToSemi(scale, 0, -7)).toBe(-12);
   });
 });
