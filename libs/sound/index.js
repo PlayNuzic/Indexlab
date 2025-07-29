@@ -1,11 +1,28 @@
 let synth;
 let audioReady;
+let muted = false;
 
 export function ensureAudio(){
   if(!audioReady){
     audioReady = Tone.start();
   }
   return audioReady;
+}
+
+export function setMute(val){
+  muted = !!val;
+  if(typeof Tone !== 'undefined' && Tone.Destination){
+    Tone.Destination.mute = muted;
+  }
+}
+
+export function toggleMute(){
+  setMute(!muted);
+  return muted;
+}
+
+export function isMuted(){
+  return muted;
 }
 
 export async function init(type='piano'){
@@ -29,20 +46,21 @@ export async function init(type='piano'){
   }else{
     synth = new Tone.PolySynth(Tone.Synth).toDestination();
   }
+  setMute(muted);
 }
 
 export function playNote(midi, duration=1.5){
-  if(!synth) return;
+  if(!synth || muted) return;
   synth.triggerAttackRelease(Tone.Frequency(midi,'midi'), duration);
 }
 
 export function playChord(midis, duration=1.5){
-  if(!synth) return;
+  if(!synth || muted) return;
   synth.triggerAttackRelease(midis.map(n=>Tone.Frequency(n,'midi')), duration);
 }
 
 export function playMelody(midis,duration=1.5,gap=0.2){
-  if(!synth) return;
+  if(!synth || muted) return;
   midis.forEach((n,i)=>{
     setTimeout(()=>{
       synth.triggerAttackRelease(Tone.Frequency(n,'midi'), duration);

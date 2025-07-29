@@ -1,6 +1,6 @@
 import { init as initCards } from '../../../libs/cards/index.js';
 import drawPentagram from '../../../libs/notation/pentagram.js';
-import { init as initSound, playChord, ensureAudio } from '../../../libs/sound/index.js';
+import { init as initSound, playChord, ensureAudio, toggleMute, isMuted } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis, currentSemis } from '../../../shared/scales.js';
 import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
   duplicateCards, omitCards, generateComponents, rotatePairs, permutePairsFixedBass } from '../../../shared/cards.js';
@@ -313,9 +313,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
   globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
   muteBtn.onclick=()=>{
-    isMuted = !isMuted;
-    muteBtn.classList.toggle('muted', isMuted);
-    muteBtn.textContent = isMuted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+    const state = toggleMute();
+    muteBtn.classList.toggle('muted', state);
+    muteBtn.textContent = state ? '\uD83D\uDD07' : '\uD83D\uDD0A';
   };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
@@ -390,8 +390,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
 
-  muteBtn.classList.toggle('muted', isMuted);
-  muteBtn.textContent = isMuted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+  muteBtn.classList.toggle('muted', isMuted());
+  muteBtn.textContent = isMuted() ? '\uD83D\uDD07' : '\uD83D\uDD0A';
 
   renderAll();
 });
