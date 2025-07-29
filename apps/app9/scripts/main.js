@@ -3,7 +3,7 @@ import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init as initSound, playChord } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
 import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
-  duplicateCards, omitCards, generateComponents } from '../../../shared/cards.js';
+  duplicateCards, omitCards, generateComponents, rotatePairs, permutePairsFixedBass } from '../../../shared/cards.js';
 import { findChordRoot, intervalRoot } from '../../../shared/hindemith.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -126,25 +126,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     notes = notes.map(n => ((n % len) + len) % len);
   }
 
-  function rotations(arr){
-    return arr.map((_,i)=>arr.slice(i).concat(arr.slice(0,i)));
-  }
-
-  function permuteFixedBass(arr){
-    if(arr.length<=1) return [arr.slice()];
-    const rest=arr.slice(1);
-    const out=[];
-    function permute(prefix, remaining){
-      if(!remaining.length){ out.push([arr[0], ...prefix]); return; }
-      remaining.forEach((val,idx)=>{
-        const next=remaining.slice();
-        next.splice(idx,1);
-        permute(prefix.concat(val), next);
-      });
-    }
-    permute([], rest);
-    return out;
-  }
 
   function refreshSelectors(){
     const ids = Object.keys(motherScalesData);
@@ -194,13 +175,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   function renderMini(){
     miniWrap.innerHTML='';
     if(!toggleMini.checked) return;
-    const pairs = notes.map(n => ({ note:n }));
+    const comps = generateComponents(notes);
     let sets;
     if(voicingModeSel.value==='rot'){
-      sets = rotations(pairs).map(arr => ({notes: arr.map(o => o.note)}));
+      sets = rotatePairs(notes, comps);
     }else{
-      const perms = permuteFixedBass(pairs);
-      sets = perms.map(arr => ({notes: arr.map(p => p.note)}));
+      sets = permutePairsFixedBass(notes, comps);
     }
     sets.forEach(obj=>{
       const mdiv=document.createElement('div');
@@ -218,7 +198,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         mdiv.style.overflow='hidden';
       }
       const info=document.createElement('div');
-      info.textContent=generateComponents(obj.notes).join(' ');
+      info.textContent=obj.components.join(' ');
       const wrap=document.createElement('div');
       wrap.appendChild(mdiv); wrap.appendChild(info);
       miniWrap.appendChild(wrap);
