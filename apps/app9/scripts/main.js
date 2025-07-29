@@ -41,6 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rotRight = document.getElementById('rotRight');
   const globUp = document.getElementById('globUp');
   const globDown = document.getElementById('globDown');
+  const muteBtn = document.getElementById('muteBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
   const transposeControls = document.getElementById('transposeControls');
@@ -67,6 +68,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let redoStack=[];
   let lastSaved=null;
   let lastStaffMidis = absoluteMidis(notes);
+  let isMuted = false;
 
   function inputLen(){
     return scaleSemis(scale.id).length;
@@ -302,6 +304,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes, components); fitNotes(); renderAll(); };
   globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
   globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
+  muteBtn.onclick=()=>{
+    isMuted = !isMuted;
+    muteBtn.classList.toggle('muted', isMuted);
+    muteBtn.textContent = isMuted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+  };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
   transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
@@ -374,6 +381,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   permModeBtn.classList.remove('active');
 
   modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
+
+  muteBtn.classList.toggle('muted', isMuted);
+  muteBtn.textContent = isMuted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
 
   renderAll();
 });
