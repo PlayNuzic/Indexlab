@@ -59,7 +59,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let useKeySig = true;
   let highlightRoot = false;
   let flashTimer = null;
-  let snapshots = window.SnapUtils.initSnapshots(JSON.parse(localStorage.getItem('app9Snapshots')||'null'));
+  let snapshots = window.SnapUtils.initSnapshots(null);
   let activeSnapshot = null;
   let cardsApi = null;
   let undoStack=[];
@@ -271,7 +271,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderAll();
   };
   rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderAll(); };
-  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderStaff(); };
+  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderAll(); };
   voicingModeSel.onchange=renderMini;
   toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
 
