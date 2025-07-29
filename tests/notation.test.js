@@ -63,6 +63,13 @@ describe('notation helpers', () => {
     expect(midiToParts(63,false)).toEqual({ key: 'e/4', accidental: 'b' });
   });
 
+  test('midiToPartsByKeySig adjusts octave for boundary notes', () => {
+    const { parseKeySignatureArray, midiToPartsByKeySig } = loadHelpers();
+    const ks = ['Bb','Eb','Ab','Db','G\u266E','Cb'];
+    const map = parseKeySignatureArray(ks);
+    expect(midiToPartsByKeySig(71, map)).toEqual({ key: 'c/5', accidental: 'b' });
+  });
+
   test('needsDoubleStaff detects out of range', () => {
     expect(needsDoubleStaff(60,64)).toBe(false);
     expect(needsDoubleStaff(59,64)).toBe(true);

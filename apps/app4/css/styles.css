@@ -51,3 +51,31 @@
 button.lp-complete{
   outline:2px solid var(--accent);
 }
+
+/* Toggle switch for Duplicados */
+.switch-btn {
+  width:2.4rem;
+  height:1.2rem;
+  background:#555;
+  border:none;
+  border-radius:1rem;
+  position:relative;
+  cursor:pointer;
+}
+.switch-btn::after {
+  content:'';
+  position:absolute;
+  top:0.1rem;
+  left:0.1rem;
+  width:1rem;
+  height:1rem;
+  background:var(--fg);
+  border-radius:50%;
+  transition:transform .2s;
+}
+.switch-btn.on {
+  background:var(--green);
+}
+.switch-btn.on::after {
+  transform:translateX(1.2rem);
+}

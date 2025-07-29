@@ -41,7 +41,7 @@ const resetPresetsBtn=document.getElementById('resetPresets');
 const irSel=document.getElementById('irSel');
 const cadifInp=document.getElementById('cadifInp');
 const rangoInp=document.getElementById('rangoInp');
-const dupChk=document.getElementById('dupChk');
+const dupSwitch=document.getElementById('dupSwitch');
 const startSel=document.getElementById('startSel');
 const infoToggle=document.getElementById('infoToggle');
 const infoCard=document.getElementById('infoCard');
@@ -383,7 +383,12 @@ baseSelect.onchange=e=>{ state.baseMidi=parseInt(baseSelect.value,10); renderGri
 irSel.onchange=e=>{ state.params.iR=irSel.value===''?null:+irSel.value; genRows(); };
 cadifInp.onchange=e=>{ const v=cadifInp.value; state.params.caDif=v?+v:null; genRows(); };
 rangoInp.onchange=e=>{ state.params.rango=+rangoInp.value; genRows(); };
-dupChk.onchange=e=>{ state.params.duplicates=dupChk.checked; genRows(); };
+dupSwitch.onclick=e=>{
+  state.params.duplicates = !state.params.duplicates;
+  dupSwitch.classList.toggle('on', state.params.duplicates);
+  dupSwitch.setAttribute('aria-pressed', state.params.duplicates);
+  genRows();
+};
 startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.value; genRows(); };
 btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); renderGrid(); return;} state.naRows.forEach(r=>r.fill(null)); renderGrid();};
 downloadPresetsBtn.onclick=downloadPresets;
@@ -416,7 +421,8 @@ function applyState(){
   irSel.value=state.params.iR==null?'' : state.params.iR;
   cadifInp.value=state.params.caDif==null?'' : state.params.caDif;
   rangoInp.value=state.params.rango;
-  dupChk.checked=state.params.duplicates;
+  dupSwitch.classList.toggle('on', state.params.duplicates);
+  dupSwitch.setAttribute('aria-pressed', state.params.duplicates);
   startSel.value=state.params.start==null?'' : state.params.start;
   renderGrid();
   buildPresetBar();

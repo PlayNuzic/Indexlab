@@ -38,11 +38,11 @@ export function midiToParts(midi, preferSharp = true) {
 export function midiToPartsByKeySig(midi, ksMap) {
   if(!ksMap) return midiToParts(midi, true);
   const pc = ((midi % 12) + 12) % 12;
-  const octave = Math.floor(midi / 12) - 1;
   for(const [letter, basePc] of Object.entries(letterToPc)){
     const acc = ksMap[basePc] || '';
     const adj = acc === '#' ? 1 : acc === 'b' ? -1 : 0;
     if(((basePc + adj + 12) % 12) === pc){
+      const octave = Math.floor((midi - basePc - adj) / 12) - 1;
       return { key: `${letter}/${octave}`, accidental: acc };
     }
   }
