@@ -23,7 +23,8 @@ export function init(container, {
   scaleLen = 12,
   orientation = 'row',
   help = false,
-  showIntervals = false
+  showIntervals = false,
+  onChange = null
 } = {}){
   const state = {
     notes: notes.slice(),
@@ -182,6 +183,7 @@ export function init(container, {
     });
     wrap.ondragover=e=>e.preventDefault();
     wrap.ondrop=e=>{ e.preventDefault(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); moveCards(grp, state.notes.length); };
+    if(typeof onChange==='function') onChange({ ...state });
   }
 
   rotLeftBtn.onclick=()=>{pushUndo();rotateLeft(state.notes, state.octShifts, state.components);render();};
@@ -198,6 +200,7 @@ export function init(container, {
   });
 
   render();
+  if(typeof onChange==='function') onChange({ ...state });
 
   return { getState:()=>({...state}), rotateLeft:()=>rotLeftBtn.onclick(), rotateRight:()=>rotRightBtn.onclick(), transpose, undo, redo };
 }

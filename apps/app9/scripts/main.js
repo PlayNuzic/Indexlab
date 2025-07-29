@@ -163,9 +163,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   refreshSelectors();
 
+  function onCardsChange(state){
+    notes = state.notes.slice();
+    if(highlightRoot) updateRootInfo();
+    renderStaff();
+    renderMini();
+    seqInput.value = mode==='eA'
+      ? notesToEA(notes, inputLen())
+      : notesToAc(notes);
+  }
+
   function renderCards(){
     cardsWrap.innerHTML='';
-    cardsApi = initCards(cardsWrap, { notes, scaleLen: scaleSemis(scale.id).length, showIntervals:true });
+    cardsApi = initCards(cardsWrap, { notes, scaleLen: inputLen(), showIntervals:true, onChange:onCardsChange });
   }
 
   function renderStaff(){
@@ -190,7 +200,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const pairs = notes.map(n=>n);
     let sets;
     if(voicingModeSel.value==='rot'){
-      sets = rotations(pairs).map(arr=>({notes:arr}));
+      sets = rotations(pairs).map(arr=>({notes:arr.map(o=>o.note), comps:arr.map(o=>o.comp)}));
     }else{
       const perms = permuteFixedBass(pairs.map(n=>({note:n})));
       sets = perms.map(arr=>({notes:arr.map(p=>p.note)}));
@@ -198,7 +208,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     sets.forEach(obj=>{
       const mdiv=document.createElement('div');
       const midis=absoluteMidis(obj.notes);
-      drawPentagram(mdiv, midis, { chord:true, noteColors:[] });
+      drawPentagram(mdiv, midis, { chord:true, noteColors:[], scaleId: useKeySig ? scale.id : 'CROM', root: useKeySig ? scale.root : 0 });
       const info=document.createElement('div');
       info.textContent=generateComponents(obj.notes).join(' ');
       const wrap=document.createElement('div');
