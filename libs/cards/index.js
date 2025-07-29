@@ -26,7 +26,8 @@ export function init(container, {
   showIntervals = false,
   onChange = null,
   draggable = true,
-  showShift = true
+  showShift = true,
+  components = null
 } = {}){
   const state = {
     notes: notes.slice(),
