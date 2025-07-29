@@ -217,3 +217,28 @@ export function generatePermutationVoicings(seq, opts={}){
   arr.forEach(g=>delete g.span);
   return arr;
 }
+
+export function rotatePairs(notes, comps){
+  const pairs=notes.map((n,i)=>({note:n,comp:comps[i]}));
+  return pairs.map((_,i)=>{
+    const arr=pairs.slice(i).concat(pairs.slice(0,i));
+    return {notes:arr.map(p=>p.note), components:arr.map(p=>p.comp)};
+  });
+}
+
+export function permutePairsFixedBass(notes, comps){
+  if(notes.length<=1) return [{notes:notes.slice(), components:comps.slice()}];
+  const first={note:notes[0], comp:comps[0]};
+  const rest=notes.slice(1).map((n,i)=>({note:n,comp:comps[i+1]}));
+  const out=[];
+  function permute(prefix, rem){
+    if(!rem.length){ out.push([first].concat(prefix)); return; }
+    rem.forEach((val,idx)=>{
+      const next=rem.slice();
+      next.splice(idx,1);
+      permute(prefix.concat(val), next);
+    });
+  }
+  permute([], rest);
+  return out.map(arr=>({notes:arr.map(o=>o.note), components:arr.map(o=>o.comp)}));
+}

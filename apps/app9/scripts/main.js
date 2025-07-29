@@ -51,7 +51,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   let mode = 'eA';
   let scale = { id: 'DIAT', rot: 0, root: 0 };
   let baseMidi = 60;
-  let notes = eaToNotes([2,2,1], scaleSemis(scale.id).length);
+  const CHROM_SCALES = ['CROM','OCT','HEX','TON'];
+
+  let notes = eaToNotes([2,2,1], inputLen());
   let colorIntervals = false;
   let colorNotes = false;
   let useKeySig = true;
@@ -64,12 +66,25 @@ window.addEventListener('DOMContentLoaded', async () => {
   let redoStack=[];
   let lastSaved=null;
 
+  function inputLen(){
+    return CHROM_SCALES.includes(scale.id) ? scaleSemis(scale.id).length : 12;
+  }
+
+  function semisFromNotes(arr){
+    if(CHROM_SCALES.includes(scale.id)){
+      const sems = scaleSemis(scale.id);
+      const len = sems.length;
+      return arr.map(d => (sems[(d + scale.rot) % len] + scale.root) % 12);
+    }
+    return arr.map(d => (d + scale.root) % 12);
+  }
+
+  function absoluteMidis(arr){
+    return toAbsolute(semisFromNotes(arr), baseMidi);
+  }
+
   function updateRootInfo(){
-    const semis = notes.map(d=>{
-      const arr = scaleSemis(scale.id);
-      const len = arr.length;
-      return (arr[(d + scale.rot) % len] + scale.root) % 12;
-    });
+    const semis = semisFromNotes(notes);
     const pcs = [...new Set(semis.map(n => n % 12))];
     const pc = findChordRoot(semis);
     let just = [];
@@ -110,7 +125,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function fitNotes(){
-    const len = scaleSemis(scale.id).length;
+    const len = inputLen();
     notes = notes.map(n => ((n % len) + len) % len);
   }
 
@@ -154,7 +169,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderStaff(){
-    const abs = toAbsolute(notes, baseMidi);
+    const abs = absoluteMidis(notes);
     let colors = [];
     if(colorNotes) colors = notes.map(n=>window.Helpers.noteColor ? window.Helpers.noteColor(n%12) : '');
     if(colorIntervals) colors = notes.map((n,i)=>window.Helpers.intervalColor ? window.Helpers.intervalColor((n-notes[0]+12)%12) : '');
@@ -172,22 +187,20 @@ window.addEventListener('DOMContentLoaded', async () => {
   function renderMini(){
     miniWrap.innerHTML='';
     if(!toggleMini.checked) return;
-    const comps = generateComponents(notes);
-    const pairs = notes.map((n,i)=>({note:n, comp:comps[i]}));
+    const pairs = notes.map(n=>n);
     let sets;
     if(voicingModeSel.value==='rot'){
-      sets = rotations(pairs).map(arr=>({notes:arr.map(p=>p.note), comps:arr.map(p=>p.comp)}));
+      sets = rotations(pairs).map(arr=>({notes:arr}));
     }else{
-      const perms = permuteFixedBass(pairs);
-      sets = perms.map(arr=>({notes:arr.map(p=>p.note), comps:arr.map(p=>p.comp)}));
+      const perms = permuteFixedBass(pairs.map(n=>({note:n})));
+      sets = perms.map(arr=>({notes:arr.map(p=>p.note)}));
     }
     sets.forEach(obj=>{
       const mdiv=document.createElement('div');
-      const midis=toAbsolute(eAToNotes(obj.notes, scaleSemis(scale.id).length), baseMidi);
+      const midis=absoluteMidis(obj.notes);
       drawPentagram(mdiv, midis, { chord:true, noteColors:[] });
-      mdiv.onclick=()=>{ pushUndo(); notes = obj.notes.slice(); renderAll(); playChord(midis,2); };
       const info=document.createElement('div');
-      info.textContent=obj.comps.join(' ');
+      info.textContent=generateComponents(obj.notes).join(' ');
       const wrap=document.createElement('div');
       wrap.appendChild(mdiv); wrap.appendChild(info);
       miniWrap.appendChild(wrap);
@@ -231,18 +244,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(highlightRoot) updateRootInfo();
     renderSnapshots();
     seqInput.value = mode==='eA'
-      ? notesToEA(notes, scaleSemis(scale.id).length)
+      ? notesToEA(notes, inputLen())
       : notesToAc(notes);
   }
 
   generateBtn.onclick=()=>{
     pushUndo();
     const nums = parseNums(seqInput.value);
+    const len = inputLen();
     if(mode==='eA'){
-      notes = eaToNotes(nums, scaleSemis(scale.id).length);
+      notes = eaToNotes(nums, len);
       if(notes.length>1 && notes[0]===notes[notes.length-1]) notes.pop();
     }else{
-      notes = nums.map(n=>((n%12)+12)%12);
+      notes = nums.map(n=>((n%len)+len)%len);
     }
     fitNotes();
     activeSnapshot = null;
@@ -253,7 +267,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   tabAc.onclick=()=>{ mode='Ac'; tabAc.classList.add('active'); tabEA.classList.remove('active'); seqPrefix.textContent='Ac('; transposeControls.style.display='flex'; renderAll(); };
 
   baseSel.onchange=()=>{ baseMidi = parseInt(baseSel.value,10); renderStaff(); };
-  scaleSel.onchange=()=>{ scale.id=scaleSel.value; refreshSelectors(); renderAll(); };
+  scaleSel.onchange=()=>{
+    scale.id=scaleSel.value;
+    useKeySig = !CHROM_SCALES.includes(scale.id);
+    modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
+    refreshSelectors();
+    renderAll();
+  };
   rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderAll(); };
   rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderStaff(); };
   voicingModeSel.onchange=renderMini;
@@ -261,14 +281,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   rotLeft.onclick=()=>{ pushUndo(); rotLeftLib(notes); fitNotes(); renderAll(); };
   rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes); fitNotes(); renderAll(); };
-  globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,1); fitNotes(); renderAll(); };
-  globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,-1); fitNotes(); renderAll(); };
+  globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
+  globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
   dupBtn.onclick=()=>{ pushUndo(); notes=notes.concat(notes); renderAll(); };
   reduceBtn.onclick=()=>{ pushUndo(); if(notes.length>1){ notes.pop(); renderAll(); } };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
-  transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,1); fitNotes(); renderAll(); };
-  transposeDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, scaleSemis(scale.id).length,-1); fitNotes(); renderAll(); };
+  transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
+  transposeDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
 
   saveBtn.onclick=()=>{
     const free=snapshots.findIndex(s=>s===null);
@@ -326,12 +346,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('mouseup',()=>{dragging=false;});
 
   staffEl.addEventListener('click', async () => {
-    const abs = toAbsolute(notes, baseMidi);
+    const abs = absoluteMidis(notes);
     await initSound('piano');
     playChord(abs,2);
   });
 
   miniWrap.style.display = toggleMini.checked ? '' : 'none';
+
+  modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
 
   renderAll();
 });
