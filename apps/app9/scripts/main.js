@@ -61,22 +61,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   let flashTimer = null;
   let snapshots = window.SnapUtils.initSnapshots(JSON.parse(localStorage.getItem('app9Snapshots')||'null'));
   let activeSnapshot = null;
-  let cardsApi = initCards(cardsWrap, { notes, scaleLen: scaleSemis(scale.id).length, showIntervals:true });
+  let cardsApi = null;
   let undoStack=[];
   let redoStack=[];
   let lastSaved=null;
 
   function inputLen(){
-    return CHROM_SCALES.includes(scale.id) ? scaleSemis(scale.id).length : 12;
+    return scaleSemis(scale.id).length;
   }
 
   function semisFromNotes(arr){
-    if(CHROM_SCALES.includes(scale.id)){
-      const sems = scaleSemis(scale.id);
-      const len = sems.length;
-      return arr.map(d => (sems[(d + scale.rot) % len] + scale.root) % 12);
-    }
-    return arr.map(d => (d + scale.root) % 12);
+    const sems = scaleSemis(scale.id);
+    const len = sems.length;
+    return arr.map(d => (sems[(d + scale.rot) % len] + scale.root) % 12);
   }
 
   function absoluteMidis(arr){
