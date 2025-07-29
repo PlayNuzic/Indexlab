@@ -97,8 +97,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   const degDiffToSemiLocal = (start, diff) => degDiffToSemi(scale, start, diff);
 
   const diagMidis = () => {
-    const sems = currentSemis(scale, notes, octShifts);
-    return toAbsolute(sems, baseMidi);
+    const sems = currentSemis(scale, notes);
+    const abs = toAbsolute(sems, baseMidi);
+    return abs.map((n,i)=>n + 12*(octShifts[i]||0));
   };
   const diagNums = () => showNm ? notes.map(degToSemiLocal) : notes.slice();
   const seqInput=document.getElementById('seq');

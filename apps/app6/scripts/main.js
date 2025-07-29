@@ -177,7 +177,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function diagMidis(){
-    return toAbsolute(currentSemisLocal(), baseMidi);
+    const sems = currentSemisLocal();
+    const abs = toAbsolute(sems, baseMidi);
+    return abs.map((m,i)=>m + 12*(octShifts[i]||0));
   }
 
   function rootMidi(snap){
@@ -236,8 +238,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         renderSnapshots();
         renderStaff();
       };
-      const sems=currentSemis(snap.scale, snap.notes, snap.octShifts || []);
-      const midis=toAbsolute(sems, snap.baseMidi);
+      const sems=currentSemis(snap.scale, snap.notes);
+      const midis=toAbsolute(sems, snap.baseMidi).map((m,i)=>m+12*(snap.octShifts?.[i]||0));
       drawPentagram(div, midis, {scaleId:useKeySig?snap.scale.id:'CROM',root:useKeySig?snap.scale.root:0,chord:true,duration:'w'});
       const svg = div.querySelector('svg');
       svg.style.width = '140px';
@@ -705,8 +707,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const ppq = 480;
     const track = midi.addTrack();
     seq.forEach((snap,idx)=>{
-      const sems=currentSemis(snap.scale, snap.notes, snap.octShifts || []);
-      const mids=toAbsolute(sems, snap.baseMidi);
+      const sems=currentSemis(snap.scale, snap.notes);
+      const mids=toAbsolute(sems, snap.baseMidi).map((m,i)=>m + 12*(snap.octShifts?.[i]||0));
       const tick=idx*ppq*4;
       mids.forEach(n=>track.addNote({midi:n,ticks:tick,durationTicks:ppq*4}));
     });
