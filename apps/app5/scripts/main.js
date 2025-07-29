@@ -36,6 +36,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   let diagNumsArr=[];
   let octShifts=Array(notes.length).fill(0);
   let components = generateComponents(notes);
+  const DRAGGABLE = true;
+  const SHOW_SHIFT = true;
 
   function pushUndo(){
     undoStack.push({
@@ -328,7 +330,7 @@ function renderStaff(){
       const card=document.createElement('div');
       card.className='component-card';
       if(selectedCards.has(i)) card.classList.add('selected');
-      card.draggable=true;
+      if(DRAGGABLE) card.draggable=true;
       let pressTimer;
       card.onmousedown=e=>{
         if(e.shiftKey){
@@ -339,33 +341,38 @@ function renderStaff(){
         }
       };
       card.onmouseup=card.onmouseleave=()=>clearTimeout(pressTimer);
-      card.ondragstart=e=>{ clearTimeout(pressTimer); const grp=selectedCards.has(i)?Array.from(selectedCards).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
-      card.ondragover=e=>e.preventDefault();
-      card.ondrop=e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
-        const min=Math.min(...grp);
-        const target=min < i ? i + 1 : i;
-        moveCards(grp, target);
-        card.classList.remove('drop-hover');
-        card.classList.add('drop-flash');
-        setTimeout(()=>card.classList.remove('drop-flash'),150);
-      };
-      card.ondragenter=e=>{
-        if(!card.classList.contains('drop-hover')) card.classList.add('drop-hover');
-      };
-      card.ondragleave=e=>{
-        if(!card.contains(e.relatedTarget)) card.classList.remove('drop-hover');
-      };
-      const up=document.createElement('button');
-      up.className='up';
-      up.innerHTML='&#9650;';
-      up.onclick=()=>{pushUndo();shiftOct(octShifts, i, 1);renderAll();};
-      const down=document.createElement('button');
-      down.className='down';
-      down.innerHTML='&#9660;';
-      down.onclick=()=>{pushUndo();shiftOct(octShifts, i, -1);renderAll();};
+      if(DRAGGABLE){
+        card.ondragstart=e=>{ clearTimeout(pressTimer); const grp=selectedCards.has(i)?Array.from(selectedCards).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
+        card.ondragover=e=>e.preventDefault();
+        card.ondrop=e=>{
+          e.preventDefault();
+          e.stopPropagation();
+          const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
+          const min=Math.min(...grp);
+          const target=min < i ? i + 1 : i;
+          moveCards(grp, target);
+          card.classList.remove('drop-hover');
+          card.classList.add('drop-flash');
+          setTimeout(()=>card.classList.remove('drop-flash'),150);
+        };
+        card.ondragenter=e=>{
+          if(!card.classList.contains('drop-hover')) card.classList.add('drop-hover');
+        };
+        card.ondragleave=e=>{
+          if(!card.contains(e.relatedTarget)) card.classList.remove('drop-hover');
+        };
+      }
+      let up, down;
+      if(SHOW_SHIFT){
+        up=document.createElement('button');
+        up.className='up';
+        up.innerHTML='&#9650;';
+        up.onclick=()=>{pushUndo();shiftOct(octShifts, i, 1);renderAll();};
+        down=document.createElement('button');
+        down.className='down';
+        down.innerHTML='&#9660;';
+        down.onclick=()=>{pushUndo();shiftOct(octShifts, i, -1);renderAll();};
+      }
       const close=document.createElement('div');
       close.className='close';
       close.textContent='x';
@@ -380,8 +387,10 @@ function renderStaff(){
       const label=document.createElement('div');
       label.className='label';
       label.textContent=comps[i];
-      card.appendChild(up);
-      card.appendChild(down);
+      if(SHOW_SHIFT){
+        card.appendChild(up);
+        card.appendChild(down);
+      }
       card.appendChild(close);
       card.appendChild(note);
       card.appendChild(reg);
@@ -408,12 +417,14 @@ function renderStaff(){
         componentsWrap.appendChild(ia);
       }
     });
-    componentsWrap.ondragover=e=>e.preventDefault();
-    componentsWrap.ondrop=e=>{
-      e.preventDefault();
-      const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
-      moveCards(grp, notes.length);
-    };
+    if(DRAGGABLE){
+      componentsWrap.ondragover=e=>e.preventDefault();
+      componentsWrap.ondrop=e=>{
+        e.preventDefault();
+        const grp=JSON.parse(e.dataTransfer.getData('text/plain'));
+        moveCards(grp, notes.length);
+      };
+    }
   }
 
   function renderAll(){

@@ -168,7 +168,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderCards(){
     cardsWrap.innerHTML='';
-    cardsApi = initCards(cardsWrap, { notes, components, scaleLen: inputLen(), showIntervals:true, onChange:onCardsChange, draggable:false, showShift:false });
+    cardsApi = initCards(cardsWrap, { notes, scaleLen: inputLen(), showIntervals:true, onChange:onCardsChange, draggable:false, showShift:false });
   }
 
   function renderStaff(){
