@@ -11,3 +11,5 @@ npx http-server
 ```
 
 Introdueix els intervals o notes al camp de text i utilitza els botons **Rotació** i **Permutació** per canviar la visualització de les opcions.
+
+En seleccionar un pentagrama petit es manté l'ordre dels components d'aquella permutació. Només en prémer el botó **Generar** es reordenen de nou a l'ordre alfabètic (a b c d...).
