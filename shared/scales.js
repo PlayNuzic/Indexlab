@@ -172,6 +172,13 @@ export function degDiffToSemi(scale, start, diff){
   return out;
 }
 
+export function degDiffToSemiSpan(scale, start, diff){
+  const len = scaleSemis(scale.id).length;
+  const base = degDiffToSemi(scale, start, diff);
+  const octs = Math.floor((start + diff + scale.rot) / len) - Math.floor((start + scale.rot) / len);
+  return base + 12 * octs;
+}
+
 export function currentSemis(scale, degrees, shifts=[]){
   const semsArr = scaleSemis(scale.id);
   const len = semsArr.length;

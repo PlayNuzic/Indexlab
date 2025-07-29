@@ -9,10 +9,10 @@ function loadSharedUtils(){
   const { randInt, clamp, wrapSym } = libMod.exports;
 
   const scaleCode = fs.readFileSync(path.join(__dirname, '../../../shared/scales.js'), 'utf8');
-  const scaleTrans = scaleCode.replace(/export const/g,'const').replace(/export function/g,'function') + '\nmodule.exports = { scaleSemis };';
+  const scaleTrans = scaleCode.replace(/export const/g,'const').replace(/export function/g,'function') + '\nmodule.exports = { scaleSemis, degToSemi, degDiffToSemiSpan };';
   const scaleMod = { exports: {} };
   new Function('module','exports', scaleTrans)(scaleMod, scaleMod.exports);
-  const { scaleSemis } = scaleMod.exports;
+  const { scaleSemis, degToSemi, degDiffToSemiSpan } = scaleMod.exports;
 
   const utilCode = fs.readFileSync(path.join(__dirname, '../../../shared/utils.js'), 'utf8');
   const transformed = utilCode
@@ -22,7 +22,7 @@ function loadSharedUtils(){
     .replace(/export function/g,'function') +
     '\nmodule.exports = { randInt, clamp, wrapSym, absToDegInfo, applyGlobalParams };';
   const utilMod = { exports: {} };
-  new Function('randInt','clamp','wrapSym','scaleSemis','module','exports', transformed)(randInt, clamp, wrapSym, scaleSemis, utilMod, utilMod.exports);
+  new Function('randInt','clamp','wrapSym','scaleSemis','degToSemi','degDiffToSemiSpan','module','exports', transformed)(randInt, clamp, wrapSym, scaleSemis, degToSemi, degDiffToSemiSpan, utilMod, utilMod.exports);
   return { randInt, clamp, wrapSym, scaleSemis, absToDegInfo: utilMod.exports.absToDegInfo, applyGlobalParams: utilMod.exports.applyGlobalParams };
 }
 

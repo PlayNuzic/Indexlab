@@ -1,5 +1,5 @@
 import { randInt, clamp, wrapSym } from '../libs/utils/index.js';
-import { scaleSemis } from './scales.js';
+import { scaleSemis, degToSemi, degDiffToSemiSpan } from './scales.js';
 
 export { randInt, clamp, wrapSym };
 
@@ -24,13 +24,16 @@ export function absToDegInfo(abs, scale) {
 export function applyGlobalParams(state, row) {
   const p = state.params;
   if (p.start != null)
-    row[0] = clamp(state.baseMidi + wrapSym(p.start, 12), 0, 96);
+    row[0] = clamp(state.baseMidi + degToSemi(state.scale, p.start), 0, 96);
   const base = row[0];
   const range = p.rango ?? 24;
   for (let i = 0; i < row.length; i++)
     row[i] = clamp(row[i], base - range, base + range);
-  if (p.iR != null)
-    row[row.length - 1] = clamp(base + p.iR, base - range, base + range);
+  if (p.iR != null){
+    const startDeg = absToDegInfo(base, state.scale).deg;
+    const diff = degDiffToSemiSpan(state.scale, startDeg, p.iR);
+    row[row.length - 1] = clamp(base + diff, base - range, base + range);
+  }
   if (!p.duplicates) {
     const used = new Set();
     for (let i = 0; i < row.length; i++) {

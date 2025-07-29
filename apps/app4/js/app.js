@@ -1,5 +1,5 @@
 import { init as initSound, playNote } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi, degDiffToSemiSpan } from '../../../shared/scales.js';
 import { randInt, clamp, wrapSym, applyGlobalParams, absToDegInfo } from '../../../shared/utils.js';
 
 // SCALE DATA
@@ -122,7 +122,7 @@ function parseCellInput(view, input, oldNa){
     case 'iSº':
     case 'iAº': {
       const info = absToDegInfo(oldNa, state.scale);
-      const diff = degDiffToSemi(state.scale, info.deg, value);
+      const diff = degDiffToSemiSpan(state.scale, info.deg, value);
       newNa = clamp(oldNa + diff, 0, 96);
       break;
     }
@@ -228,7 +228,7 @@ function renderGrid(){
             if(['iSº','iAº'].includes(state.view)){
               const prevDeg=absToDegInfo(newRow[k-1], state.scale).deg;
               const degDiff=absToDegInfo(snap[k], state.scale).deg - absToDegInfo(snap[k-1], state.scale).deg;
-              const diff=degDiffToSemi(state.scale, prevDeg, degDiff);
+              const diff=degDiffToSemiSpan(state.scale, prevDeg, degDiff);
               newRow[k]=clamp(newRow[k-1]+diff,0,96);
             }else{
               const origDiff=snap[k]-snap[k-1];
