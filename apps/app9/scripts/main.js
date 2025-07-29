@@ -186,13 +186,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       drawPentagram(mdiv, midis, { chord:true, noteColors:[], scaleId: useKeySig ? scale.id : 'CROM', root: useKeySig ? scale.root : 0 });
       const svg = mdiv.querySelector('svg');
       if(svg){
-        svg.style.width='150px';
-        svg.style.height='100px';
+        svg.style.width='220px';
+        svg.style.height='190px';
         svg.style.transform='none';
         svg.style.transformOrigin='top left';
         svg.setAttribute('viewBox','0 40 420 260');
-        mdiv.style.width='150px';
-        mdiv.style.height='100px';
+        mdiv.style.width='220px';
+        mdiv.style.height='190px';
         mdiv.style.overflow='hidden';
       }
       const info=document.createElement('div');

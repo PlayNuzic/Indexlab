@@ -8,6 +8,7 @@
       snaps = snaps.map(s => {
         if(Array.isArray(s)) return {notes: s, baseMidi: 60, scale: {...defaultScale}, octShifts: Array(s.length).fill(0), components: null};
         if(!s) return null;
+        if(!('baseMidi' in s)) s.baseMidi = 60;
         if(!s.scale) s.scale = {...defaultScale};
         if(!Array.isArray(s.octShifts)) s.octShifts = Array(s.notes.length).fill(0);
         if(!Array.isArray(s.components)) s.components = null;
@@ -36,7 +37,7 @@
     }
     return {
       notes: [...snap.notes],
-      baseMidi: snap.baseMidi,
+      baseMidi: typeof snap.baseMidi === 'number' ? snap.baseMidi : 60,
       scale: snap.scale || {...defaultScale},
       octShifts: snap.octShifts ? snap.octShifts.slice() : Array(snap.notes.length).fill(0),
       components: snap.components ? snap.components.slice() : null
