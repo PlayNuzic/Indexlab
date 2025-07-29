@@ -20,3 +20,8 @@ The module `shared/cards.js` groups helpers to manipulate note-component pairs (
 The UI helper `libs/cards/index.js` exposes `init(container, opts)` to create editable card rows.
 When `opts.showIntervals` is `true`, input fields are inserted between cards so the
 intervals can be edited directly. Changing a field updates `state.notes` accordingly.
+
+Additional options:
+
+- `draggable` – enable drag & drop to reorder cards (default `true`).
+- `showShift` – display register arrows on each card (default `true`).

@@ -24,7 +24,9 @@ export function init(container, {
   orientation = 'row',
   help = false,
   showIntervals = false,
-  onChange = null
+  onChange = null,
+  draggable = true,
+  showShift = true
 } = {}){
   const state = {
     notes: notes.slice(),
@@ -134,7 +136,7 @@ export function init(container, {
       const card = document.createElement('div');
       card.className='component-card';
       if(selected.has(i)) card.classList.add('selected');
-      card.draggable=true;
+      if(draggable) card.draggable=true;
       let pressTimer;
       card.onmousedown=e=>{
         if(e.shiftKey){
@@ -145,11 +147,22 @@ export function init(container, {
         }
       };
       card.onmouseup=card.onmouseleave=()=>clearTimeout(pressTimer);
-      card.ondragstart=e=>{ clearTimeout(pressTimer); const grp=selected.has(i)?Array.from(selected).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
-      card.ondragover=e=>e.preventDefault();
-      card.ondrop=e=>{ e.preventDefault(); e.stopPropagation(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); const min=Math.min(...grp); const target=min<i?i+1:i; moveCards(grp,target); };
-      const up=document.createElement('button'); up.className='up'; up.textContent='\u25B2'; up.onclick=()=>{pushUndo();shiftOct(state.octShifts,i,1);render();};
-      const down=document.createElement('button'); down.className='down'; down.textContent='\u25BC'; down.onclick=()=>{pushUndo();shiftOct(state.octShifts,i,-1);render();};
+      if(draggable){
+        card.ondragstart=e=>{ clearTimeout(pressTimer); const grp=selected.has(i)?Array.from(selected).sort((a,b)=>a-b):[i]; e.dataTransfer.setData('text/plain',JSON.stringify(grp)); };
+        card.ondragover=e=>e.preventDefault();
+        card.ondrop=e=>{ e.preventDefault(); e.stopPropagation(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); const min=Math.min(...grp); const target=min<i?i+1:i; moveCards(grp,target); };
+      }
+      let up, down;
+      if(showShift){
+        up=document.createElement('button');
+        up.className='up';
+        up.textContent='\u25B2';
+        up.onclick=()=>{pushUndo();shiftOct(state.octShifts,i,1);render();};
+        down=document.createElement('button');
+        down.className='down';
+        down.textContent='\u25BC';
+        down.onclick=()=>{pushUndo();shiftOct(state.octShifts,i,-1);render();};
+      }
       const close=document.createElement('div'); close.className='close'; close.textContent='x'; close.onclick=()=>{pushUndo();omitCards(state,[i]);render();};
       const note=document.createElement('div');
       note.className='note';
@@ -161,7 +174,11 @@ export function init(container, {
       card.style.color = fgCol;
       note.style.color = fgCol;
       const label=document.createElement('div'); label.className='label'; label.textContent=state.components[i];
-      card.appendChild(up); card.appendChild(down); card.appendChild(close); card.appendChild(note); card.appendChild(label);
+      if(showShift){
+        card.appendChild(up);
+        card.appendChild(down);
+      }
+      card.appendChild(close); card.appendChild(note); card.appendChild(label);
       wrap.appendChild(card);
       if(showIntervals && i<state.notes.length-1){
         const ia=document.createElement('input');
@@ -181,8 +198,10 @@ export function init(container, {
         wrap.appendChild(ia);
       }
     });
-    wrap.ondragover=e=>e.preventDefault();
-    wrap.ondrop=e=>{ e.preventDefault(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); moveCards(grp, state.notes.length); };
+    if(draggable){
+      wrap.ondragover=e=>e.preventDefault();
+      wrap.ondrop=e=>{ e.preventDefault(); const grp=JSON.parse(e.dataTransfer.getData('text/plain')); moveCards(grp, state.notes.length); };
+    }
     if(typeof onChange==='function') onChange({ ...state });
   }
 

@@ -19,7 +19,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const tabAc = document.getElementById('tabAc');
   const generateBtn = document.getElementById('generate');
   const cardsWrap = document.getElementById('components-wrap');
-  const voicingModeSel = document.getElementById('voicingMode');
+  const rotModeBtn = document.getElementById('rotMode');
+  const permModeBtn = document.getElementById('permMode');
   const miniWrap = document.getElementById('miniWrap');
   const toggleMini = document.getElementById('toggleMini');
   const staffEl = document.getElementById('staff');
@@ -40,8 +41,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rotRight = document.getElementById('rotRight');
   const globUp = document.getElementById('globUp');
   const globDown = document.getElementById('globDown');
-  const dupBtn = document.getElementById('dupBtn');
-  const reduceBtn = document.getElementById('reduceBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
   const transposeControls = document.getElementById('transposeControls');
@@ -58,6 +57,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let colorNotes = false;
   let useKeySig = true;
   let highlightRoot = false;
+  let voicingMode = 'rot';
   let flashTimer = null;
   let snapshots = window.SnapUtils.initSnapshots(null);
   let activeSnapshot = null;
@@ -162,7 +162,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderCards(){
     cardsWrap.innerHTML='';
-    cardsApi = initCards(cardsWrap, { notes, scaleLen: inputLen(), showIntervals:true, onChange:onCardsChange });
+    cardsApi = initCards(cardsWrap, { notes, scaleLen: inputLen(), showIntervals:true, onChange:onCardsChange, draggable:false, showShift:false });
   }
 
   function renderStaff(){
@@ -187,7 +187,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(!toggleMini.checked) return;
     const comps = generateComponents(notes);
     let sets;
-    if(voicingModeSel.value==='rot'){
+    if(voicingMode==='rot'){
       sets = rotatePairs(notes, comps);
     }else{
       sets = permutePairsFixedBass(notes, comps);
@@ -284,15 +284,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
   rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderAll(); };
   rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderAll(); };
-  voicingModeSel.onchange=renderMini;
+  rotModeBtn.onclick=()=>{ voicingMode='rot'; rotModeBtn.classList.add('active'); permModeBtn.classList.remove('active'); renderMini(); };
+  permModeBtn.onclick=()=>{ voicingMode='perm'; permModeBtn.classList.add('active'); rotModeBtn.classList.remove('active'); renderMini(); };
   toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
 
   rotLeft.onclick=()=>{ pushUndo(); rotLeftLib(notes); fitNotes(); renderAll(); };
   rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes); fitNotes(); renderAll(); };
   globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
   globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
-  dupBtn.onclick=()=>{ pushUndo(); notes=notes.concat(notes); renderAll(); };
-  reduceBtn.onclick=()=>{ pushUndo(); if(notes.length>1){ notes.pop(); renderAll(); } };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
   transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
@@ -360,6 +359,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 
   miniWrap.style.display = toggleMini.checked ? '' : 'none';
+
+  rotModeBtn.classList.add('active');
+  permModeBtn.classList.remove('active');
 
   modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
 

@@ -99,7 +99,7 @@ button#generate:hover{background:#e6a12b;}
 .rec-controls{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;justify-content:center;margin-top:.5rem;}
 #togglePlay{background:var(--accent);color:#222;}
 #voicing-box{display:flex;flex-direction:column;align-items:center;gap:.5rem;margin-top:1rem;}
-#voicingMode,#toggleMini{background:#555;color:#fff;border:none;border-radius:4px;padding:.3rem .6rem;cursor:pointer;}
+#toggleMini{background:#555;color:#fff;border:none;border-radius:4px;padding:.3rem .6rem;cursor:pointer;}
 #miniWrap{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
 #rootInfo{position:absolute;top:1rem;right:1rem;background:#fff;color:#000;padding:.5rem;border-radius:4px;z-index:60;cursor:default;user-select:text;}
 #rootInfo button{float:right;}
@@ -299,8 +299,6 @@ button#generate:hover{background:#e6a12b;}
   color:#000;
   cursor:pointer;
 }
-.component-card .up{top:-0.8rem;}
-.component-card .down{bottom:-0.8rem;}
 .component-card .close{
   position:absolute;
   top:0.1rem;
@@ -325,7 +323,6 @@ button#generate:hover{background:#e6a12b;}
   align-items:center;
   justify-content:center;
 }
-#components-area button.up,#components-area button.down{background:transparent;color:#000;}
 #transp-controls{
   display:flex;
   flex-direction:column;
@@ -362,6 +359,7 @@ button#generate:hover{background:#e6a12b;}
 }
 #comp-actions{display:flex;gap:.4rem;margin-top:.4rem;justify-content:center;}
 #comp-actions button{padding:.3rem .6rem;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;}
+#comp-actions button.active{background:var(--accent);color:#222;}
 
 button.lp-complete{
   outline:2px solid var(--accent);

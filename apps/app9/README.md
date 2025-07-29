@@ -10,4 +10,4 @@ Serveix la carpeta amb un servidor local i obre `apps/app9/index.html`:
 npx http-server
 ```
 
-Introdueix els intervals o notes al camp de text i utilitza el selector per visualitzar les diferents opcions de rotació o permutació.
+Introdueix els intervals o notes al camp de text i utilitza els botons **Rotació** i **Permutació** per canviar la visualització de les opcions.
