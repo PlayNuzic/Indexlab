@@ -1,5 +1,5 @@
 import { init as initSound, playNote } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi } from '../../../shared/scales.js';
 import { randInt, clamp, wrapSym, applyGlobalParams, absToDegInfo } from '../../../shared/utils.js';
 
 // SCALE DATA
@@ -66,24 +66,32 @@ refreshRot();
 // ROW GENERATORS
 function genNaRow(){ return Array.from({length:COLS}, ()=>randInt(0,96)); }
 function genNmRow(){ return Array.from({length:COLS}, ()=>{ let n=randInt(0,11), d=Math.random()<state.octProb?(Math.random()<0.5?12:-12):0; return clamp(state.baseMidi+n+d,0,96); }); }
-function genScaleDegreeRow(){ const sems=scaleSemis(state.scale.id); return Array.from({length:COLS}, ()=>{ let deg=randInt(0,sems.length-1), sem=(sems[(deg+state.scale.rot)%sems.length]+state.scale.root)%12, d=Math.random()<state.octProb?(Math.random()<0.5?12:-12):0; return clamp(state.baseMidi+sem+d,0,96); }); }
+function genScaleDegreeRow(){
+  const len = scaleSemis(state.scale.id).length;
+  return Array.from({length:COLS}, () => {
+    const deg = randInt(0, len - 1);
+    const sem = degToSemi(state.scale, deg);
+    const d = Math.random()<state.octProb ? (Math.random()<0.5?12:-12) : 0;
+    return clamp(state.baseMidi + sem + d, 0, 96);
+  });
+}
 function genISmRow(){ let v=randInt(0,96); return Array.from({length:COLS},(_,i)=>{ if(i===0) return v; let iv=randInt(-6,6); if(Math.random()<state.octProb) iv+=(Math.random()<0.5?12:-12); v=clamp(v+iv,0,96); return v; }); }
 function genIStepRow(){
-  const sems=scaleSemis(state.scale.id);
-  let idx=randInt(0,sems.length-1),
-      oct=4,
-      sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12,
-      v=clamp(oct*12+sem,0,96);
-  return Array.from({length:COLS},(_,i)=>{
+  const len = scaleSemis(state.scale.id).length;
+  let idx = randInt(0, len - 1),
+      oct = 4,
+      sem = degToSemi(state.scale, idx),
+      v = clamp(oct*12 + sem, 0, 96);
+  return Array.from({length:COLS}, (_, i) => {
     if(i===0) return v;
-    let diff=randInt(-Math.floor(sems.length/2), Math.floor(sems.length/2));
+    let diff = randInt(-Math.floor(len/2), Math.floor(len/2));
     if(Math.random()<state.octProb)
-      diff+=(Math.random()<0.5?-sems.length:sems.length);
-    idx=((idx + diff) % sems.length + sems.length) % sems.length;
-    sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12;
-    oct+=Math.round(diff / sems.length);
-    v=clamp(oct*12+sem,0,96);
-    oct=Math.floor(v/12);
+      diff += (Math.random()<0.5 ? -len : len);
+    idx = ((idx + diff) % len + len) % len;
+    sem = degToSemi(state.scale, idx);
+    oct += Math.round(diff / len);
+    v = clamp(oct*12 + sem, 0, 96);
+    oct = Math.floor(v/12);
     return v;
   });
 }
@@ -91,7 +99,38 @@ function genIStepRow(){
 // applyGlobalParams provided by shared/utils.js
 
 // PARSE CELL INPUT
-function parseCellInput(view,input,oldNa){ const parts=input.split(/r/i).map(s=>s.trim()); const value=parseInt(parts[0],10); const octave=parts[1]?parseInt(parts[1],10):Math.floor(oldNa/12); if(isNaN(value)) return oldNa; let newNa; switch(view){ case 'Na': newNa=clamp(value,0,96); break; case 'Nm': newNa=clamp(octave*12+wrapSym(value,12),0,96); break; case 'Nº':{ const sems=scaleSemis(state.scale.id), len=sems.length; const sem=(sems[(value+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem,0,96); break; } case 'iSm': case 'iAm': newNa=clamp(oldNa+value,0,96); break; case 'iSº': case 'iAº':{ const info=absToDegInfo(oldNa, state.scale), len=scaleSemis(state.scale.id).length; const newDeg=info.deg+value; const sem2=(scaleSemis(state.scale.id)[(newDeg+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem2,0,96); break; } default: return oldNa;} return newNa; }
+function parseCellInput(view, input, oldNa){
+  const parts = input.split(/r/i).map(s => s.trim());
+  const value = parseInt(parts[0], 10);
+  const octave = parts[1] ? parseInt(parts[1], 10) : Math.floor(oldNa/12);
+  if(isNaN(value)) return oldNa;
+  let newNa;
+  switch(view){
+    case 'Na':
+      newNa = clamp(value, 0, 96);
+      break;
+    case 'Nm':
+      newNa = clamp(octave*12 + wrapSym(value,12), 0, 96);
+      break;
+    case 'Nº':
+      newNa = clamp(octave*12 + degToSemi(state.scale, value), 0, 96);
+      break;
+    case 'iSm':
+    case 'iAm':
+      newNa = clamp(oldNa + value, 0, 96);
+      break;
+    case 'iSº':
+    case 'iAº': {
+      const info = absToDegInfo(oldNa, state.scale);
+      const diff = degDiffToSemi(state.scale, info.deg, value);
+      newNa = clamp(oldNa + diff, 0, 96);
+      break;
+    }
+    default:
+      return oldNa;
+  }
+  return newNa;
+}
 
 // RENDER GRID
 function renderGrid(){
@@ -186,8 +225,15 @@ function renderGrid(){
           const newRow=[...snap];
           newRow[c]=newNa;
           for(let k=c+1;k<newRow.length;k++){
-            const origDiff=snap[k]-snap[k-1];
-            newRow[k]=clamp(newRow[k-1]+origDiff,0,96);
+            if(['iSº','iAº'].includes(state.view)){
+              const prevDeg=absToDegInfo(newRow[k-1], state.scale).deg;
+              const degDiff=absToDegInfo(snap[k], state.scale).deg - absToDegInfo(snap[k-1], state.scale).deg;
+              const diff=degDiffToSemi(state.scale, prevDeg, degDiff);
+              newRow[k]=clamp(newRow[k-1]+diff,0,96);
+            }else{
+              const origDiff=snap[k]-snap[k-1];
+              newRow[k]=clamp(newRow[k-1]+origDiff,0,96);
+            }
           }
           state.naRows[r]=newRow;
         } else {

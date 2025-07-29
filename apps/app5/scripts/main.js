@@ -1,6 +1,6 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import drawPentagram from '../../../libs/notation/pentagram.js';
-import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi } from '../../../shared/scales.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
@@ -92,30 +92,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   const baseSelect=document.getElementById('baseNote');
   baseSelect.value=String(baseMidi);
   baseSelect.onchange=()=>{baseMidi=parseInt(baseSelect.value,10);renderAll();};
-  const degToSemi = d => {
-    const sems = scaleSemis(scale.id);
-    const len = sems.length;
-    return (sems[(d + scale.rot) % len] + scale.root) % 12;
-  };
+  const degToSemiLocal = d => degToSemi(scale, d);
 
-  const degDiffToSemi = (start, diff) => {
-    const sems = scaleSemis(scale.id);
-    const len = sems.length;
-    const startIdx = (start + scale.rot) % len;
-    const targetIdx = (start + diff + scale.rot) % len;
-    const sem1 = (sems[startIdx] + scale.root) % 12;
-    const sem2 = (sems[targetIdx] + scale.root) % 12;
-    let out = sem2 - sem1;
-    if (out < 0) out += 12;
-    return out;
-  };
+  const degDiffToSemiLocal = (start, diff) => degDiffToSemi(scale, start, diff);
 
   const diagMidis = () => {
-    const sems = notes.map(degToSemi);
+    const sems = notes.map(degToSemiLocal);
     const abs = toAbsolute(sems, baseMidi);
     return abs.map((n,i)=>n + 12*(octShifts[i]||0));
   };
-  const diagNums = () => showNm ? notes.map(degToSemi) : notes.slice();
+  const diagNums = () => showNm ? notes.map(degToSemiLocal) : notes.slice();
   const seqInput=document.getElementById('seq');
   const prefix=document.getElementById('seqPrefix');
   const errorEl=document.getElementById('error');
@@ -229,7 +215,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderGrid(){
     const len=scaleSemis(scale.id).length;
-    const matrix=showNm ? buildMatrix(notes.map(n=>degToSemi(n)),12) : buildMatrix(notes,len);
+    const matrix=showNm ? buildMatrix(notes.map(n=>degToSemiLocal(n)),12) : buildMatrix(notes,len);
     const size=notes.length;
     diagArr = notes.length ? diagMidis() : [];
     diagNumsArr = notes.length ? diagNums() : [];
@@ -279,7 +265,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             }else{
               const low=diagArr[idx1];
               let interval=Number(matrix[r][c]);
-              if(!showNm) interval=degDiffToSemi(notes[idx1], interval);
+              if(!showNm) interval=degDiffToSemiLocal(notes[idx1], interval);
               noteArr=[low, low+interval];
             }
           }
@@ -608,7 +594,7 @@ function renderStaff(){
     const arr=notes.map((n,i)=>({
       note:((n%len)+len)%len,
       comp:components[i],
-      val:degToSemi(n)+12*(octShifts[i]||0)
+      val:degToSemiLocal(n)+12*(octShifts[i]||0)
     }));
     arr.sort((a,b)=>a.val-b.val);
     notes=arr.map(o=>o.note);

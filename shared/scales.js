@@ -153,3 +153,27 @@ export function intervalColor(interval, len=12){
   return `hsla(${hue},${sat}%,${newL}%,${alpha})`;
 }
 
+export function degToSemi(scale, d){
+  const sems = scaleSemis(scale.id);
+  const len = sems.length;
+  return (sems[(d + scale.rot) % len] + scale.root) % 12;
+}
+
+export function degDiffToSemi(scale, start, diff){
+  const sems = scaleSemis(scale.id);
+  const len = sems.length;
+  const startIdx = (start + scale.rot) % len;
+  const targetIdx = (start + diff + scale.rot) % len;
+  const sem1 = (sems[startIdx] + scale.root) % 12;
+  const sem2 = (sems[targetIdx] + scale.root) % 12;
+  let out = sem2 - sem1;
+  if(out < 0) out += 12;
+  return out;
+}
+
+export function currentSemis(scale, degrees){
+  const semsArr = scaleSemis(scale.id);
+  const len = semsArr.length;
+  return degrees.map(d => (semsArr[(d + scale.rot) % len] + scale.root) % 12);
+}
+

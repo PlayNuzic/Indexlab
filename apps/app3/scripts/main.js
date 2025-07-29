@@ -1,5 +1,5 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi } from '../../../shared/scales.js';
 const { initSnapshots, saveSnapshot: saveSnapData, loadSnapshot: loadSnapData, resetSnapshots: resetSnapData } = window.SnapUtils;
 const Presets = window.Presets;
 
@@ -44,26 +44,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   baseSelect.value=String(baseMidi);
   baseSelect.onchange=()=>{baseMidi=parseInt(baseSelect.value,10);renderGrid();};
 
-  const degToSemi = d => {
-    const sems = scaleSemis(scale.id);
-    const len = sems.length;
-    return (sems[(d + scale.rot) % len] + scale.root) % 12;
-  };
+  const degToSemiLocal = d => degToSemi(scale, d);
 
-  const degDiffToSemi = (start, diff) => {
-    const sems = scaleSemis(scale.id);
-    const len = sems.length;
-    const startIdx = (start + scale.rot) % len;
-    const targetIdx = (start + diff + scale.rot) % len;
-    const sem1 = (sems[startIdx] + scale.root) % 12;
-    const sem2 = (sems[targetIdx] + scale.root) % 12;
-    let out = sem2 - sem1;
-    if (out < 0) out += 12;
-    return out;
-  };
+  const degDiffToSemiLocal = (start, diff) => degDiffToSemi(scale, start, diff);
 
   const diagMidis = () => {
-    const sems = notes.map(degToSemi);
+    const sems = notes.map(degToSemiLocal);
     return toAbsolute(sems, baseMidi);
   };
   const seqInput=document.getElementById('seq');
@@ -167,7 +153,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderGrid(){
     const len=scaleSemis(scale.id).length;
-    const matrix=showNm ? buildMatrix(notes.map(n=>degToSemi(n)),12) : buildMatrix(notes,len);
+    const matrix=showNm ? buildMatrix(notes.map(n=>degToSemiLocal(n)),12) : buildMatrix(notes,len);
     const size=notes.length;
     diagArr = diagMidis();
     gridWrap.innerHTML='';
@@ -210,7 +196,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             }else{
               const low=diagArr[idx1];
               let interval=Number(matrix[r][c]);
-              if(!showNm) interval=degDiffToSemi(notes[idx1], interval);
+              if(!showNm) interval=degDiffToSemiLocal(notes[idx1], interval);
               noteArr=[low, low+interval];
             }
           }

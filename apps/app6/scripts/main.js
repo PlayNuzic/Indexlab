@@ -1,6 +1,6 @@
 import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis, intervalColor, intervalCategory, intervalTypeBySemitone, intervalCategoryFor } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, intervalColor, intervalCategory, intervalTypeBySemitone, intervalCategoryFor, degToSemi, degDiffToSemi, currentSemis } from '../../../shared/scales.js';
 import { pitchColor } from '../../../libs/vendor/chromatone-theory/index.js';
 import { findChordRoot } from '../../../shared/hindemith.js';
 
@@ -97,26 +97,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   let baseMidi = 60;
   baseSelect.value = String(baseMidi);
   baseSelect.onchange = () => { baseMidi = parseInt(baseSelect.value, 10); renderAll(); };
-  const degToSemi = d => {
-    const sems = scaleSemis(scale.id);
-    const len = sems.length;
-    return (sems[(d + scale.rot) % len] + scale.root) % 12;
-  };
+  const degToSemiLocal = d => degToSemi(scale, d);
 
-  const degDiffToSemi = (start, diff) => {
-    const sems = scaleSemis(scale.id);
-    const len = sems.length;
-    const startIdx = (start + scale.rot) % len;
-    const targetIdx = (start + diff + scale.rot) % len;
-    const sem1 = (sems[startIdx] + scale.root) % 12;
-    const sem2 = (sems[targetIdx] + scale.root) % 12;
-    let out = sem2 - sem1;
-    if (out < 0) out += 12;
-    return out;
-  };
+  const degDiffToSemiLocal = (start, diff) => degDiffToSemi(scale, start, diff);
+
+  const currentSemisLocal = () => currentSemis(scale, notes);
 
   const consecutiveSemiDiffs = () => {
-    const sems = currentSemis();
+    const sems = currentSemisLocal();
     return sems.slice(1).map((s,i)=>((s - sems[i] + 12) % 12));
   };
 
@@ -188,14 +176,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     return notes.slice(1).map((n,i)=>((n-notes[i]+len)%len));
   }
 
-  function currentSemis(){
-    const semsArr = scaleSemis(scale.id);
-    const len = semsArr.length;
-    return notes.map(d => (semsArr[(d + scale.rot) % len] + scale.root) % 12);
-  }
-
   function diagMidis(){
-    const sems = currentSemis();
+    const sems = currentSemisLocal();
     return toAbsolute(sems, baseMidi).map((m,i)=>m + 12*(octShifts[i]||0));
   }
 
@@ -211,7 +193,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const seq = [];
     const seqIdx = [];
     snapshots.forEach((s,i)=>{ if(s){ seq.push(s); seqIdx.push(i); } });
-    const sems=currentSemis();
+    const sems=currentSemisLocal();
     noteColors=sems.map(s=>pitchColor((s+3)%12));
     let colors=colorNotes?noteColors.slice():noteColors.map((c,i)=>i===hoverIdx?c:null);
     if(highlightRoot && rootPc!==null){
@@ -406,7 +388,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const diagNums = notes.slice();
     const comps = ensureDuplicateComponents(notes, components);
     const intervals = getIntervals();
-    noteColors = currentSemis().map(s => pastelColor(pitchColor((s+3)%12)));
+    noteColors = currentSemisLocal().map(s => pastelColor(pitchColor((s+3)%12)));
     diagNums.forEach((num,i)=>{
       const card = document.createElement('div');
       card.className='component-card';
@@ -541,7 +523,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const arr=notes.map((n,i)=>({
       note:((n%len)+len)%len,
       comp:components[i],
-      val:degToSemi(n)+12*(octShifts[i]||0)
+      val:degToSemiLocal(n)+12*(octShifts[i]||0)
     }));
     arr.sort((a,b)=>a.val-b.val);
     notes=arr.map(o=>o.note);
@@ -585,7 +567,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
 
   rootBtn.onmousedown = () => {
-    rootPc = findChordRoot(currentSemis());
+    rootPc = findChordRoot(currentSemisLocal());
     if(rootPc === null) return;
     highlightRoot = true;
     rootFlash = true;
