@@ -1,22 +1,28 @@
-# App2 – Ear Training Nuzic
+# App8 – Ear Training amb Perfils
 
-A simple ear training game to practice melodic and harmonic intervals using Nuzic notation. Choose a level and mode and try to identify each interval played.
+Aquesta versió ampliada del joc d'intervals permet crear perfils d'usuari amb avatar i estadístiques. Els nivells funcionen igual que a l'app original però es poden repetir automàticament els intervals fallats en mode de pràctica.
 
 ## Usage
 
-Run a local server and open `apps/app2/index.html`:
+Serveix la carpeta amb un servidor local i obre `apps/app8/index.html`:
 
 ```bash
 npx http-server
 ```
 
-Open the displayed URL in your browser and select this app.
+## Features
+
+- Gestor de **perfils** amb cinc ranures: permet crear, esborrar i editar avatars.
+- Deu nivells d'entrenament amb opcions de **pràctica** dels intervals fallats.
+- Estadístiques de cada perfil i historial de respostes.
+- Selecció d'**instrument** per reproduir els intervals.
+- Resposta ràpida mitjançant botons i resum al final de cada nivell.
 
 ## Shared Libraries
 
-App2 loads instruments and playback functions from `libs/sound` and shares the base styles from `libs/shared-ui`.
+Aquesta app utilitza `libs/ear-training`, `libs/sound` i `libs/notation` a més de l'estil comú de `libs/shared-ui`.
 
-Automated tests can be executed from the repository root with:
+Run tests from the repository root with:
 
 ```bash
 npm test

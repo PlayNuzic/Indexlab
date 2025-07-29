@@ -14,7 +14,11 @@ Selecciona l'escala i introdueix la seqüència de notes en format **eA** o **Ac
 
 ### Features
 
+- Selector d'escala amb rotacions i arrel.
+- Seqüències **eA** o **Ac** amb botó **Generar** i transposició.
+- Cartes editables: rotar, duplicar, reordenar i reduir.
+- Colors de notes i intervals i detecció de l'arrel.
 - Deu **presets** (A–J) per desar acords. Clica un botó per carregar-lo i usa **Guardar** per emmagatzemar l'acord actual. Els presets es poden arrossegar per reordenar, reiniciar, descarregar o carregar en JSON.
 - Control de **tempo** amb BPM o el botó **Tap**. Pots **Gravar** les pulsacions sobre els acords del pentagrama (després d'un compte enrere de 4) i **Reproduir** la seqüència o exportar-la com a **MIDI**.
 - Mantén **Shift** en clicar un acord per sentir-lo com un arpegi; amb **Alt+Shift** sona el doble de ràpid. Durant la gravació també es registra aquest mode.
-- En mode **Armadura**, una línia vertical indica quan la tonalitat canvia entre presets guardats.
+- Mode **Armadura/Accidentals** amb indicació de canvis de tonalitat al pentagrama.

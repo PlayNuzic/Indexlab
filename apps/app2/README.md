@@ -12,6 +12,14 @@ npx http-server
 
 Open the displayed URL in your browser and select this app.
 
+### Features
+
+- Two training modes: **iS** (melodic) and **iA** (harmonic).
+- Ten difficulty levels with predefined interval sets.
+- On each round you can replay the notes, pick the answer from quick buttons and see your score.
+- After completing a level view a summary and choose to repeat or advance.
+- Select the playback instrument (synth or piano).
+
 ## Shared Libraries
 
 App2 loads instruments and playback functions from `libs/sound` and shares the base styles from `libs/shared-ui`.

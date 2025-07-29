@@ -19,6 +19,7 @@ automàticament a **GitHub Pages**:
 | **Playback** | Synth bàsic amb *Web Audio*; botó ▶ per fila, BPM ajustable. |
 | **Export MIDI** | Cada fila es pot descarregar com a fitxer .mid. |
 | **Presets ràpids** | Barra de 8 memòries (Alt + clic esborra, Shift + clic desa). |
+| **Paràmetres extres** | Probabilitat d'octava i opcions globals (`iR`, `caDif`, `rango`, `duplicates`, `start`). |
 
 ---
 

@@ -13,3 +13,12 @@ npx http-server
 Introdueix els intervals o notes al camp de text i utilitza els botons **Rotació** i **Permutació** per canviar la visualització de les opcions.
 
 En seleccionar un pentagrama petit es manté l'ordre dels components d'aquella permutació. Només en prémer el botó **Generar** es reordenen de nou a l'ordre alfabètic (a b c d...).
+
+### Features
+
+- Selector d'escala amb rotacions i arrel.
+- Seqüències **eA** o **Ac** amb transposició global i botó **Generar**.
+- Modes **Rotació** i **Permutació** per explorar diferents disposicions d'acords.
+- Cartes drag & drop amb botons per duplicar i transposar.
+- Pentagrama opcional amb detecció de l'arrel i colors d'intervals.
+- Presets locals per guardar configuracions (descarregar/carregar en JSON).
