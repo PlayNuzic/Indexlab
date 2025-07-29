@@ -1,7 +1,7 @@
 import { init as initCards } from '../../../libs/cards/index.js';
 import drawPentagram from '../../../libs/notation/pentagram.js';
 import { init as initSound, playChord } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, currentSemis } from '../../../shared/scales.js';
 import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
   duplicateCards, omitCards, generateComponents, rotatePairs, permutePairsFixedBass } from '../../../shared/cards.js';
 import { findChordRoot, intervalRoot } from '../../../shared/hindemith.js';
@@ -71,9 +71,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function semisFromNotes(arr){
-    const sems = scaleSemis(scale.id);
-    const len = sems.length;
-    return arr.map(d => (sems[(d + scale.rot) % len] + scale.root) % 12);
+    return currentSemis(scale, arr);
   }
 
   function absoluteMidis(arr){

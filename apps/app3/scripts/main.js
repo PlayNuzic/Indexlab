@@ -1,5 +1,5 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi, currentSemis } from '../../../shared/scales.js';
 const { initSnapshots, saveSnapshot: saveSnapData, loadSnapshot: loadSnapData, resetSnapshots: resetSnapData } = window.SnapUtils;
 const Presets = window.Presets;
 
@@ -49,7 +49,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const degDiffToSemiLocal = (start, diff) => degDiffToSemi(scale, start, diff);
 
   const diagMidis = () => {
-    const sems = notes.map(degToSemiLocal);
+    const sems = currentSemis(scale, notes);
     return toAbsolute(sems, baseMidi);
   };
   const seqInput=document.getElementById('seq');

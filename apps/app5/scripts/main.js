@@ -1,6 +1,6 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import drawPentagram from '../../../libs/notation/pentagram.js';
-import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi, currentSemis } from '../../../shared/scales.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
   duplicateCards, omitCards, addCard } from '../../../shared/cards.js';
@@ -97,9 +97,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const degDiffToSemiLocal = (start, diff) => degDiffToSemi(scale, start, diff);
 
   const diagMidis = () => {
-    const sems = notes.map(degToSemiLocal);
-    const abs = toAbsolute(sems, baseMidi);
-    return abs.map((n,i)=>n + 12*(octShifts[i]||0));
+    const sems = currentSemis(scale, notes, octShifts);
+    return toAbsolute(sems, baseMidi);
   };
   const diagNums = () => showNm ? notes.map(degToSemiLocal) : notes.slice();
   const seqInput=document.getElementById('seq');

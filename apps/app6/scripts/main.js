@@ -101,7 +101,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const degDiffToSemiLocal = (start, diff) => degDiffToSemi(scale, start, diff);
 
-  const currentSemisLocal = () => currentSemis(scale, notes);
+  const currentSemisLocal = () => currentSemis(scale, notes, octShifts);
 
   const consecutiveSemiDiffs = () => {
     const sems = currentSemisLocal();
@@ -177,16 +177,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function diagMidis(){
-    const sems = currentSemisLocal();
-    return toAbsolute(sems, baseMidi).map((m,i)=>m + 12*(octShifts[i]||0));
+    return toAbsolute(currentSemisLocal(), baseMidi);
   }
 
   function rootMidi(snap){
-    const arr = scaleSemis(snap.scale.id);
-    const len = arr.length;
-    const semi = (arr[(snap.notes[0]+snap.scale.rot)%len]+snap.scale.root)%12;
-    const shift = snap.octShifts ? (snap.octShifts[0]||0)*12 : 0;
-    return snap.baseMidi + semi + shift;
+    const semi = currentSemis(snap.scale, [snap.notes[0]], [snap.octShifts?.[0]||0])[0];
+    return snap.baseMidi + semi;
   }
 
   function renderStaff(){
@@ -240,9 +236,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         renderSnapshots();
         renderStaff();
       };
-      const sems=snap.notes.map((d=>{
-        const semsArr=scaleSemis(snap.scale.id); const len=semsArr.length; return (semsArr[(d+snap.scale.rot)%len]+snap.scale.root)%12; }));
-      const midis=toAbsolute(sems, snap.baseMidi).map((m,i)=>m+12*(snap.octShifts?.[i]||0));
+      const sems=currentSemis(snap.scale, snap.notes, snap.octShifts || []);
+      const midis=toAbsolute(sems, snap.baseMidi);
       drawPentagram(div, midis, {scaleId:useKeySig?snap.scale.id:'CROM',root:useKeySig?snap.scale.root:0,chord:true,duration:'w'});
       const svg = div.querySelector('svg');
       svg.style.width = '140px';
@@ -710,9 +705,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const ppq = 480;
     const track = midi.addTrack();
     seq.forEach((snap,idx)=>{
-      const sems=snap.notes.map(d=>{
-        const arr=scaleSemis(snap.scale.id); const len=arr.length; return (arr[(d+snap.scale.rot)%len]+snap.scale.root)%12;});
-      const mids=toAbsolute(sems,snap.baseMidi).map((m,i)=>m + 12*(snap.octShifts?.[i]||0));
+      const sems=currentSemis(snap.scale, snap.notes, snap.octShifts || []);
+      const mids=toAbsolute(sems, snap.baseMidi);
       const tick=idx*ppq*4;
       mids.forEach(n=>track.addNote({midi:n,ticks:tick,durationTicks:ppq*4}));
     });
