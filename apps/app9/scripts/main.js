@@ -312,10 +312,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes, components); fitNotes(); renderAll(); };
   globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
   globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
+  let muted = false;
   muteBtn.onclick=()=>{
-    const state = toggleMute();
-    muteBtn.classList.toggle('muted', state);
-    muteBtn.textContent = state ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+    muted = !muted;
+    if(typeof Tone !== 'undefined' && Tone.Destination){
+      Tone.Destination.mute = muted;
+    }
+    muteBtn.classList.toggle('muted', muted);
+    muteBtn.textContent = muted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
   };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
@@ -390,8 +394,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
 
-  muteBtn.classList.toggle('muted', isMuted());
-  muteBtn.textContent = isMuted() ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+  Tone.Destination.mute = muted;
+  muteBtn.classList.toggle('muted', muted);
+  muteBtn.textContent = muted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
 
   renderAll();
 });
