@@ -206,6 +206,17 @@ window.addEventListener('DOMContentLoaded', async () => {
       const mdiv=document.createElement('div');
       const midis=absoluteMidis(obj.notes);
       drawPentagram(mdiv, midis, { chord:true, noteColors:[], scaleId: useKeySig ? scale.id : 'CROM', root: useKeySig ? scale.root : 0 });
+      const svg = mdiv.querySelector('svg');
+      if(svg){
+        svg.style.width='150px';
+        svg.style.height='100px';
+        svg.style.transform='none';
+        svg.style.transformOrigin='top left';
+        svg.setAttribute('viewBox','0 40 420 260');
+        mdiv.style.width='150px';
+        mdiv.style.height='100px';
+        mdiv.style.overflow='hidden';
+      }
       const info=document.createElement('div');
       info.textContent=generateComponents(obj.notes).join(' ');
       const wrap=document.createElement('div');

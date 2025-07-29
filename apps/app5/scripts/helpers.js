@@ -15,6 +15,7 @@
   const notesToAc = notes => notes.join(' ');
 
   const toAbsolute = (notes, base) => {
+    if(!notes.length) return [];
     const result = [base + notes[0]];
     for (let i = 1; i < notes.length; i++) {
       let next = base + notes[i];
