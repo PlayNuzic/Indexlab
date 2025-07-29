@@ -163,14 +163,13 @@ export function degToSemi(scale, d){
 export function degDiffToSemi(scale, start, diff){
   const sems = scaleSemis(scale.id);
   const len = sems.length;
-  const s = start + scale.rot;
-  const t = start + diff + scale.rot;
-  const octs = Math.floor(t / len) - Math.floor(s / len);
-  const startIdx = ((s % len) + len) % len;
-  const targetIdx = ((t % len) + len) % len;
-  const sem1 = sems[startIdx];
-  const sem2 = sems[targetIdx];
-  return sem2 - sem1 + octs * 12;
+  const startIdx = ((start + scale.rot) % len + len) % len;
+  const targetIdx = ((start + diff + scale.rot) % len + len) % len;
+  const sem1 = (sems[startIdx] + scale.root) % 12;
+  const sem2 = (sems[targetIdx] + scale.root) % 12;
+  let out = sem2 - sem1;
+  if(out < 0) out += 12;
+  return out;
 }
 
 export function currentSemis(scale, degrees, shifts=[]){

@@ -29,10 +29,10 @@ describe('scale helpers', () => {
     expect(degToSemi(scale, -1)).toBe(11);
   });
 
-  test('degDiffToSemi handles octave leaps', () => {
+  test('degDiffToSemi wraps around scale length', () => {
     const { degDiffToSemi } = loadModule();
     const scale = { id: 'DIAT', rot: 0, root: 0 };
-    expect(degDiffToSemi(scale, 0, 7)).toBe(12);
-    expect(degDiffToSemi(scale, 0, -7)).toBe(-12);
+    expect(degDiffToSemi(scale, 0, 7)).toBe(0);
+    expect(degDiffToSemi(scale, 0, -7)).toBe(0);
   });
 });
