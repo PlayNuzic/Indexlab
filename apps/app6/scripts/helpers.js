@@ -24,6 +24,11 @@
     return result;
   };
 
+  const absoluteWithShifts = (notes, base, shifts=[]) => {
+    const abs = toAbsolute(notes, base);
+    return abs.map((m,i)=>m + 12*(shifts[i] || 0));
+  };
+
   const buildMatrix = (notes, len=12) => {
     const N = notes.length;
     const m = Array.from({ length: N }, () => Array(N).fill(''));
@@ -43,7 +48,7 @@
     return m;
   };
 
-  const Helpers = { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute, buildMatrix };
+  const Helpers = { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute, absoluteWithShifts, buildMatrix };
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = Helpers;

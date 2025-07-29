@@ -26,7 +26,7 @@ const Presets = window.Presets;
 
 window.addEventListener('DOMContentLoaded', async () => {
   await init('piano');
-  const { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute } = window.Helpers;
+  const { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute, absoluteWithShifts } = window.Helpers;
 
   let mode = 'eA';
   let scale = { id: 'DIAT', rot: 0, root: 0 };
@@ -178,8 +178,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function diagMidis(){
     const sems = currentSemisLocal();
-    const abs = toAbsolute(sems, baseMidi);
-    return abs.map((m,i)=>m + 12*(octShifts[i]||0));
+    return absoluteWithShifts(sems, baseMidi, octShifts);
   }
 
   function rootMidi(snap){
@@ -239,7 +238,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         renderStaff();
       };
       const sems=currentSemis(snap.scale, snap.notes);
-      const midis=toAbsolute(sems, snap.baseMidi).map((m,i)=>m+12*(snap.octShifts?.[i]||0));
+      const midis=absoluteWithShifts(sems, snap.baseMidi, snap.octShifts || []);
       drawPentagram(div, midis, {scaleId:useKeySig?snap.scale.id:'CROM',root:useKeySig?snap.scale.root:0,chord:true,duration:'w'});
       const svg = div.querySelector('svg');
       svg.style.width = '140px';
@@ -708,7 +707,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const track = midi.addTrack();
     seq.forEach((snap,idx)=>{
       const sems=currentSemis(snap.scale, snap.notes);
-      const mids=toAbsolute(sems, snap.baseMidi).map((m,i)=>m + 12*(snap.octShifts?.[i]||0));
+      const mids=absoluteWithShifts(sems, snap.baseMidi, snap.octShifts || []);
       const tick=idx*ppq*4;
       mids.forEach(n=>track.addNote({midi:n,ticks:tick,durationTicks:ppq*4}));
     });

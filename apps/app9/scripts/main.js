@@ -8,7 +8,7 @@ import { findChordRoot, intervalRoot } from '../../../shared/hindemith.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
   await initSound('piano');
-  const { parseNums, eAToNotes: eaToNotes, notesToEA, notesToAc, toAbsolute } = window.Helpers;
+  const { parseNums, eAToNotes: eaToNotes, notesToEA, notesToAc, toAbsolute, absoluteWithShifts } = window.Helpers;
 
   const scaleSel = document.getElementById('scaleSel');
   const rotSel = document.getElementById('rotSel');
@@ -75,7 +75,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function absoluteMidis(arr){
-    return toAbsolute(semisFromNotes(arr), baseMidi);
+    return absoluteWithShifts(semisFromNotes(arr), baseMidi);
   }
 
   function updateRootInfo(){

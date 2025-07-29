@@ -7,7 +7,7 @@ const Presets = window.Presets;
 window.addEventListener('DOMContentLoaded', async () => {
   await init();
   // -------- helpers --------
-  const { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute, buildMatrix } = window.Helpers;
+  const { parseNums, eAToNotes, notesToEA, notesToAc, toAbsolute, absoluteWithShifts, buildMatrix } = window.Helpers;
 
 // -------- state --------
   let mode='eA';
@@ -50,7 +50,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const diagMidis = () => {
     const sems = currentSemis(scale, notes);
-    return toAbsolute(sems, baseMidi);
+    return absoluteWithShifts(sems, baseMidi);
   };
   const seqInput=document.getElementById('seq');
   const prefix=document.getElementById('seqPrefix');
