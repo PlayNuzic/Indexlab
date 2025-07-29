@@ -194,13 +194,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   function renderMini(){
     miniWrap.innerHTML='';
     if(!toggleMini.checked) return;
-    const pairs = notes.map(n=>n);
+    const pairs = notes.map(n => ({ note:n }));
     let sets;
     if(voicingModeSel.value==='rot'){
-      sets = rotations(pairs).map(arr=>({notes:arr.map(o=>o.note), comps:arr.map(o=>o.comp)}));
+      sets = rotations(pairs).map(arr => ({notes: arr.map(o => o.note)}));
     }else{
-      const perms = permuteFixedBass(pairs.map(n=>({note:n})));
-      sets = perms.map(arr=>({notes:arr.map(p=>p.note)}));
+      const perms = permuteFixedBass(pairs);
+      sets = perms.map(arr => ({notes: arr.map(p => p.note)}));
     }
     sets.forEach(obj=>{
       const mdiv=document.createElement('div');
