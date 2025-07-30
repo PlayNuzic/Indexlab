@@ -3,6 +3,7 @@ import EarTrainingGame from '../../../libs/ear-training/index.js';
 import { randInt } from '../../../libs/utils/index.js';
 import { drawPentagram } from '../../../libs/notation/index.js';
 import { intervalColor } from '../../../shared/scales.js';
+import { startTour } from '../../../libs/guide/index.js';
 
 const game = new EarTrainingGame({ randInt });
 const avatarFiles = ['avatar1.png','avatar2.png','avatar3.png','avatar4.png','avatar5.png'];
@@ -219,6 +220,32 @@ document.querySelectorAll('#levelInfo button').forEach(btn=>{
 });
 
 renderProfiles();
+
+const tourSteps = [
+  {
+    element: '#profiles',
+    popover: {
+      title: 'Perfiles de usuario',
+      description: 'Aquí puedes crear un perfil o seleccionar tu perfil existente. Usa un perfil para guardar tu progreso y estadísticas.'
+    }
+  },
+  {
+    element: '#levelInfo',
+    popover: {
+      title: 'Niveles de entrenamiento',
+      description: 'Estos son los niveles disponibles. Comienza por el nivel 1 e irá desbloqueando niveles superiores a medida que completes cada uno.'
+    }
+  },
+  {
+    element: '#showStats',
+    popover: {
+      title: 'Estadísticas',
+      description: 'Puedes consultar en cualquier momento tus estadísticas y medallas obtenidas haciendo clic aquí.'
+    }
+  }
+];
+
+startTour(tourSteps);
 document.getElementById('showStats').onclick=()=>{
   if(!currentProfile) return;
   const el=document.getElementById('statsContent');
