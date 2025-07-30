@@ -323,6 +323,7 @@ document.getElementById('practiceMenu').onclick=()=>{
 };
 
 function playNotes(){
+  if(tutorialActive || game.note1 === undefined || game.note2 === undefined) return;
   if(game.mode==='iS'){
     playNote(game.note1, 0.5);
     setTimeout(()=>{
