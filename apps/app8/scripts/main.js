@@ -31,6 +31,7 @@ let practiceIntervals = [];
 let tutorialActive = false;
 let tutorialDriver = null;
 let tutorialTimeout = null;
+let tutorialCleanup = null;
 const skipBtn = document.getElementById('skipTutorial');
 
 function showSkipButton(){
@@ -39,6 +40,7 @@ function showSkipButton(){
   skipBtn.onclick = () => {
     if (tutorialDriver) tutorialDriver.reset();
     clearTimeout(tutorialTimeout);
+    if (typeof tutorialCleanup === 'function') tutorialCleanup();
     tutorialActive = false;
     hideSkipButton();
     nextMixedQuestion();
@@ -49,6 +51,25 @@ function hideSkipButton(){
   if(!skipBtn) return;
   skipBtn.style.display = 'none';
   skipBtn.onclick = null;
+}
+
+function setupLevelTutorialListeners(driver){
+  const playBtn = document.getElementById('playBtn');
+  const answers = document.getElementById('quickAns');
+  const onPlay = () => {
+    playBtn.removeEventListener('click', onPlay);
+    if (driver && typeof driver.moveNext === 'function') driver.moveNext();
+  };
+  const onAnswer = () => {
+    answers.removeEventListener('click', onAnswer);
+    if (driver && typeof driver.moveNext === 'function') driver.moveNext();
+  };
+  playBtn.addEventListener('click', onPlay, { once: true });
+  answers.addEventListener('click', onAnswer, { once: true });
+  return () => {
+    playBtn.removeEventListener('click', onPlay);
+    answers.removeEventListener('click', onAnswer);
+  };
 }
 
 function saveProfiles(){
@@ -209,22 +230,27 @@ async function startGame(level = 1, opts = {}){
     console.error('Instrument load error', err);
   }
   updateScore();
-  tutorialActive = true;
-  showSkipButton();
-  tutorialDriver = startLevelTour({ onEnd: () => {
-    clearTimeout(tutorialTimeout);
-    tutorialActive = false;
-    hideSkipButton();
-    nextMixedQuestion();
-  }});
-  tutorialTimeout = setTimeout(() => {
-    if (tutorialActive) {
-      if (tutorialDriver) tutorialDriver.reset();
+  tutorialActive = level === 1 && !opts.practice;
+  if (tutorialActive) {
+    showSkipButton();
+    const finish = () => {
+      clearTimeout(tutorialTimeout);
+      if (typeof tutorialCleanup === 'function') tutorialCleanup();
       tutorialActive = false;
       hideSkipButton();
       nextMixedQuestion();
-    }
-  }, 30000);
+    };
+    tutorialDriver = startLevelTour({ onEnd: finish });
+    tutorialCleanup = setupLevelTutorialListeners(tutorialDriver);
+    tutorialTimeout = setTimeout(() => {
+      if (tutorialActive) {
+        if (tutorialDriver) tutorialDriver.reset();
+        finish();
+      }
+    }, 30000);
+  } else {
+    nextMixedQuestion();
+  }
 }
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('advanceLevel').onclick=()=>{
@@ -300,14 +326,16 @@ const levelTourSteps = [
     element: '#playBtn',
     popover: {
       title: 'Escuchar intervalo',
-      description: 'El botón "Escolta de nou" vuelve a reproducir el intervalo tantas veces como necesites.'
+      description: 'El botón "Escolta de nou" vuelve a reproducir el intervalo tantas veces como necesites.',
+      showButtons: false
     }
   },
   {
     element: '#quickAns',
     popover: {
       title: 'Respuestas rápidas',
-      description: 'escoge la respuesta correcta apretando los botones de intervalo iluminados.'
+      description: 'escoge la respuesta correcta apretando los botones de intervalo iluminados.',
+      showButtons: false
     }
   },
   {
