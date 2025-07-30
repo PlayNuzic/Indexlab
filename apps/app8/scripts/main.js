@@ -292,15 +292,15 @@ const levelTourSteps = [
   {
     element: '#question',
     popover: {
-      title: 'Pregunta',
-      description: 'Aquí verás el número de pregunta y el nivel actual que genera la función nextMixedQuestion.'
+      title: 'Seguimiento',
+      description: 'Aquí puedes ver el seguimiento del nivel de juego actual. Si aciertas verás el intervalo en un pentagrama, si fallas verás solamente el color del tipo de sonoridad. Se supera el nivel con 5 aciertos'
     }
   },
   {
     element: '#playBtn',
     popover: {
       title: 'Escuchar intervalo',
-      description: 'El botón "Escolta de nou" vuelve a reproducir las notas mediante playNotes.'
+      description: 'El botón "Escolta de nou" vuelve a reproducir el intervalo tantas veces como necesites.'
     }
   },
   {
@@ -321,14 +321,14 @@ const levelTourSteps = [
     element: '#score',
     popover: {
       title: 'Puntuación',
-      description: 'updateScore actualiza tus aciertos y errores acumulados.'
+      description: 'Tus aciertos y errores por nivel.'
     }
   },
   {
     element: '#backBtn',
     popover: {
       title: 'Volver al menú',
-      description: 'Con este botón sales del nivell y regresas al menú de niveles.'
+      description: 'Con este botón sales del nivel y regresas al menú principal.'
     }
   }
 ];
