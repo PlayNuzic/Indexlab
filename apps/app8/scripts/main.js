@@ -28,6 +28,7 @@ let consecutiveFails = 0;
 let consecutiveWins = 0;
 let practiceInfo = null;
 let practiceIntervals = [];
+let tutorialActive = false;
 
 function saveProfiles(){
   localStorage.setItem('profiles', JSON.stringify(profiles));
@@ -183,8 +184,11 @@ async function startGame(level = 1, opts = {}){
   initButtons();
   await loadInstrument(document.getElementById('instrument').value || 'piano');
   updateScore();
-  nextMixedQuestion();
-  startTour(levelTourSteps);
+  tutorialActive = true;
+  startTour(levelTourSteps, () => {
+    tutorialActive = false;
+    nextMixedQuestion();
+  });
 }
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('advanceLevel').onclick=()=>{
@@ -267,7 +271,14 @@ const levelTourSteps = [
     element: '#quickAns',
     popover: {
       title: 'Respuestas rápidas',
-      description: 'initButtons crea estos botones para que elijas el intervalo correcto.'
+      description: 'escoge la respuesta correcta apretando los botones de intervalo iluminados.'
+    }
+  },
+  {
+    element: '#notation',
+    popover: {
+      title: 'El pentagrama',
+      description: 'Aquí verás el intervalo en pentagrama si aciertas y el color de la sonoridad del intervalo si fallas.'
     }
   },
   {
@@ -339,6 +350,7 @@ function nextMixedQuestion(){
 }
 
 function submitAnswer(value){
+  if (tutorialActive) return;
   const res = game.answer(value);
   updateScore();
   if(res.correct){
