@@ -123,16 +123,6 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
       }else if(candFlat.letter === target){
         cand = candFlat;
       }
-    }else if(diff === 2 || diff === 10){
-      const cycle = ['c','d','e','f','g','a','b'];
-      const prevIdx = cycle.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-      const target = cycle[targetIdx];
-      if(candSharp.letter === target){
-        cand = candSharp;
-      }else if(candFlat.letter === target){
-        cand = candFlat;
-      }
     }else if(diff === 1 || diff === 11){
       const cycle = ['c','d','e','f','g','a','b'];
       const prevIdx = cycle.indexOf(prev.letter);
@@ -185,21 +175,46 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
 }
 
 export function midiSequenceToChromaticParts(midis, prefMap = null){
-  const full = [];
+  function build(prefer){
+    const arr = [];
+    midis.forEach(m => {
+      const forced = prefMap ? prefMap[((m % 12) + 12) % 12] : null;
+      const prev = arr[arr.length-1];
+      const part = midiToChromaticPart(m, prev, prefer, forced);
+      if(prev){
+        part.diff = Math.abs(part.pc - prev.pc) % 12;
+      }
+      arr.push(part);
+    });
+    return arr;
+  }
+
+  const initial = build(null);
   let prefer = null;
-  midis.forEach((m, idx) => {
-    const forced = prefMap ? prefMap[((m % 12) + 12) % 12] : null;
-    const prev = full[full.length-1];
-    const part = midiToChromaticPart(m, prev, prefer, forced);
-    if(prev){
-      part.diff = Math.abs(part.pc - prev.pc) % 12;
+  for(const p of initial){
+    if(p.accidental && p.accidental !== '\u266E'){
+      if(p.accidental.includes('b')) prefer = 'b';
+      else if(p.accidental.includes('#')) prefer = '#';
+      if(prefer) break;
     }
-    if(!prefer && !forced && part.accidental && part.accidental !== '\u266E'){
-      if(part.accidental.includes('b')) prefer = 'b';
-      else if(part.accidental.includes('#')) prefer = '#';
-    }
-    full.push(part);
-  });
+  }
+
+  let full = initial;
+  if(prefer){
+    const prefSeq = build(prefer);
+    const altSeq = build(prefer === '#' ? 'b' : '#');
+    const letterIdx = l => ['c','d','e','f','g','a','b'].indexOf(l);
+    const leaps = seq => seq.reduce((acc, p, i)=>{
+      if(i===0) return acc;
+      const diff = Math.abs(letterIdx(p.letter) - letterIdx(seq[i-1].letter));
+      if(diff > 1 && (p.diff === 1 || p.diff === 2)) return acc + 1;
+      return acc;
+    },0);
+    const prefLeaps = leaps(prefSeq);
+    const altLeaps = leaps(altSeq);
+    full = prefLeaps <= altLeaps ? prefSeq : altSeq;
+    prefer = prefLeaps <= altLeaps ? prefer : (prefer === '#' ? 'b' : '#');
+  }
   for(let i=0;i<full.length-1;i++){
     const curr = full[i];
     const next = full[i+1];
