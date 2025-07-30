@@ -184,6 +184,7 @@ async function startGame(level = 1, opts = {}){
   await loadInstrument(document.getElementById('instrument').value || 'piano');
   updateScore();
   nextMixedQuestion();
+  startTour(levelTourSteps);
 }
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('advanceLevel').onclick=()=>{
@@ -246,6 +247,44 @@ const tourSteps = [
 ];
 
 startTour(tourSteps);
+
+const levelTourSteps = [
+  {
+    element: '#question',
+    popover: {
+      title: 'Pregunta',
+      description: 'Aquí verás el número de pregunta y el nivel actual que genera la función nextMixedQuestion.'
+    }
+  },
+  {
+    element: '#playBtn',
+    popover: {
+      title: 'Escuchar intervalo',
+      description: 'El botón "Escolta de nou" vuelve a reproducir las notas mediante playNotes.'
+    }
+  },
+  {
+    element: '#quickAns',
+    popover: {
+      title: 'Respuestas rápidas',
+      description: 'initButtons crea estos botones para que elijas el intervalo correcto.'
+    }
+  },
+  {
+    element: '#score',
+    popover: {
+      title: 'Puntuación',
+      description: 'updateScore actualiza tus aciertos y errores acumulados.'
+    }
+  },
+  {
+    element: '#backBtn',
+    popover: {
+      title: 'Volver al menú',
+      description: 'Con este botón sales del nivell y regresas al menú de niveles.'
+    }
+  }
+];
 document.getElementById('showStats').onclick=()=>{
   if(!currentProfile) return;
   const el=document.getElementById('statsContent');
