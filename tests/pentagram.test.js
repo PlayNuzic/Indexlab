@@ -71,7 +71,7 @@ describe('pentagram helpers', () => {
   test('parseKeySignatureArray handles naturals', () => {
     const nat = '\u266E';
     const map = parseKeySignatureArray(['G' + nat]);
-    expect(map[7]).toBe('');
+    expect(map[7]).toBe('n');
   });
 
   test('needsAccidental honors key signature', () => {

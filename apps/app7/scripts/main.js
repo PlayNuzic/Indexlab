@@ -42,15 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const desc = asc.slice().reverse().map(m => m - 24);
     const midis = asc.map((n,i)=>[n, desc[i]]);
     const withKs = useKeySig && ksScales.includes(state.id);
-    const options = { duration:'w' };
-    if(withKs){
-      options.scaleId = state.id;
-      options.root = state.root;
-    }else{
-      options.scaleId = 'CROM';
-      options.root = 0;
-    }
-    options.paired = true;
+    const options = { duration:'w', scaleId: state.id, root: state.root, paired:true, useKeySig: withKs };
     drawPentagram(staffEl, midis, options);
   }
 

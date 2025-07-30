@@ -10,6 +10,7 @@ export function parseKeySignatureArray(arr){
     let acc = '';
     if(item.includes('#')) acc = '#';
     else if(item.includes('b')) acc = 'b';
+    else if(item.includes('\u266E') || item.includes('♮')) acc = 'n';
     const pc = letterToPc[letter];
     if(pc !== undefined) map[pc] = acc;
   }
@@ -49,7 +50,7 @@ export function midiToPartsByKeySig(midi, ksMap) {
   return midiToParts(midi, true);
 }
 
-export function midiToChromaticPart(midi, prev, prefer){
+export function midiToChromaticPart(midi, prev, prefer, forced){
   const sharpLetters = ['c','c','d','d','e','f','f','g','g','a','a','b'];
   const flatLetters  = ['c','d','d','e','e','f','g','g','a','a','b','b'];
   const sharps = ['', '#', '', '#', '', '', '#', '', '#', '', '#', ''];
@@ -65,15 +66,22 @@ export function midiToChromaticPart(midi, prev, prefer){
     accidental: flats[pc]
   };
   let cand = candSharp;
-  if(candSharp.accidental === '' && candFlat.accidental !== ''){
+  if(forced){
+    if(forced === '#') cand = candSharp;
+    else if(forced === 'b') cand = candFlat;
+    else if(forced === 'n') {
+      cand = candSharp.accidental === '' ? candSharp : candFlat;
+    }
+  }
+  if(cand === candSharp && candSharp.accidental === '' && candFlat.accidental !== ''){
     cand = candSharp;
-  }else if(candFlat.accidental === '' && candSharp.accidental !== ''){
+  }else if(cand === candSharp && candFlat.accidental === '' && candSharp.accidental !== ''){
     cand = candFlat;
-  }else if(!prev){
+  }else if(!prev && !forced){
     if(prefer === '#') cand = candSharp;
     else if(prefer === 'b') cand = candFlat;
     else cand = candFlat;
-  }else if(prev){
+  }else if(prev && !forced){
     const diff = Math.abs(pc - prev.pc) % 12;
     const delta = (pc - prev.pc + 12) % 12;
     if(diff === 3 || diff === 4 || diff === 8 || diff === 9){
@@ -114,18 +122,20 @@ export function midiToChromaticPart(midi, prev, prefer){
     cand = candFlat;
   }
   let acc = cand.accidental;
+  if(forced === 'n') acc = '\u266E';
   if(prev && prev.letter === cand.letter && prev.accidental && acc === ''){
     acc = '\u266E';
   }
   return { key: `${cand.letter}/${octave}`, accidental: acc, pc, letter: cand.letter };
 }
 
-export function midiSequenceToChromaticParts(midis){
+export function midiSequenceToChromaticParts(midis, prefMap = null){
   const out = [];
   let prefer = null;
   midis.forEach(m => {
-    const part = midiToChromaticPart(m, out[out.length-1], prefer);
-    if(!prefer && part.accidental && part.accidental !== '\u266E'){
+    const forced = prefMap ? prefMap[((m % 12) + 12) % 12] : null;
+    const part = midiToChromaticPart(m, out[out.length-1], prefer, forced);
+    if(!prefer && !forced && part.accidental && part.accidental !== '\u266E'){
       if(part.accidental.includes('b')) prefer = 'b';
       else if(part.accidental.includes('#')) prefer = '#';
     }

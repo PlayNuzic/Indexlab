@@ -33,7 +33,7 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [] } = options;
+  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [], useKeySig = true } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
@@ -43,12 +43,15 @@ export function drawPentagram(container, midis = [], options = {}) {
 
   const treble = new Stave(20, 40, 450);
   treble.addClef('treble');
-  // Sólo aplicamos la armadura en notación inglesa. Eliminamos la conversión a solfeo.
-  applyKeySignature(treble, ksArray, 'treble', options.root);
+  // Sólo aplicamos la armadura si useKeySig es true.
+  if(useKeySig){
+    applyKeySignature(treble, ksArray, 'treble', options.root);
+  }
   const bass = new Stave(20, 160, 450);
   bass.addClef('bass');
-  // Sólo aplicamos la armadura en notación inglesa. Eliminamos la conversión a solfeo.
-  applyKeySignature(bass, ksArray, 'bass', options.root);
+  if(useKeySig){
+    applyKeySignature(bass, ksArray, 'bass', options.root);
+  }
   treble.setContext(context).draw();
   bass.setContext(context).draw();
 
@@ -67,7 +70,7 @@ export function drawPentagram(container, midis = [], options = {}) {
 
   const normScaleId = scaleId.toUpperCase();
   const noKsIds = ['CROM','OCT','HEX','TON'];
-  const useKs = !noKsIds.includes(normScaleId);
+  const useKs = useKeySig && !noKsIds.includes(normScaleId);
   let byClef = { treble: [], bass: [] };
   if (chord) {
     let partsSeq;
@@ -75,7 +78,7 @@ export function drawPentagram(container, midis = [], options = {}) {
       partsSeq = midis.map(m => midiToPartsByKeySig(m, ksMap));
     }else{
       const sorted = midis.map((m,i)=>({m,i})).sort((a,b)=>a.m-b.m);
-      const chromParts = midiSequenceToChromaticParts(sorted.map(s=>s.m));
+      const chromParts = midiSequenceToChromaticParts(sorted.map(s=>s.m), ksMap);
       partsSeq = new Array(midis.length);
       sorted.forEach((obj, idx)=>{ partsSeq[obj.i] = chromParts[idx]; });
     }
@@ -102,7 +105,7 @@ export function drawPentagram(container, midis = [], options = {}) {
     });
   } else if (paired) {
     const flat = midis.flat();
-    const partsSeq = useKs ? null : midiSequenceToChromaticParts(flat);
+    const partsSeq = useKs ? null : midiSequenceToChromaticParts(flat, ksMap);
     midis.forEach(([t,b], idx) => {
       const tParts = useKs ? midiToPartsByKeySig(t, ksMap) : partsSeq[idx*2];
       const bParts = useKs ? midiToPartsByKeySig(b, ksMap) : partsSeq[idx*2+1];
@@ -123,7 +126,7 @@ export function drawPentagram(container, midis = [], options = {}) {
       bassVoice.addTickable(bNote);
     });
   } else {
-    const partsSeq = useKs ? null : midiSequenceToChromaticParts(midis);
+    const partsSeq = useKs ? null : midiSequenceToChromaticParts(midis, ksMap);
     midis.forEach((m, idx) => {
       const parts = useKs ? midiToPartsByKeySig(m, ksMap) : partsSeq[idx];
       const clef = m < 60 ? 'bass' : 'treble';
