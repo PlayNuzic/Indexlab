@@ -1,6 +1,16 @@
 import { drawPentagram } from '../../../libs/notation/index.js';
 import { motherScalesData, scaleSemis, currentSemis } from '../../../shared/scales.js';
 
+function toAbsolute(notes, base){
+  const result=[base+notes[0]];
+  for(let i=1;i<notes.length;i++){
+    let next=base+notes[i];
+    while(next<=result[i-1]) next+=12;
+    result.push(next);
+  }
+  return result;
+}
+
 const scaleIDs = Object.keys(motherScalesData);
 const ksScales = ['DIAT','ACUS','ARMme','ARMma'];
 
@@ -28,7 +38,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const len = scaleSemis(state.id).length;
     const degrees = Array.from({length: len + 1}, (_,i) => i);
     const sems = currentSemis(state, degrees);
-    const midis = sems.map(s => 60 + s);
+    const asc = toAbsolute(sems, 60);
+    const desc = asc.slice().reverse().map(m => m - 24);
+    const midis = asc.concat(desc);
     const withKs = useKeySig && ksScales.includes(state.id);
     const options = { duration:'w' };
     if(withKs){

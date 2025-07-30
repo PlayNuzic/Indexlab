@@ -38,14 +38,14 @@ export function drawPentagram(container, midis = [], options = {}) {
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(420, 340);
+  renderer.resize(525, 340);
   const context = renderer.getContext();
 
-  const treble = new Stave(20, 40, 360);
+  const treble = new Stave(20, 40, 450);
   treble.addClef('treble');
   // Sólo aplicamos la armadura en notación inglesa. Eliminamos la conversión a solfeo.
   applyKeySignature(treble, ksArray, 'treble', options.root);
-  const bass = new Stave(20, 160, 360);
+  const bass = new Stave(20, 160, 450);
   bass.addClef('bass');
   // Sólo aplicamos la armadura en notación inglesa. Eliminamos la conversión a solfeo.
   applyKeySignature(bass, ksArray, 'bass', options.root);
@@ -128,7 +128,7 @@ export function drawPentagram(container, midis = [], options = {}) {
   if(voices.length){
     const formatter = new Formatter();
     voices.forEach(v => formatter.joinVoices([v]));
-    formatter.format(voices, 280);
+    formatter.format(voices, 350);
     if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
     if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
 
