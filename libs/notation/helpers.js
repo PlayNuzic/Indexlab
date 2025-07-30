@@ -155,6 +155,9 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
       const alt = midiToChromaticPart(midis[i+1], curr, prefer === 'b' ? '#' : 'b', null);
       if(alt.letter !== curr.letter){
         full[i+1] = alt;
+      }else if(curr.accidental && next.accidental === ''){
+        next.accidental = '\u266E';
+        full[i+1] = next;
       }
     }
   }
