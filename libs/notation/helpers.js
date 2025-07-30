@@ -89,7 +89,34 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
     if(diff === 3 || diff === 4 || diff === 8 || diff === 9){
       const cycle = ['c','d','e','f','g','a','b'];
       const prevIdx = cycle.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
+      const useStep = prev && prev.diff && (prev.diff === 1 || prev.diff === 2);
+      if(useStep){
+        const stepIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
+        const thirdIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
+        const stepLetter = cycle[stepIdx];
+        const thirdLetter = cycle[thirdIdx];
+        if(candSharp.letter === stepLetter){
+          cand = candSharp;
+        }else if(candFlat.letter === stepLetter){
+          cand = candFlat;
+        }else if(candSharp.letter === thirdLetter){
+          cand = candSharp;
+        }else if(candFlat.letter === thirdLetter){
+          cand = candFlat;
+        }
+      }else{
+        const targetIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
+        const target = cycle[targetIdx];
+        if(candSharp.letter === target){
+          cand = candSharp;
+        }else if(candFlat.letter === target){
+          cand = candFlat;
+        }
+      }
+    }else if(diff === 2 || diff === 10){
+      const cycle = ['c','d','e','f','g','a','b'];
+      const prevIdx = cycle.indexOf(prev.letter);
+      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
       const target = cycle[targetIdx];
       if(candSharp.letter === target){
         cand = candSharp;
@@ -160,9 +187,13 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
 export function midiSequenceToChromaticParts(midis, prefMap = null){
   const full = [];
   let prefer = null;
-  midis.forEach(m => {
+  midis.forEach((m, idx) => {
     const forced = prefMap ? prefMap[((m % 12) + 12) % 12] : null;
-    const part = midiToChromaticPart(m, full[full.length-1], prefer, forced);
+    const prev = full[full.length-1];
+    const part = midiToChromaticPart(m, prev, prefer, forced);
+    if(prev){
+      part.diff = Math.abs(part.pc - prev.pc) % 12;
+    }
     if(!prefer && !forced && part.accidental && part.accidental !== '\u266E'){
       if(part.accidental.includes('b')) prefer = 'b';
       else if(part.accidental.includes('#')) prefer = '#';
