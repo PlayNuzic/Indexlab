@@ -9,13 +9,18 @@ export function startTour(steps, onEnd) {
   }
   const driver = new DriverCtor({
     showProgress: true,
-    allowClose: false,
-    onReset: () => {
-      if (typeof onEnd === 'function') onEnd();
-    }
+    allowClose: false
   });
+  if (typeof onEnd === 'function') {
+    driver.on('destroyStarted', onEnd);
+    driver.on('reset', onEnd);
+  }
   driver.defineSteps(steps);
-  driver.start();
+  if (typeof driver.drive === 'function') {
+    driver.drive();
+  } else {
+    driver.start();
+  }
   return driver;
 }
 
