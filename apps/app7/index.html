@@ -17,7 +17,14 @@
     <label>Arrel Nm <select id="rootSel"></select></label>
     <label>Armaduras <button id="ksSwitch" class="switch-btn" aria-pressed="true"></button></label>
   </div>
-  <div id="staff"></div>
+  <div id="staffWrap">
+    <button id="playTrebleFwd" class="play-btn">▶</button>
+    <button id="playTrebleRev" class="play-btn rev">▶</button>
+    <button id="playBassFwd" class="play-btn">▶</button>
+    <button id="playBassRev" class="play-btn rev">▶</button>
+    <div id="staff"></div>
+  </div>
+  <script src="../../libs/vendor/Tone.js"></script>
   <script type="module" src="./scripts/main.js"></script>
 </body>
 </html>

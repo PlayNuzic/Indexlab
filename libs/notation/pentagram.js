@@ -161,9 +161,24 @@ export function drawPentagram(container, midis = [], options = {}) {
   if(voices.length){
     const formatter = new Formatter();
     voices.forEach(v => formatter.joinVoices([v]));
-    formatter.format(voices, 450);
+    formatter.format(voices, 425);
     if(trebleVoice.getTickables().length) trebleVoice.draw(context, treble);
     if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
+
+    byClef.treble.forEach(o => {
+      const el = o.note && o.note.attrs && o.note.attrs.el;
+      if(el){
+        el.dataset.idx = o.idx;
+        el.dataset.clef = 'treble';
+      }
+    });
+    byClef.bass.forEach(o => {
+      const el = o.note && o.note.attrs && o.note.attrs.el;
+      if(el){
+        el.dataset.idx = o.idx;
+        el.dataset.clef = 'bass';
+      }
+    });
 
     const svg = container.querySelector('svg');
     const getPos = idx => {
