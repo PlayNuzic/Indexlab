@@ -3,7 +3,7 @@ import EarTrainingGame from '../../../libs/ear-training/index.js';
 import { randInt } from '../../../libs/utils/index.js';
 import { drawPentagram } from '../../../libs/notation/index.js';
 import { intervalColor } from '../../../shared/scales.js';
-import { startTour } from '../../../libs/guide/index.js';
+import { createTour } from '../../../libs/guide/index.js';
 
 const game = new EarTrainingGame({ randInt });
 const avatarFiles = ['avatar1.png','avatar2.png','avatar3.png','avatar4.png','avatar5.png'];
@@ -211,12 +211,12 @@ async function startGame(level = 1, opts = {}){
   updateScore();
   tutorialActive = true;
   showSkipButton();
-  tutorialDriver = startTour(levelTourSteps, () => {
+  tutorialDriver = startLevelTour({ onEnd: () => {
     clearTimeout(tutorialTimeout);
     tutorialActive = false;
     hideSkipButton();
     nextMixedQuestion();
-  });
+  }});
   tutorialTimeout = setTimeout(() => {
     if (tutorialActive) {
       if (tutorialDriver) tutorialDriver.reset();
@@ -286,7 +286,7 @@ const tourSteps = [
   }
 ];
 
-startTour(tourSteps);
+const startWelcomeTour = createTour(tourSteps);
 
 const levelTourSteps = [
   {
@@ -332,6 +332,8 @@ const levelTourSteps = [
     }
   }
 ];
+
+const startLevelTour = createTour(levelTourSteps);
 document.getElementById('showStats').onclick=()=>{
   if(!currentProfile) return;
   const el=document.getElementById('statsContent');
@@ -641,4 +643,6 @@ function generateStatsHTML(profile){
   html += '</ul>';
   return html;
 }
+
+startWelcomeTour();
 
