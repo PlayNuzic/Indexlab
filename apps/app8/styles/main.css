@@ -81,3 +81,8 @@ button.disabled{background:#555;color:#999;cursor:default;}
 #practicePopup h2{margin-bottom:.5rem;}
 #practicePopup p{margin:.5rem 0;}
 
+.flash{animation:flash-border 0.25s ease-in-out 2;}
+@keyframes flash-border{from{outline:2px solid var(--accent);}to{outline:2px solid transparent;}}
+.driver-stage{z-index:1!important;pointer-events:none;}
+
+

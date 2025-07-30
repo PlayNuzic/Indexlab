@@ -32,6 +32,8 @@ let tutorialActive = false;
 let tutorialDriver = null;
 let tutorialTimeout = null;
 let tutorialCleanup = null;
+const tutorialInterval = 2;
+let tutorialFlash = null;
 const skipBtn = document.getElementById('skipTutorial');
 
 function showSkipButton(){
@@ -53,6 +55,33 @@ function hideSkipButton(){
   skipBtn.onclick = null;
 }
 
+function prepareTutorialQuestion(){
+  game.mode = 'iS';
+  game.level = 1;
+  game.question = 1;
+  game.currentInterval = tutorialInterval;
+  game.note1 = 60;
+  game.note2 = game.note1 + tutorialInterval;
+  const levelLabel = `Nivell 1 – ${levelNames[1]}`;
+  document.getElementById('question').textContent = `Pregunta 1 · ${levelLabel}`;
+  document.getElementById('notation').innerHTML = '';
+  initButtons();
+}
+
+function playTutorialInterval(){
+  prepareTutorialQuestion();
+  playNotes(true);
+}
+
+function flashTutorialAnswer(){
+  const btn=document.querySelector(`#quickAns button[data-interval="${tutorialInterval}"]`);
+  if(!btn) return;
+  btn.classList.add('flash');
+  setTimeout(()=>btn.classList.remove('flash'),300);
+  setTimeout(()=>btn.classList.add('flash'),500);
+  setTimeout(()=>btn.classList.remove('flash'),800);
+}
+
 function setupLevelTutorialListeners(driver){
   const playBtn = document.getElementById('playBtn');
   const answers = document.getElementById('quickAns');
@@ -60,19 +89,25 @@ function setupLevelTutorialListeners(driver){
     e.stopPropagation();
     e.stopImmediatePropagation();
     playBtn.removeEventListener('click', onPlay);
+    playTutorialInterval();
     if (driver && typeof driver.moveNext === 'function') driver.moveNext();
   };
   const onAnswer = (e) => {
     e.stopPropagation();
     e.stopImmediatePropagation();
-    answers.removeEventListener('click', onAnswer);
-    if (driver && typeof driver.moveNext === 'function') driver.moveNext();
+    const btn = e.target.closest('button');
+    if(btn && btn.dataset.interval === String(tutorialInterval)){
+      answers.removeEventListener('click', onAnswer);
+      clearInterval(tutorialFlash);
+      if (driver && typeof driver.moveNext === 'function') driver.moveNext();
+    }
   };
   playBtn.addEventListener('click', onPlay, { once: true });
-  answers.addEventListener('click', onAnswer, { once: true });
+  answers.addEventListener('click', onAnswer);
   return () => {
     playBtn.removeEventListener('click', onPlay);
     answers.removeEventListener('click', onAnswer);
+    clearInterval(tutorialFlash);
   };
 }
 
@@ -236,11 +271,17 @@ async function startGame(level = 1, opts = {}){
   updateScore();
   tutorialActive = level === 1 && !opts.practice;
   if (tutorialActive) {
+    const backBtn = document.getElementById('backBtn');
+    backBtn.disabled = true;
+    backBtn.classList.add('disabled');
+    prepareTutorialQuestion();
     showSkipButton();
     const finish = () => {
       clearTimeout(tutorialTimeout);
       if (typeof tutorialCleanup === 'function') tutorialCleanup();
       tutorialActive = false;
+      backBtn.disabled = false;
+      backBtn.classList.remove('disabled');
       hideSkipButton();
       nextMixedQuestion();
     };
@@ -365,7 +406,32 @@ const levelTourSteps = [
   }
 ];
 
-const startLevelTour = createTour(levelTourSteps, { allowClose: false });
+function onLevelHighlight(element){
+  if(element.id==='quickAns'){
+    flashTutorialAnswer();
+    clearInterval(tutorialFlash);
+    tutorialFlash = setInterval(flashTutorialAnswer,3000);
+  }
+  if(element.id==='notation'){
+    const el=document.getElementById('notation');
+    const color=intervalColor(tutorialInterval);
+    drawPentagram(el, [game.note1, game.note2], {
+      chord:false,
+      duration:'q',
+      highlightIntervals:[[0,1,color]],
+      noteColors:[],
+      scaleId:'CROM',
+      root:0
+    });
+  }
+  if(element.id==='backBtn'){
+    const b=document.getElementById('backBtn');
+    b.disabled=false;
+    b.classList.remove('disabled');
+  }
+}
+
+const startLevelTour = createTour(levelTourSteps, { allowClose: false, onHighlightStarted:onLevelHighlight });
 document.getElementById('showStats').onclick=()=>{
   if(!currentProfile) return;
   const el=document.getElementById('statsContent');
@@ -392,8 +458,8 @@ document.getElementById('practiceMenu').onclick=()=>{
   updateProfileButtons();
 };
 
-function playNotes(){
-  if(tutorialActive || game.note1 === undefined || game.note2 === undefined) return;
+function playNotes(force=false){
+  if((!force && tutorialActive) || game.note1 === undefined || game.note2 === undefined) return;
   if(game.mode==='iS'){
     playNote(game.note1, 0.5);
     setTimeout(()=>{
@@ -556,6 +622,7 @@ function initButtons(){
   const create=(i)=>{
     const b=document.createElement('button');
     b.textContent=`${game.mode}(${i})`;
+    b.dataset.interval = i;
     if(!allowed.has(i)){
       b.classList.add('disabled');
       b.disabled=true;
