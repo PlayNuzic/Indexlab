@@ -1,12 +1,17 @@
-import { driver } from '../vendor/driver.min.js';
-
+// Driver.js is loaded globally via a script tag. This module provides a small
+// helper around that global to keep the usage consistent across apps.
 export function startTour(steps) {
-  const driverObj = driver({
+  const DriverCtor = window.Driver;
+  if (!DriverCtor) {
+    console.error('Driver.js not loaded');
+    return null;
+  }
+  const driver = new DriverCtor({
     showProgress: true,
     allowClose: false,
-    steps
   });
-  driverObj.drive();
-  return driverObj;
+  driver.defineSteps(steps);
+  driver.start();
+  return driver;
 }
 
