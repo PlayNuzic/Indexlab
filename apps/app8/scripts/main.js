@@ -34,6 +34,7 @@ let tutorialTimeout = null;
 let tutorialCleanup = null;
 const tutorialInterval = 2;
 let tutorialFlash = null;
+let tutorialFlashTimeout = null;
 const skipBtn = document.getElementById('skipTutorial');
 
 function showSkipButton(){
@@ -71,6 +72,7 @@ function prepareTutorialQuestion(){
 function playTutorialInterval(){
   prepareTutorialQuestion();
   playNotes(true);
+  startFlashTimer();
 }
 
 function flashTutorialAnswer(){
@@ -80,6 +82,20 @@ function flashTutorialAnswer(){
   setTimeout(()=>btn.classList.remove('flash'),300);
   setTimeout(()=>btn.classList.add('flash'),500);
   setTimeout(()=>btn.classList.remove('flash'),800);
+}
+
+function startFlashTimer(){
+  clearInterval(tutorialFlash);
+  clearTimeout(tutorialFlashTimeout);
+  tutorialFlashTimeout = setTimeout(() => {
+    flashTutorialAnswer();
+    tutorialFlash = setInterval(flashTutorialAnswer, 3000);
+  }, 3000);
+}
+
+function stopFlashTimer(){
+  clearInterval(tutorialFlash);
+  clearTimeout(tutorialFlashTimeout);
 }
 
 function setupLevelTutorialListeners(driver){
@@ -98,7 +114,7 @@ function setupLevelTutorialListeners(driver){
     const btn = e.target.closest('button');
     if(btn && btn.dataset.interval === String(tutorialInterval)){
       answers.removeEventListener('click', onAnswer);
-      clearInterval(tutorialFlash);
+      stopFlashTimer();
       if (driver && typeof driver.moveNext === 'function') driver.moveNext();
     }
   };
@@ -107,7 +123,7 @@ function setupLevelTutorialListeners(driver){
   return () => {
     playBtn.removeEventListener('click', onPlay);
     answers.removeEventListener('click', onAnswer);
-    clearInterval(tutorialFlash);
+    stopFlashTimer();
   };
 }
 
@@ -409,8 +425,6 @@ const levelTourSteps = [
 function onLevelHighlight(element){
   if(element.id==='quickAns'){
     flashTutorialAnswer();
-    clearInterval(tutorialFlash);
-    tutorialFlash = setInterval(flashTutorialAnswer,3000);
   }
   if(element.id==='notation'){
     const el=document.getElementById('notation');
