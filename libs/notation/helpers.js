@@ -121,6 +121,12 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
   }else if(prefer === 'b' && candFlat.accidental === 'b') {
     cand = candFlat;
   }
+  if(!forced && prev && prev.letter === cand.letter){
+    const alt = cand === candSharp ? candFlat : candSharp;
+    if(alt.letter !== prev.letter){
+      cand = alt;
+    }
+  }
   let acc = cand.accidental;
   if(forced === 'n') acc = '\u266E';
   if(prev && prev.letter === cand.letter && prev.accidental && acc === ''){

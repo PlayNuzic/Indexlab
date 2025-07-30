@@ -71,10 +71,12 @@ export function drawPentagram(container, midis = [], options = {}) {
   const normScaleId = scaleId.toUpperCase();
   const noKsIds = ['CROM','OCT','HEX','TON'];
   const useKs = useKeySig && !noKsIds.includes(normScaleId);
+  const ksSpellingIds = ['DIAT','ACUS','ARMMA','ARMME'];
+  const keepSpelling = !useKs && ksSpellingIds.includes(normScaleId);
   let byClef = { treble: [], bass: [] };
   if (chord) {
     let partsSeq;
-    if(useKs){
+    if(useKs || keepSpelling){
       partsSeq = midis.map(m => midiToPartsByKeySig(m, ksMap));
     }else{
       const sorted = midis.map((m,i)=>({m,i})).sort((a,b)=>a.m-b.m);
@@ -105,10 +107,13 @@ export function drawPentagram(container, midis = [], options = {}) {
     });
   } else if (paired) {
     const flat = midis.flat();
-    const partsSeq = useKs ? null : midiSequenceToChromaticParts(flat, ksMap);
+    let partsSeq = null;
+    if(!useKs && !keepSpelling){
+      partsSeq = midiSequenceToChromaticParts(flat, ksMap);
+    }
     midis.forEach(([t,b], idx) => {
-      const tParts = useKs ? midiToPartsByKeySig(t, ksMap) : partsSeq[idx*2];
-      const bParts = useKs ? midiToPartsByKeySig(b, ksMap) : partsSeq[idx*2+1];
+      const tParts = (useKs || keepSpelling) ? midiToPartsByKeySig(t, ksMap) : partsSeq[idx*2];
+      const bParts = (useKs || keepSpelling) ? midiToPartsByKeySig(b, ksMap) : partsSeq[idx*2+1];
       const tNote = new StaveNote({ keys: [tParts.key], duration, clef: 'treble' });
       const bNote = new StaveNote({ keys: [bParts.key], duration, clef: 'bass' });
       const needT = useKs ? needsAccidental(tParts, ksMap) : !!tParts.accidental;
@@ -126,9 +131,12 @@ export function drawPentagram(container, midis = [], options = {}) {
       bassVoice.addTickable(bNote);
     });
   } else {
-    const partsSeq = useKs ? null : midiSequenceToChromaticParts(midis, ksMap);
+    let partsSeq = null;
+    if(!useKs && !keepSpelling){
+      partsSeq = midiSequenceToChromaticParts(midis, ksMap);
+    }
     midis.forEach((m, idx) => {
-      const parts = useKs ? midiToPartsByKeySig(m, ksMap) : partsSeq[idx];
+      const parts = (useKs || keepSpelling) ? midiToPartsByKeySig(m, ksMap) : partsSeq[idx];
       const clef = m < 60 ? 'bass' : 'treble';
       const note = new StaveNote({ keys: [parts.key], duration, clef });
       const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;
