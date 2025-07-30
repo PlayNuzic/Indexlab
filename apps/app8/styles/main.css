@@ -61,7 +61,12 @@ button.disabled{background:#555;color:#999;cursor:default;}
   z-index:1000;
 }
 #avatarSelector h2{margin-bottom:.5rem;}
-#avatarSelector .avatar-list{display:flex;gap:.5rem;}
+#avatarSelector .avatar-list{
+  display:flex;
+  gap:.5rem;
+  flex-wrap:wrap;
+  justify-content:center;
+}
 #avatarSelector img{
   width:180px;height:180px;cursor:pointer;border-radius:4px;border:2px solid transparent;
 }

@@ -6,7 +6,18 @@ import { intervalColor } from '../../../shared/scales.js';
 import { createTour } from '../../../libs/guide/index.js';
 
 const game = new EarTrainingGame({ randInt });
-const avatarFiles = ['avatar1.png','avatar2.png','avatar3.png','avatar4.png','avatar5.png'];
+const avatarFiles = [
+  'avatar1.png',
+  'avatar2.png',
+  'avatar3.png',
+  'avatar4.png',
+  'avatar5.png',
+  'avatar6.png',
+  'avatar7.png',
+  'avatar8.png',
+  'avatar9.png',
+  'avatar10.png'
+];
 const levelNames = {
   1: 'Intervals dissonants (iS 1 y 2)',
   2: 'Intervals consonants (iS 3 y 4)',
