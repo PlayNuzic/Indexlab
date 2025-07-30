@@ -65,6 +65,8 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
     letter: flatLetters[pc],
     accidental: flats[pc]
   };
+  let diff = null;
+  let delta = null;
   let cand = candSharp;
   if(forced){
     if(forced === '#') cand = candSharp;
@@ -82,8 +84,8 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
     else if(prefer === 'b') cand = candFlat;
     else cand = candFlat;
   }else if(prev && !forced){
-    const diff = Math.abs(pc - prev.pc) % 12;
-    const delta = (pc - prev.pc + 12) % 12;
+    diff = Math.abs(pc - prev.pc) % 12;
+    delta = (pc - prev.pc + 12) % 12;
     if(diff === 3 || diff === 4 || diff === 8 || diff === 9){
       const cycle = ['c','d','e','f','g','a','b'];
       const prevIdx = cycle.indexOf(prev.letter);
@@ -126,10 +128,20 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
       }
     }
   }
-  if(prefer === '#' && candSharp.accidental === '#') {
-    cand = candSharp;
-  }else if(prefer === 'b' && candFlat.accidental === 'b') {
-    cand = candFlat;
+  const stepDiffs = [1,2,3,4,8,9,10,11];
+  const isContiguous = prev && stepDiffs.includes(diff);
+  if(prefer === '#') {
+    if(candSharp.accidental === '#') {
+      if(!isContiguous || candSharp.letter === cand.letter){
+        cand = candSharp;
+      }
+    }
+  }else if(prefer === 'b') {
+    if(candFlat.accidental === 'b') {
+      if(!isContiguous || candFlat.letter === cand.letter){
+        cand = candFlat;
+      }
+    }
   }
   if(!forced && prev && prev.letter === cand.letter){
     const alt = cand === candSharp ? candFlat : candSharp;
