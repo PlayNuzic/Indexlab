@@ -16,6 +16,7 @@ export function startTour(steps, onEnd) {
     if (!step || !step.element) return false;
     return document.querySelector(step.element);
   });
+  console.log('startTour: valid steps', validSteps.length);
   driver.defineSteps(validSteps);
   if (typeof driver.drive === 'function') {
     driver.drive();

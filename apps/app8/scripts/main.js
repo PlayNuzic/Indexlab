@@ -203,7 +203,11 @@ async function startGame(level = 1, opts = {}){
   document.getElementById('game').style.display='block';
   setAvatar();
   initButtons();
-  await loadInstrument(document.getElementById('instrument').value || 'piano');
+  try {
+    await loadInstrument(document.getElementById('instrument').value || 'piano');
+  } catch (err) {
+    console.error('Instrument load error', err);
+  }
   updateScore();
   tutorialActive = true;
   showSkipButton();
