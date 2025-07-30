@@ -56,11 +56,15 @@ function hideSkipButton(){
 function setupLevelTutorialListeners(driver){
   const playBtn = document.getElementById('playBtn');
   const answers = document.getElementById('quickAns');
-  const onPlay = () => {
+  const onPlay = (e) => {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
     playBtn.removeEventListener('click', onPlay);
     if (driver && typeof driver.moveNext === 'function') driver.moveNext();
   };
-  const onAnswer = () => {
+  const onAnswer = (e) => {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
     answers.removeEventListener('click', onAnswer);
     if (driver && typeof driver.moveNext === 'function') driver.moveNext();
   };
@@ -361,7 +365,7 @@ const levelTourSteps = [
   }
 ];
 
-const startLevelTour = createTour(levelTourSteps);
+const startLevelTour = createTour(levelTourSteps, { allowClose: false });
 document.getElementById('showStats').onclick=()=>{
   if(!currentProfile) return;
   const el=document.getElementById('statsContent');

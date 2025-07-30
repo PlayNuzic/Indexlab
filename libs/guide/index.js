@@ -1,6 +1,6 @@
 // Driver.js is loaded globally via a script tag. This module provides a small
 // helper around that global to keep the usage consistent across apps.
-export function createTour(steps) {
+export function createTour(steps, options = {}) {
   return function start({ root = document, onEnd } = {}) {
     const DriverCtor = window.Driver;
     if (!DriverCtor) {
@@ -11,6 +11,7 @@ export function createTour(steps) {
     const driver = new DriverCtor({
       showProgress: true,
       allowClose: true,
+      ...options,
       onReset: onEnd,
     });
     const validSteps = (steps || []).filter((step) => {
