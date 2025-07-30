@@ -308,8 +308,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   permModeBtn.onclick=()=>{ voicingMode='perm'; permModeBtn.classList.add('active'); rotModeBtn.classList.remove('active'); renderMini(); };
   toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
 
-  rotLeft.onclick=()=>{ pushUndo(); rotLeftLib(notes, components); fitNotes(); renderAll(); };
-  rotRight.onclick=()=>{ pushUndo(); rotRightLib(notes, components); fitNotes(); renderAll(); };
+  // Invert rotation buttons to match apps 5 and 6 behavior
+  rotLeft.onclick=()=>{ pushUndo(); rotRightLib(notes, components); fitNotes(); renderAll(); };
+  rotRight.onclick=()=>{ pushUndo(); rotLeftLib(notes, components); fitNotes(); renderAll(); };
   globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
   globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
   let muted = false;
