@@ -1,13 +1,17 @@
-import { drawKeySignature } from '../../../libs/notation/index.js';
-import { motherScalesData } from '../../../shared/scales.js';
+import { drawPentagram } from '../../../libs/notation/index.js';
+import { motherScalesData, scaleSemis, currentSemis } from '../../../shared/scales.js';
 
-const scaleIDs = ['DIAT','ACUS','ARMme','ARMma'];
+const scaleIDs = Object.keys(motherScalesData);
+const ksScales = ['DIAT','ACUS','ARMme','ARMma'];
 
 window.addEventListener('DOMContentLoaded', () => {
   const staffEl = document.getElementById('staff');
   const scaleSel = document.getElementById('scaleSel');
   const rotSel = document.getElementById('rotSel');
   const rootSel = document.getElementById('rootSel');
+  const ksSwitch = document.getElementById('ksSwitch');
+
+  let useKeySig = true;
 
   const state = { id: 'DIAT', rot: 0, root: 0 };
 
@@ -21,15 +25,31 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function render(){
-    drawKeySignature(staffEl, state.id, state.root);
+    const len = scaleSemis(state.id).length;
+    const degrees = Array.from({length: len + 1}, (_,i) => i);
+    const sems = currentSemis(state, degrees);
+    const midis = sems.map(s => 60 + s);
+    const withKs = useKeySig && ksScales.includes(state.id);
+    const options = { duration:'w' };
+    if(withKs){
+      options.scaleId = state.id;
+      options.root = state.root;
+    }else{
+      options.scaleId = 'CROM';
+      options.root = 0;
+    }
+    drawPentagram(staffEl, midis, options);
   }
 
   refreshRot();
   scaleSel.value = state.id;
   rootSel.value = state.root;
+  ksSwitch.classList.toggle('on', useKeySig);
+  ksSwitch.setAttribute('aria-pressed', useKeySig);
   render();
 
   scaleSel.onchange = () => { state.id = scaleSel.value; refreshRot(); render(); };
   rotSel.onchange = () => { state.rot = parseInt(rotSel.value, 10); render(); };
   rootSel.onchange = () => { state.root = parseInt(rootSel.value, 10); render(); };
+  ksSwitch.onclick = () => { useKeySig = !useKeySig; ksSwitch.classList.toggle('on', useKeySig); ksSwitch.setAttribute('aria-pressed', useKeySig); render(); };
 });

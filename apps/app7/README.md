@@ -1,8 +1,8 @@
-# App7 – Armadures
+# App7 – Escalas
 
-Aquesta app permet seleccionar l'escala i la nota d'arrel per visualitzar l'armadura (key signature) corresponent en un pentagrama senzill. Des de l'última versió el dibuix d'armadures utilitza exclusivament la notació anglesa, sense conversió a solfeig. Obre `index.html` per començar.
+Aquesta app permet seleccionar l'escala, el mode i la nota d'arrel per visualitzar la corresponent armadura i ara també les notes de la escala sobre el pentagrama. El dibuix utilitza exclusivament la notació anglesa. Obre `index.html` per començar.
 
 ### Features
 
-- Selector d'escala i nota d'arrel.
-- Mostra la corresponent armadura en notació anglesa.
+- Selector d'escala, mode i nota d'arrel.
+- Mostra la corresponent armadura i dibuixa la seqüència de notes de la escala.
