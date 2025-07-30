@@ -434,13 +434,17 @@ window.addEventListener('DOMContentLoaded', async () => {
         up.className='up';
         up.innerHTML='\u25B2';
         up.draggable = false;
-        up.onmousedown = e => e.stopPropagation();
+        up.onmousedown = e => { e.preventDefault(); e.stopPropagation(); };
+        up.onpointerdown = e => { e.preventDefault(); e.stopPropagation(); };
+        up.ondragstart = e => { e.preventDefault(); e.stopPropagation(); };
         up.onclick=()=>{pushUndo();shiftOct(octShifts,i,1);renderAll();};
         down=document.createElement('button');
         down.className='down';
         down.innerHTML='\u25BC';
         down.draggable = false;
-        down.onmousedown = e => e.stopPropagation();
+        down.onmousedown = e => { e.preventDefault(); e.stopPropagation(); };
+        down.onpointerdown = e => { e.preventDefault(); e.stopPropagation(); };
+        down.ondragstart = e => { e.preventDefault(); e.stopPropagation(); };
         down.onclick=()=>{pushUndo();shiftOct(octShifts,i,-1);renderAll();};
       }
       const close=document.createElement('div');
