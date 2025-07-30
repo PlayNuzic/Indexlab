@@ -386,6 +386,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const diagNums = notes.slice();
     const comps = ensureDuplicateComponents(notes, components);
     const intervals = getIntervals();
+    const midis = diagMidis();
     noteColors = currentSemisLocal().map(s => pastelColor(pitchColor((s+3)%12)));
     diagNums.forEach((num,i)=>{
       const card = document.createElement('div');
@@ -457,12 +458,17 @@ window.addEventListener('DOMContentLoaded', async () => {
       const label=document.createElement('div');
       label.className='label';
       label.textContent=comps[i];
+      const shiftVal=Math.floor((midis[i]-baseMidi)/12);
+      const reg=document.createElement('div');
+      reg.className='shift-ind';
+      reg.textContent=shiftVal!==0?(shiftVal>0?'+':'-').repeat(Math.abs(shiftVal)):'\u00A0';
       if(SHOW_SHIFT){
         card.appendChild(up);
         card.appendChild(down);
       }
       card.appendChild(close);
       card.appendChild(note);
+      card.appendChild(reg);
       card.appendChild(label);
       componentsWrap.appendChild(card);
       if(i<notes.length-1){
