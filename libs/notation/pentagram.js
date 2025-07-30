@@ -33,7 +33,7 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const { chord = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [] } = options;
+  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [] } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
@@ -99,6 +99,28 @@ export function drawPentagram(container, midis = [], options = {}) {
       });
       if(clef === 'treble'){ trebleVoice.addTickable(note); }
       else { bassVoice.addTickable(note); }
+    });
+  } else if (paired) {
+    const flat = midis.flat();
+    const partsSeq = useKs ? null : midiSequenceToChromaticParts(flat);
+    midis.forEach(([t,b], idx) => {
+      const tParts = useKs ? midiToPartsByKeySig(t, ksMap) : partsSeq[idx*2];
+      const bParts = useKs ? midiToPartsByKeySig(b, ksMap) : partsSeq[idx*2+1];
+      const tNote = new StaveNote({ keys: [tParts.key], duration, clef: 'treble' });
+      const bNote = new StaveNote({ keys: [bParts.key], duration, clef: 'bass' });
+      const needT = useKs ? needsAccidental(tParts, ksMap) : !!tParts.accidental;
+      if (needT) tNote.addModifier(new Accidental(tParts.accidental), 0);
+      const needB = useKs ? needsAccidental(bParts, ksMap) : !!bParts.accidental;
+      if (needB) bNote.addModifier(new Accidental(bParts.accidental), 0);
+      const color = noteColors[idx];
+      if (color) {
+        tNote.setStyle({ fillStyle: color, strokeStyle: '#000' });
+        bNote.setStyle({ fillStyle: color, strokeStyle: '#000' });
+      }
+      byClef.treble.push({ parts:tParts, idx, note:tNote, keyIndex:0 });
+      byClef.bass.push({ parts:bParts, idx, note:bNote, keyIndex:0 });
+      trebleVoice.addTickable(tNote);
+      bassVoice.addTickable(bNote);
     });
   } else {
     const partsSeq = useKs ? null : midiSequenceToChromaticParts(midis);
