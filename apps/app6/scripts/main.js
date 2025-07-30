@@ -179,7 +179,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function diagMidis(){
-    const sems = currentSemisLocal();
+    const sems = currentSemis(scale, notes);
     return absoluteWithShifts(sems, baseMidi, octShifts);
   }
 
