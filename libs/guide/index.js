@@ -17,7 +17,6 @@ export function createTour(steps) {
       if (!step || !step.element) return false;
       return root.querySelector(step.element);
     });
-    console.log('startTour: valid steps', validSteps.length);
     driver.defineSteps(validSteps);
     if (typeof driver.drive === 'function') {
       driver.drive();
@@ -28,6 +27,9 @@ export function createTour(steps) {
   };
 }
 
+// Legacy wrapper kept for backward compatibility. It simply
+// forwards to `createTour` and immediately invokes the returned
+// starter. New code should call `createTour` directly.
 export function startTour(steps, onEnd) {
   return createTour(steps)({ onEnd });
 }
