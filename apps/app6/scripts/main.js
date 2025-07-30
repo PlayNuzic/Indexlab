@@ -433,10 +433,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         up=document.createElement('button');
         up.className='up';
         up.innerHTML='\u25B2';
+        up.draggable = false;
+        up.onmousedown = e => e.stopPropagation();
         up.onclick=()=>{pushUndo();shiftOct(octShifts,i,1);renderAll();};
         down=document.createElement('button');
         down.className='down';
         down.innerHTML='\u25BC';
+        down.draggable = false;
+        down.onmousedown = e => e.stopPropagation();
         down.onclick=()=>{pushUndo();shiftOct(octShifts,i,-1);renderAll();};
       }
       const close=document.createElement('div');
