@@ -9,10 +9,14 @@ export function startTour(steps, onEnd) {
   }
   const driver = new DriverCtor({
     showProgress: true,
-    allowClose: false,
+    allowClose: true,
     onReset: onEnd
   });
-  driver.defineSteps(steps);
+  const validSteps = (steps || []).filter(step => {
+    if (!step || !step.element) return false;
+    return document.querySelector(step.element);
+  });
+  driver.defineSteps(validSteps);
   if (typeof driver.drive === 'function') {
     driver.drive();
   } else {

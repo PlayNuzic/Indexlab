@@ -29,6 +29,27 @@ let consecutiveWins = 0;
 let practiceInfo = null;
 let practiceIntervals = [];
 let tutorialActive = false;
+let tutorialDriver = null;
+let tutorialTimeout = null;
+const skipBtn = document.getElementById('skipTutorial');
+
+function showSkipButton(){
+  if(!skipBtn) return;
+  skipBtn.style.display = 'block';
+  skipBtn.onclick = () => {
+    if (tutorialDriver) tutorialDriver.reset();
+    clearTimeout(tutorialTimeout);
+    tutorialActive = false;
+    hideSkipButton();
+    nextMixedQuestion();
+  };
+}
+
+function hideSkipButton(){
+  if(!skipBtn) return;
+  skipBtn.style.display = 'none';
+  skipBtn.onclick = null;
+}
 
 function saveProfiles(){
   localStorage.setItem('profiles', JSON.stringify(profiles));
@@ -185,10 +206,21 @@ async function startGame(level = 1, opts = {}){
   await loadInstrument(document.getElementById('instrument').value || 'piano');
   updateScore();
   tutorialActive = true;
-  startTour(levelTourSteps, () => {
+  showSkipButton();
+  tutorialDriver = startTour(levelTourSteps, () => {
+    clearTimeout(tutorialTimeout);
     tutorialActive = false;
+    hideSkipButton();
     nextMixedQuestion();
   });
+  tutorialTimeout = setTimeout(() => {
+    if (tutorialActive) {
+      if (tutorialDriver) tutorialDriver.reset();
+      tutorialActive = false;
+      hideSkipButton();
+      nextMixedQuestion();
+    }
+  }, 30000);
 }
 document.getElementById('playBtn').onclick=()=>playNotes();
 document.getElementById('advanceLevel').onclick=()=>{
