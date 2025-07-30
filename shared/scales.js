@@ -71,7 +71,7 @@ export const scaleKeySignatures = {
   ],
   ARMma: [
     ['B'+BECUADRO,'E'+BECUADRO,'Ab'],
-    ['F#','C#','G#','D#','A'+BECUADRO,'E#'],
+    ['F#','C#','G#','D#','A'+BECUADRO,'E#','B#'],
     ['F#','C#','Bb'],
     ['Bb','Eb','Ab','D'+BECUADRO,'G'+BECUADRO,'Cb'],
     ['F#','C'+BECUADRO,'G#','D#'],

@@ -32,6 +32,6 @@ describe('getKeySignature', () => {
   });
 
   test('ARMma root 1', () => {
-    expect(getKeySignature('ARMma',1)).toEqual(['F#','C#','G#','D#','A'+BECUADRO,'E#']);
+    expect(getKeySignature('ARMma',1)).toEqual(['F#','C#','G#','D#','A'+BECUADRO,'E#','B#']);
   });
 });

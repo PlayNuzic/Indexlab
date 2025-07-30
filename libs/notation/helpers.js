@@ -136,18 +136,29 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
 }
 
 export function midiSequenceToChromaticParts(midis, prefMap = null){
-  const out = [];
+  const full = [];
   let prefer = null;
   midis.forEach(m => {
     const forced = prefMap ? prefMap[((m % 12) + 12) % 12] : null;
-    const part = midiToChromaticPart(m, out[out.length-1], prefer, forced);
+    const part = midiToChromaticPart(m, full[full.length-1], prefer, forced);
     if(!prefer && !forced && part.accidental && part.accidental !== '\u266E'){
       if(part.accidental.includes('b')) prefer = 'b';
       else if(part.accidental.includes('#')) prefer = '#';
     }
-    out.push(part);
+    full.push(part);
   });
-  return out.map(({key, accidental}) => ({key, accidental}));
+  for(let i=0;i<full.length-1;i++){
+    const curr = full[i];
+    const next = full[i+1];
+    const forcedNext = prefMap ? prefMap[((midis[i+1] % 12) + 12) % 12] : null;
+    if(curr.letter === next.letter && !forcedNext){
+      const alt = midiToChromaticPart(midis[i+1], curr, prefer === 'b' ? '#' : 'b', null);
+      if(alt.letter !== curr.letter){
+        full[i+1] = alt;
+      }
+    }
+  }
+  return full.map(({key, accidental}) => ({key, accidental}));
 }
 
 export function needsDoubleStaff(n1, n2) {
