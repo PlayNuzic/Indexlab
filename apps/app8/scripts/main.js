@@ -90,9 +90,7 @@ function flashTutorialAnswer(){
   const btn=document.querySelector(`#quickAns button[data-interval="${tutorialInterval}"]`);
   if(!btn) return;
   btn.classList.add('flash');
-  setTimeout(()=>btn.classList.remove('flash'),300);
-  setTimeout(()=>btn.classList.add('flash'),500);
-  setTimeout(()=>btn.classList.remove('flash'),800);
+  setTimeout(()=>btn.classList.remove('flash'),1250);
 }
 
 function startFlashTimer(){
