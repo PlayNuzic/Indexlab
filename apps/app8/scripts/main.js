@@ -76,7 +76,9 @@ function prepareTutorialQuestion(){
   game.note2 = game.note1 + tutorialInterval;
   const levelLabel = `Nivell 1 – ${levelNames[1]}`;
   document.getElementById('question').textContent = `Pregunta 1 · ${levelLabel}`;
-  document.getElementById('notation').innerHTML = '';
+  const notationEl = document.getElementById('notation');
+  notationEl.innerHTML = '';
+  drawPentagram(notationEl, [], { singleClef:'treble', width:350, scaleId:'CROM', root:0 });
   initButtons();
 }
 
@@ -490,6 +492,21 @@ document.getElementById('practiceMenu').onclick=()=>{
   updateProfileButtons();
 };
 
+function bestClef(n1, n2){
+  const ranges = {
+    treble: { min: 64, max: 77 },
+    bass: { min: 43, max: 57 }
+  };
+  const ledger = (midi, {min, max}) => {
+    if(midi < min) return min - midi;
+    if(midi > max) return midi - max;
+    return 0;
+  };
+  const t = ledger(n1, ranges.treble) + ledger(n2, ranges.treble);
+  const b = ledger(n1, ranges.bass) + ledger(n2, ranges.bass);
+  return t <= b ? 'treble' : 'bass';
+}
+
 function playNotes(force=false){
   if((!force && tutorialActive) || game.note1 === undefined || game.note2 === undefined) return;
   if(game.mode==='iS'){
@@ -529,8 +546,7 @@ function submitAnswer(value){
     const notationEl = document.getElementById('notation');
     const color = intervalColor(game.currentInterval);
     const highlight = [[0,1,color]];
-    const minNote = Math.min(game.note1, game.note2);
-    const clef = minNote < 55 ? 'bass' : 'treble';
+    const clef = bestClef(game.note1, game.note2);
     drawPentagram(notationEl, [game.note1, game.note2], {
       chord: game.mode==='iA',
       duration: game.mode==='iA' ? 'h' : 'q',
@@ -563,7 +579,7 @@ function submitAnswer(value){
       document.getElementById('feedback').textContent=`\u274C Era ${game.mode}(${game.currentInterval})`;
       const notationEl = document.getElementById('notation');
       notationEl.innerHTML='';
-      drawPentagram(notationEl, [], { singleClef:'treble', width:350, scaleId:'CROM', root:0 });
+      drawPentagram(notationEl, [], { singleClef: bestClef(game.note1, game.note2), width:350, scaleId:'CROM', root:0 });
       const color = intervalColor(game.currentInterval);
       const ball=document.createElement('div');
       ball.className='fail-ball';

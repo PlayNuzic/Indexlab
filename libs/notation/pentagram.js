@@ -39,14 +39,14 @@ export function drawPentagram(container, midis = [], options = {}) {
   const ksMap = parseKeySignatureArray(ksArray);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
   if(singleClef){
-    renderer.resize(width + 75, 240);
+    renderer.resize(width, 240);
   }else{
     renderer.resize(625, 340);
   }
   const context = renderer.getContext();
 
   if(singleClef){
-    const stave = new Stave(20, 80, width);
+    const stave = new Stave(10, 80, width - 20);
     stave.addClef(singleClef);
     if(useKeySig){
       applyKeySignature(stave, ksArray, singleClef, options.root);
@@ -100,7 +100,7 @@ export function drawPentagram(container, midis = [], options = {}) {
         });
       }
 
-      new Formatter().joinVoices([voice]).format([voice], width - 125);
+      new Formatter().joinVoices([voice]).format([voice], width - 145);
       voice.draw(context, stave);
 
       const svg = container.querySelector('svg');
