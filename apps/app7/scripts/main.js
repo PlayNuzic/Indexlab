@@ -1,6 +1,6 @@
 import { drawPentagram } from '../../../libs/notation/index.js';
 import { init as initSound, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis, currentSemis } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, currentSemis, changeMode, isSymmetricScale } from '../../../shared/scales.js';
 
 function toAbsolute(notes, base){
   const result=[base+notes[0]];
@@ -26,8 +26,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rotSel = document.getElementById('rotSel');
   const rootSel = document.getElementById('rootSel');
   const ksSwitch = document.getElementById('ksSwitch');
+  const modeLock = document.getElementById('modeLock');
 
   let useKeySig = true;
+  let lockMode = false;
 
   let midisData = [];
 
@@ -40,6 +42,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     rotSel.innerHTML='';
     motherScalesData[state.id].rotNames.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
     rotSel.value = state.rot;
+    const sym = isSymmetricScale(state.id);
+    const allowed = sym || ['DIAT','ACUS','ARMma','ARMme'].includes(state.id);
+    modeLock.style.display = allowed ? 'inline-block' : 'none';
+    modeLock.classList.toggle('on', lockMode);
+    modeLock.setAttribute('aria-pressed', lockMode);
   }
 
   function setupNoteEvents(){
@@ -79,8 +86,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   render();
 
   scaleSel.onchange = () => { state.id = scaleSel.value; refreshRot(); render(); };
-  rotSel.onchange = () => { state.rot = parseInt(rotSel.value, 10); render(); };
+  rotSel.onchange = () => {
+    const val = parseInt(rotSel.value, 10);
+    changeMode(state, val, lockMode || isSymmetricScale(state.id));
+    rootSel.value = state.root;
+    render();
+  };
   rootSel.onchange = () => { state.root = parseInt(rootSel.value, 10); render(); };
+  modeLock.onclick = () => {
+    lockMode = !lockMode;
+    modeLock.classList.toggle('on', lockMode);
+    modeLock.setAttribute('aria-pressed', lockMode);
+  };
   ksSwitch.onclick = () => { useKeySig = !useKeySig; ksSwitch.classList.toggle('on', useKeySig); ksSwitch.setAttribute('aria-pressed', useKeySig); render(); };
 
   playTrebleFwd.onclick = async () => {

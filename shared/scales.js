@@ -189,3 +189,19 @@ export function currentSemis(scale, degrees, shifts=[]){
   });
 }
 
+
+export function isSymmetricScale(id){
+  return id==='OCT' || id==='HEX';
+}
+
+export function changeMode(scale, newRot, lockRoot=false){
+  const sems = scaleSemis(scale.id);
+  const len = sems.length;
+  newRot = ((newRot % len) + len) % len;
+  if(lockRoot){
+    const curr = sems[((scale.rot % len) + len) % len];
+    const next = sems[newRot];
+    scale.root = ((scale.root + curr - next) % 12 + 12) % 12;
+  }
+  scale.rot = newRot;
+}
