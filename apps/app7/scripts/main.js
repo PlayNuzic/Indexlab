@@ -40,10 +40,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function refreshRot(){
     rotSel.innerHTML='';
-    motherScalesData[state.id].rotNames.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
+    const names = motherScalesData[state.id].rotNames;
+    names.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
+    if(state.rot >= names.length) state.rot = 0;
     rotSel.value = state.rot;
-    const sym = isSymmetricScale(state.id);
-    const allowed = sym || ['DIAT','ACUS','ARMma','ARMme'].includes(state.id);
+    const allowed = ['DIAT','ACUS','ARMma','ARMme'].includes(state.id);
     modeLock.style.display = allowed ? 'inline-block' : 'none';
     modeLock.classList.toggle('on', lockMode);
     modeLock.setAttribute('aria-pressed', lockMode);
@@ -85,7 +86,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   ksSwitch.setAttribute('aria-pressed', useKeySig);
   render();
 
-  scaleSel.onchange = () => { state.id = scaleSel.value; refreshRot(); render(); };
+  scaleSel.onchange = () => {
+    state.id = scaleSel.value;
+    if(motherScalesData[state.id].rotNames.length === 1) state.rot = 0;
+    refreshRot();
+    render();
+  };
   rotSel.onchange = () => {
     const val = parseInt(rotSel.value, 10);
     changeMode(state, val, lockMode || isSymmetricScale(state.id));
