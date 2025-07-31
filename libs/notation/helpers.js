@@ -6,18 +6,17 @@ const NOTE_CYCLE = ['c','d','e','f','g','a','b'];
 export const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
 
 export function midiToLetterPart(midi, letter){
-  const cycle = NOTE_CYCLE;
   const pc = ((midi % 12) + 12) % 12;
   let base = letterToPc[letter];
   let diff = (pc - base + 12) % 12;
   if(diff > 6) diff -= 12;
   if(diff === 2){
-    letter = cycle[(cycle.indexOf(letter)+1)%7];
+    letter = NOTE_CYCLE[(NOTE_CYCLE.indexOf(letter)+1)%7];
     base = letterToPc[letter];
     diff = (pc - base + 12) % 12;
     if(diff > 6) diff -= 12;
   }else if(diff === -2){
-    letter = cycle[(cycle.indexOf(letter)+6)%7];
+    letter = NOTE_CYCLE[(NOTE_CYCLE.indexOf(letter)+6)%7];
     base = letterToPc[letter];
     diff = (pc - base + 12) % 12;
     if(diff > 6) diff -= 12;
@@ -114,47 +113,27 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
     diff = Math.abs(pc - prev.pc) % 12;
     delta = (pc - prev.pc + 12) % 12;
     if(diff === 3 || diff === 4 || diff === 8 || diff === 9){
-      const cycle = NOTE_CYCLE;
-      const prevIdx = cycle.indexOf(prev.letter);
-      const useStep = prev && prev.diff && (prev.diff === 1 || prev.diff === 2);
-      if(useStep){
-        const stepIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-        const thirdIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
-        const stepLetter = cycle[stepIdx];
-        const thirdLetter = cycle[thirdIdx];
-        if(candSharp.letter === stepLetter){
-          cand = candSharp;
-        }else if(candFlat.letter === stepLetter){
-          cand = candFlat;
-        }else if(candSharp.letter === thirdLetter){
-          cand = candSharp;
-        }else if(candFlat.letter === thirdLetter){
-          cand = candFlat;
-        }
-      }else{
-        const targetIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
-        const target = cycle[targetIdx];
-        if(candSharp.letter === target){
-          cand = candSharp;
-        }else if(candFlat.letter === target){
-          cand = candFlat;
-        }
-      }
-    }else if(diff === 2 || diff === 10){
-      const cycle = ['c','d','e','f','g','a','b'];
-      const prevIdx = cycle.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-      const target = cycle[targetIdx];
+      const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
+      const targetIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
+      const target = NOTE_CYCLE[targetIdx];
       if(candSharp.letter === target){
         cand = candSharp;
       }else if(candFlat.letter === target){
         cand = candFlat;
       }
     }else if(diff === 2 || diff === 10){
-      const cycle = ['c','d','e','f','g','a','b'];
-      const prevIdx = cycle.indexOf(prev.letter);
+      const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
       const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-      const target = cycle[targetIdx];
+      const target = NOTE_CYCLE[targetIdx];
+      if(candSharp.letter === target){
+        cand = candSharp;
+      }else if(candFlat.letter === target){
+        cand = candFlat;
+      }
+    }else if(diff === 1 || diff === 11){
+      const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
+      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
+      const target = NOTE_CYCLE[targetIdx];
       if(candSharp.letter === target){
         cand = candSharp;
       }else if(candFlat.letter === target){
@@ -306,7 +285,6 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
       }
     }
   }
-  const cycle = NOTE_CYCLE;
   for(let i=0;i<full.length-1;i++){
     const curr = full[i];
     const next = full[i+1];
@@ -314,14 +292,14 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
     if(forcedNext) continue;
     const semiDiff = Math.abs(midis[i+1] - midis[i]) % 12;
     if(semiDiff === 1 || semiDiff === 2 || semiDiff === 10 || semiDiff === 11){
-      const currIdx = cycle.indexOf(curr.letter);
-      const nextIdx = cycle.indexOf(next.letter);
+      const currIdx = NOTE_CYCLE.indexOf(curr.letter);
+      const nextIdx = NOTE_CYCLE.indexOf(next.letter);
       let diff = nextIdx - currIdx;
       if(diff > 3) diff -= 7;
       if(diff < -3) diff += 7;
       if(Math.abs(diff) > 1){
         const step = midis[i+1] >= midis[i] ? 1 : -1;
-        const target = cycle[(currIdx + step + 7) % 7];
+        const target = NOTE_CYCLE[(currIdx + step + 7) % 7];
         full[i+1] = midiToLetterPart(midis[i+1], target);
       }
     }
