@@ -454,7 +454,11 @@ function onLevelHighlight(element){
   }
 }
 
-const startLevelTour = createTour(levelTourSteps, { allowClose: false, onHighlightStarted:onLevelHighlight });
+const startLevelTour = createTour(levelTourSteps, {
+  allowClose: false,
+  onHighlightStarted: onLevelHighlight,
+  onHighlighted: onLevelHighlight
+});
 document.getElementById('showStats').onclick=()=>{
   if(!currentProfile) return;
   const el=document.getElementById('statsContent');
