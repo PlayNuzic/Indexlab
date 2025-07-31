@@ -115,86 +115,19 @@ button.disabled{background:#555;color:#999;cursor:default;}
 
 .flash{animation:flash-border 0.25s ease-in-out 5;}
 @keyframes flash-border{from{outline:2px solid #f00;}to{outline:2px solid transparent;}}
-.driver-highlighted-element-stage,
+#driver-highlighted-element-stage,
 #driver-page-overlay {
   pointer-events: none;
 }
 
 .driver-highlighted-element-stage {
-  z-index: 0 !important;
+  z-index: -1 !important;
   background: transparent !important;
   box-shadow: 0 0 0 2px #ffbb33 !important;
 }
 
 #driver-page-overlay {
-  z-index: -1 !important;
-}
-
-/* Center avatar and level blocks vertically */
-#welcome{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  flex:1;
-}
-.welcome-content{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-#game{
-  flex:1;
-}
-.game-content{
-  min-height:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-
-/* Center avatar and level blocks vertically */
-#welcome{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  flex:1;
-}
-.welcome-content{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-#game{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  flex:1;
-}
-.game-content{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-
-#summary{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  flex:1;
-}
-.summary-content{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  z-index: -2 !important;
 }
 
 
