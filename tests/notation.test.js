@@ -146,6 +146,25 @@ describe('notation helpers', () => {
     ]);
   });
 
+  test('midiSequenceToChromaticParts spells full chromatic scale with naturals', () => {
+    const nat = '\u266E';
+    const midis = Array.from({length:12}, (_,i) => 60 + i);
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'b' },
+      { key:'d/4', accidental:nat },
+      { key:'e/4', accidental:'b' },
+      { key:'e/4', accidental:nat },
+      { key:'f/4', accidental:'' },
+      { key:'g/4', accidental:'b' },
+      { key:'g/4', accidental:nat },
+      { key:'a/4', accidental:'b' },
+      { key:'a/4', accidental:nat },
+      { key:'b/4', accidental:'b' },
+      { key:'b/4', accidental:nat }
+    ]);
+  });
+
   test('applyKeySignature is a function', () => {
     expect(typeof applyKeySignature).toBe('function');
   });
