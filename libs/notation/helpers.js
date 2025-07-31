@@ -3,15 +3,25 @@ import { KeySignature } from '../vendor/vexflow/entry/vexflow.js';
 export const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
 
 export function midiToLetterPart(midi, letter){
+  const cycle = ['c','d','e','f','g','a','b'];
   const pc = ((midi % 12) + 12) % 12;
-  const base = letterToPc[letter];
+  let base = letterToPc[letter];
   let diff = (pc - base + 12) % 12;
   if(diff > 6) diff -= 12;
+  if(diff === 2){
+    letter = cycle[(cycle.indexOf(letter)+1)%7];
+    base = letterToPc[letter];
+    diff = (pc - base + 12) % 12;
+    if(diff > 6) diff -= 12;
+  }else if(diff === -2){
+    letter = cycle[(cycle.indexOf(letter)+6)%7];
+    base = letterToPc[letter];
+    diff = (pc - base + 12) % 12;
+    if(diff > 6) diff -= 12;
+  }
   let acc = '';
-  if(diff === -2) acc = 'bb';
-  else if(diff === -1) acc = 'b';
+  if(diff === -1) acc = 'b';
   else if(diff === 1) acc = '#';
-  else if(diff === 2) acc = '##';
   const octave = Math.floor(midi / 12) - 1;
   return { key:`${letter}/${octave}`, accidental: acc, pc, letter };
 }
@@ -126,6 +136,16 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
         }else if(candFlat.letter === target){
           cand = candFlat;
         }
+      }
+    }else if(diff === 2 || diff === 10){
+      const cycle = ['c','d','e','f','g','a','b'];
+      const prevIdx = cycle.indexOf(prev.letter);
+      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
+      const target = cycle[targetIdx];
+      if(candSharp.letter === target){
+        cand = candSharp;
+      }else if(candFlat.letter === target){
+        cand = candFlat;
       }
     }else if(diff === 2 || diff === 10){
       const cycle = ['c','d','e','f','g','a','b'];
