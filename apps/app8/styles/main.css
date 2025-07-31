@@ -115,9 +115,19 @@ button.disabled{background:#555;color:#999;cursor:default;}
 
 .flash{animation:flash-border 0.25s ease-in-out 5;}
 @keyframes flash-border{from{outline:2px solid #f00;}to{outline:2px solid transparent;}}
-.driver-highlighted-element-stage,#driver-page-overlay{
-  z-index:1!important;
-  pointer-events:none;
+.driver-highlighted-element-stage,
+#driver-page-overlay {
+  pointer-events: none;
+}
+
+.driver-highlighted-element-stage {
+  z-index: 0 !important;
+  background: transparent !important;
+  box-shadow: 0 0 0 2px #ffbb33 !important;
+}
+
+#driver-page-overlay {
+  z-index: -1 !important;
 }
 
 

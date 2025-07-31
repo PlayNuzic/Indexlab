@@ -436,15 +436,17 @@ function onLevelHighlight(element){
     flashTutorialAnswer();
   }
   if(element.id==='notation'){
-    const el=document.getElementById('notation');
-    const color=intervalColor(tutorialInterval);
-    drawPentagram(el, [game.note1, game.note2], {
-      chord:false,
-      duration:'q',
-      highlightIntervals:[[0,1,color]],
-      noteColors:[],
-      scaleId:'CROM',
-      root:0
+    requestAnimationFrame(() => {
+      const el=document.getElementById('notation');
+      const color=intervalColor(tutorialInterval);
+      drawPentagram(el, [game.note1, game.note2], {
+        chord:false,
+        duration:'q',
+        highlightIntervals:[[0,1,color]],
+        noteColors:[],
+        scaleId:'CROM',
+        root:0
+      });
     });
   }
   if(element.id==='backBtn'){
