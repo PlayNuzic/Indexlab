@@ -33,13 +33,98 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [], useKeySig = true } = options;
+  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [], useKeySig = true, singleClef = null, width = 550 } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
   const renderer = new Renderer(container, Renderer.Backends.SVG);
-  renderer.resize(625, 340);
+  if(singleClef){
+    renderer.resize(width + 75, 240);
+  }else{
+    renderer.resize(625, 340);
+  }
   const context = renderer.getContext();
+
+  if(singleClef){
+    const stave = new Stave(20, 80, width);
+    stave.addClef(singleClef);
+    if(useKeySig){
+      applyKeySignature(stave, ksArray, singleClef, options.root);
+    }
+    stave.setContext(context).draw();
+
+    if(midis.length){
+      const voice = new Voice({ numBeats: midis.length, beatValue: 4 });
+      voice.setStrict(false);
+
+      const normScaleId = scaleId.toUpperCase();
+      const noKsIds = ['CROM','OCT','HEX','TON'];
+      const useKs = useKeySig && !noKsIds.includes(normScaleId);
+      const ksSpellingIds = ['DIAT','ACUS','ARMMA','ARMME'];
+      const keepSpelling = !useKs && ksSpellingIds.includes(normScaleId);
+      let noteObjs = [];
+      if(chord){
+        let partsSeq;
+        if(useKs || keepSpelling){
+          partsSeq = midis.map(m => midiToPartsByKeySig(m, ksMap));
+        }else{
+          const sorted = midis.map((m,i)=>({m,i})).sort((a,b)=>a.m-b.m);
+          const chromParts = midiSequenceToChromaticParts(sorted.map(s=>s.m), ksMap);
+          partsSeq = new Array(midis.length);
+          sorted.forEach((obj, idx)=>{ partsSeq[obj.i] = chromParts[idx]; });
+        }
+        const keys = partsSeq.map(p => p.key);
+        const note = new StaveNote({ keys, duration, clef: singleClef });
+        partsSeq.forEach((p,i)=>{
+          const need = useKs ? needsAccidental(p, ksMap) : !!p.accidental;
+          if(need) note.addModifier(new Accidental(p.accidental), i);
+          const color = noteColors[i];
+          if(color) note.setKeyStyle(i, { fillStyle: color, strokeStyle: '#000' });
+          noteObjs[i] = { note, keyIndex: i };
+        });
+        voice.addTickable(note);
+      }else{
+        let partsSeq = null;
+        if(!useKs && !keepSpelling){
+          partsSeq = midiSequenceToChromaticParts(midis, ksMap);
+        }
+        midis.forEach((m, idx) => {
+          const parts = (useKs || keepSpelling) ? midiToPartsByKeySig(m, ksMap) : partsSeq[idx];
+          const note = new StaveNote({ keys: [parts.key], duration, clef: singleClef });
+          const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;
+          if (need) note.addModifier(new Accidental(parts.accidental), 0);
+          const color = noteColors[idx];
+          if (color) note.setStyle({ fillStyle: color, strokeStyle: '#000' });
+          noteObjs[idx] = { note, keyIndex: 0 };
+          voice.addTickable(note);
+        });
+      }
+
+      new Formatter().joinVoices([voice]).format([voice], width - 125);
+      voice.draw(context, stave);
+
+      const svg = container.querySelector('svg');
+      const getPos = idx => {
+        const obj = noteObjs[idx];
+        if(obj && obj.note){
+          return { y: obj.note.getYs()[obj.keyIndex], x: obj.note.getAbsoluteX(), w: obj.note.getWidth() };
+        }
+        return null;
+      };
+      if(svg){
+        const list = [];
+        if(highlightInterval) list.push(highlightInterval);
+        list.push(...highlightIntervals);
+        list.forEach(([i1,i2,color]) => {
+          const p1 = getPos(i1);
+          const p2 = getPos(i2);
+          if(!p1 || !p2) return;
+          drawIntervalEllipse(svg, p1, p2, color);
+        });
+      }
+    }
+    return;
+  }
 
   const treble = new Stave(20, 40, 550);
   treble.addClef('treble');

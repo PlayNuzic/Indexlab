@@ -514,7 +514,9 @@ function nextMixedQuestion(){
   const levelLabel = practiceInfo ? `Nivell ${practiceInfo.baseLevel} - Pr\u00e0ctica` : `Nivell ${q.level}`;
   document.getElementById('question').textContent=`Pregunta ${q.question} · ${levelLabel} – ${levelNames[q.level]}`;
   document.getElementById('feedback').textContent='';
-  document.getElementById('notation').innerHTML='';
+  const notationEl = document.getElementById('notation');
+  notationEl.innerHTML='';
+  drawPentagram(notationEl, [], { singleClef:'treble', width:350, scaleId:'CROM', root:0 });
   initButtons();
 }
 
@@ -527,13 +529,17 @@ function submitAnswer(value){
     const notationEl = document.getElementById('notation');
     const color = intervalColor(game.currentInterval);
     const highlight = [[0,1,color]];
+    const minNote = Math.min(game.note1, game.note2);
+    const clef = minNote < 55 ? 'bass' : 'treble';
     drawPentagram(notationEl, [game.note1, game.note2], {
       chord: game.mode==='iA',
       duration: game.mode==='iA' ? 'h' : 'q',
       highlightIntervals: highlight,
       noteColors:[],
       scaleId:'CROM',
-      root:0
+      root:0,
+      singleClef: clef,
+      width:350
     });
     consecutiveFails=0; consecutiveWins++;
     if(consecutiveWins>=3) showAvatarMessage('Molt bé!');
@@ -557,6 +563,7 @@ function submitAnswer(value){
       document.getElementById('feedback').textContent=`\u274C Era ${game.mode}(${game.currentInterval})`;
       const notationEl = document.getElementById('notation');
       notationEl.innerHTML='';
+      drawPentagram(notationEl, [], { singleClef:'treble', width:350, scaleId:'CROM', root:0 });
       const color = intervalColor(game.currentInterval);
       const ball=document.createElement('div');
       ball.className='fail-ball';
