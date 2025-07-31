@@ -83,146 +83,46 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
   const flats  = ['', 'b', '', 'b', '', '', 'b', '', 'b', '', 'b', ''];
   const pc = ((midi % 12) + 12) % 12;
   const octave = Math.floor(midi / 12) - 1;
-  const candSharp = {
-    letter: sharpLetters[pc],
-    accidental: sharps[pc]
-  };
-  const candFlat = {
-    letter: flatLetters[pc],
-    accidental: flats[pc]
-  };
-  let diff = null;
-  let delta = null;
-  let cand = candSharp;
-  if(forced){
-    if(forced === '#') cand = candSharp;
-    else if(forced === 'b') cand = candFlat;
-    else if(forced === 'n') {
-      cand = candSharp.accidental === '' ? candSharp : candFlat;
-    }
-  }
-  if(cand === candSharp && candSharp.accidental === '' && candFlat.accidental !== ''){
-    cand = candSharp;
-  }else if(cand === candSharp && candFlat.accidental === '' && candSharp.accidental !== ''){
-    cand = candFlat;
-  }else if(!prev && !forced){
-    if(prefer === '#') cand = candSharp;
-    else if(prefer === 'b') cand = candFlat;
-    else cand = candFlat;
-  }else if(prev && !forced){
-    diff = Math.abs(pc - prev.pc) % 12;
-    delta = (pc - prev.pc + 12) % 12;
-    if(diff === 3 || diff === 4 || diff === 8 || diff === 9){
+
+  let cand = prefer === '#'
+    ? { letter: sharpLetters[pc], accidental: sharps[pc] }
+    : { letter: flatLetters[pc], accidental: flats[pc] };
+
+  if(forced === '#') cand = { letter: sharpLetters[pc], accidental: sharps[pc] };
+  else if(forced === 'b') cand = { letter: flatLetters[pc], accidental: flats[pc] };
+  else if(forced === 'n') cand = midiToLetterPart(midi, cand.letter);
+
+  if(prev){
+    const delta = (pc - prev.pc + 12) % 12;
+    const diff = delta <= 6 ? delta : 12 - delta;
+    if(diff === 1 || diff === 2){
+      const stepDir = delta <= 6 ? 1 : -1;
       const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 2) % 7 : (prevIdx + 7 - 2) % 7;
-      const target = NOTE_CYCLE[targetIdx];
-      if(candSharp.letter === target){
-        cand = candSharp;
-      }else if(candFlat.letter === target){
-        cand = candFlat;
-      }
-    }else if(diff === 2 || diff === 10){
-      const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-      const target = NOTE_CYCLE[targetIdx];
-      if(candSharp.letter === target){
-        cand = candSharp;
-      }else if(candFlat.letter === target){
-        cand = candFlat;
-      }
-    }else if(diff === 1 || diff === 11){
-      const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-      const target = NOTE_CYCLE[targetIdx];
-      if(candSharp.letter === target){
-        cand = candSharp;
-      }else if(candFlat.letter === target){
-        cand = candFlat;
-      }
-    }else if(diff === 2 || diff === 10){
-      const cycle = ['c','d','e','f','g','a','b'];
-      const prevIdx = cycle.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-      const target = cycle[targetIdx];
-      if(candSharp.letter === target){
-        cand = candSharp;
-      }else if(candFlat.letter === target){
-        cand = candFlat;
-      }
-    }else if(diff === 2 || diff === 10){
-      const cycle = NOTE_CYCLE;
-      const prevIdx = cycle.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-      const target = cycle[targetIdx];
-      if(candSharp.letter === target){
-        cand = candSharp;
-      }else if(candFlat.letter === target){
-        cand = candFlat;
-      }
-    }else if(diff === 1 || diff === 11){
-      const cycle = NOTE_CYCLE;
-      const prevIdx = cycle.indexOf(prev.letter);
-      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
-      const target = cycle[targetIdx];
-      if(candSharp.letter === target){
-        cand = candSharp;
-      }else if(candFlat.letter === target){
-        cand = candFlat;
-      }else if(candSharp.letter === prev.letter && candFlat.letter !== prev.letter){
-        cand = candFlat;
-      }else if(candFlat.letter === prev.letter && candSharp.letter !== prev.letter){
-        cand = candSharp;
-      }
-    }else{
-      if(candSharp.letter === prev.letter && candFlat.letter !== prev.letter){
-        cand = candFlat;
-      }else if(candFlat.letter === prev.letter && candSharp.letter !== prev.letter){
-        cand = candSharp;
+      const target = NOTE_CYCLE[(prevIdx + stepDir + 7) % 7];
+      if(cand.letter !== target){
+        cand = midiToLetterPart(midi, target);
       }
     }
   }
-  const stepDiffs = [1,2,3,4,8,9,10,11];
-  const isContiguous = prev && stepDiffs.includes(diff);
-  if(prefer === '#') {
-    if(candSharp.accidental === '#') {
-      if(!isContiguous || candSharp.letter === cand.letter){
-        cand = candSharp;
-      }
-    }
-  }else if(prefer === 'b') {
-    if(candFlat.accidental === 'b') {
-      if(!isContiguous || candFlat.letter === cand.letter){
-        cand = candFlat;
-      }
-    }
-  }
-  if(!forced && prev && prev.letter === cand.letter){
-    const alt = cand === candSharp ? candFlat : candSharp;
-    if(alt.letter !== prev.letter){
-      cand = alt;
-    }
-  }
+
   let acc = cand.accidental;
-  if(forced === 'n') acc = '\u266E';
   if(prev && prev.letter === cand.letter && prev.accidental && acc === ''){
     acc = '\u266E';
   }
+  if(forced === 'n') acc = '\u266E';
+
   return { key: `${cand.letter}/${octave}`, accidental: acc, pc, letter: cand.letter };
 }
 
 export function midiSequenceToChromaticParts(midis, prefMap = null){
-  function build(prefer){
-    const arr = [];
-    midis.forEach(m => {
-      const forced = prefMap ? prefMap[((m % 12) + 12) % 12] : null;
-      const prev = arr[arr.length-1];
-      const part = midiToChromaticPart(m, prev, prefer, forced);
-      if(prev){
-        part.diff = Math.abs(part.pc - prev.pc) % 12;
-      }
-      arr.push(part);
+  function build(pref){
+    const out = [];
+    midis.forEach((m,i)=>{
+      const forced = prefMap ? prefMap[((m % 12)+12)%12] : null;
+      const prev = out[i-1];
+      out.push(midiToChromaticPart(m, prev, pref, forced));
     });
-    return arr;
+    return out;
   }
 
   const initial = build(null);
@@ -239,11 +139,11 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
   if(prefer){
     const prefSeq = build(prefer);
     const altSeq = build(prefer === '#' ? 'b' : '#');
-    const letterIdx = l => ['c','d','e','f','g','a','b'].indexOf(l);
-    const leaps = seq => seq.reduce((acc, p, i)=>{
-      if(i===0) return acc;
-      const diff = Math.abs(letterIdx(p.letter) - letterIdx(seq[i-1].letter));
-      if(diff > 1 && (p.diff === 1 || p.diff === 2)) return acc + 1;
+    const leaps = seq => seq.slice(1).reduce((acc,curr,i)=>{
+      const prev = seq[i];
+      const ldiff = Math.abs(NOTE_CYCLE.indexOf(curr.letter) - NOTE_CYCLE.indexOf(prev.letter));
+      const sdiff = Math.abs(curr.pc - prev.pc) % 12;
+      if(ldiff > 1 && (sdiff === 1 || sdiff === 2)) return acc+1;
       return acc;
     },0);
     const prefLeaps = leaps(prefSeq);
@@ -252,58 +152,20 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
     prefer = prefLeaps <= altLeaps ? prefer : (prefer === '#' ? 'b' : '#');
   }
 
-  const cycle = ['c','d','e','f','g','a','b'];
-  for(let i=1;i<full.length;i++){
-    const prev = full[i-1];
-    const curr = full[i];
-    if(curr.diff === undefined){
-      curr.diff = Math.abs(curr.pc - prev.pc) % 12;
-    }
-    const prevIdx = cycle.indexOf(prev.letter);
-    const currIdx = cycle.indexOf(curr.letter);
-    const letterDiff = (currIdx - prevIdx + 7) % 7;
-    const stepDir = midis[i] >= midis[i-1] ? 1 : -1;
-    const expectedIdx = (prevIdx + stepDir + 7) % 7;
-    if((curr.diff === 1 || curr.diff === 2) && letterDiff !== (stepDir === 1 ? 1 : 6)){
-      const targetLetter = cycle[expectedIdx];
-      const repl = midiToLetterPart(midis[i], targetLetter);
-      repl.diff = curr.diff;
-      full[i] = repl;
-    }
-  }
   for(let i=0;i<full.length-1;i++){
     const curr = full[i];
     const next = full[i+1];
-    const forcedNext = prefMap ? prefMap[((midis[i+1] % 12) + 12) % 12] : null;
+    const forcedNext = prefMap ? prefMap[((midis[i+1] % 12)+12)%12] : null;
     if(curr.letter === next.letter && !forcedNext){
       const alt = midiToChromaticPart(midis[i+1], curr, prefer === 'b' ? '#' : 'b', null);
       if(alt.letter !== curr.letter){
         full[i+1] = alt;
       }else if(curr.accidental && next.accidental === ''){
-        next.accidental = '\u266E';
-        full[i+1] = next;
+        full[i+1] = { ...next, accidental: '\u266E' };
       }
     }
   }
-  for(let i=0;i<full.length-1;i++){
-    const curr = full[i];
-    const next = full[i+1];
-    const forcedNext = prefMap ? prefMap[((midis[i+1] % 12) + 12) % 12] : null;
-    if(forcedNext) continue;
-    const semiDiff = Math.abs(midis[i+1] - midis[i]) % 12;
-    if(semiDiff === 1 || semiDiff === 2 || semiDiff === 10 || semiDiff === 11){
-      const currIdx = NOTE_CYCLE.indexOf(curr.letter);
-      const nextIdx = NOTE_CYCLE.indexOf(next.letter);
-      let diff = nextIdx - currIdx;
-      if(diff > 3) diff -= 7;
-      if(diff < -3) diff += 7;
-      if(Math.abs(diff) > 1){
-        const step = midis[i+1] >= midis[i] ? 1 : -1;
-        const target = NOTE_CYCLE[(currIdx + step + 7) % 7];
-        full[i+1] = midiToLetterPart(midis[i+1], target);
-      }
-    }
-  }
+
   return full.map(({key, accidental}) => ({key, accidental}));
 }
 
