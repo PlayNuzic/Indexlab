@@ -14,12 +14,13 @@
   <button id="skipTutorial" class="small" style="position:fixed;top:1rem;right:1rem;z-index:100010;display:none">Omet tutorial</button>
   <section id="welcome">
     <h1>Ear Training Nuzic</h1>
-    <p>Selecciona un perfil i comença l’entrenament d’intervals.</p>
-    <div id="profiles" class="profiles"></div>
-    <button id="clearProfiles" class="small">Esborra perfils</button>
-    <button id="editProfile" class="small">Edita perfil</button>
-    <button id="showStats" class="small">Estadístiques</button>
-    <ul id="levelInfo" style="list-style:none;padding:0;margin:.5rem 0;">
+    <div class="welcome-content">
+      <p>Selecciona un perfil i comença l’entrenament d’intervals.</p>
+      <div id="profiles" class="profiles"></div>
+      <button id="clearProfiles" class="small">Esborra perfils</button>
+      <button id="editProfile" class="small">Edita perfil</button>
+      <button id="showStats" class="small">Estadístiques</button>
+      <ul id="levelInfo" style="list-style:none;padding:0;margin:.5rem 0;">
       <li class="line">
         <button data-level="1">1. Intervals dissonants (iS 1 y 2)</button>
         <button data-level="2">2. Intervals consonants (iS 3 y 4)</button>
@@ -44,22 +45,25 @@
         <option value="piano" selected>Piano</option>
       </select>
     </div>
-    <p style="margin-top:1rem"><a href="../../index.html">&larr; Torna a l’índex</a></p>
+      <p style="margin-top:1rem"><a href="../../index.html">&larr; Torna a l’índex</a></p>
+    </div>
   </section>
 
   <section id="game" style="display:none">
-    <h2 id="modeTitle" class="mode-title"></h2>
-    <p id="modeHelp" class="mode-help" style="display:none"></p>
-    <div id="notation"></div>
-    <div id="avatarMsg"><img id="avatarImg"><div id="avatarBubble"></div></div>
-    <p id="question"></p>
-    <p id="score"></p>
-    <div class="controls">
-      <button id="playBtn">Escolta de nou</button>
+    <div class="game-content">
+      <h2 id="modeTitle" class="mode-title"></h2>
+      <p id="modeHelp" class="mode-help" style="display:none"></p>
+      <div id="notation"></div>
+      <div id="avatarMsg"><img id="avatarImg"><div id="avatarBubble"></div></div>
+      <p id="question"></p>
+      <p id="score"></p>
+      <div class="controls">
+        <button id="playBtn">Escolta de nou</button>
+      </div>
+      <div id="quickAns"></div>
+      <p id="feedback"></p>
+      <button id="backBtn" class="small">&larr; Torna al menú</button>
     </div>
-    <div id="quickAns"></div>
-    <p id="feedback"></p>
-    <button id="backBtn" class="small">&larr; Torna al menú</button>
   </section>
 
   <section id="summary" style="display:none">
