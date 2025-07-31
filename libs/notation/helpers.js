@@ -157,6 +157,16 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
       }else if(candFlat.letter === target){
         cand = candFlat;
       }
+    }else if(diff === 2 || diff === 10){
+      const cycle = ['c','d','e','f','g','a','b'];
+      const prevIdx = cycle.indexOf(prev.letter);
+      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
+      const target = cycle[targetIdx];
+      if(candSharp.letter === target){
+        cand = candSharp;
+      }else if(candFlat.letter === target){
+        cand = candFlat;
+      }
     }else if(diff === 1 || diff === 11){
       const cycle = ['c','d','e','f','g','a','b'];
       const prevIdx = cycle.indexOf(prev.letter);
@@ -280,6 +290,26 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
       }else if(curr.accidental && next.accidental === ''){
         next.accidental = '\u266E';
         full[i+1] = next;
+      }
+    }
+  }
+  const cycle = ['c','d','e','f','g','a','b'];
+  for(let i=0;i<full.length-1;i++){
+    const curr = full[i];
+    const next = full[i+1];
+    const forcedNext = prefMap ? prefMap[((midis[i+1] % 12) + 12) % 12] : null;
+    if(forcedNext) continue;
+    const semiDiff = Math.abs(midis[i+1] - midis[i]) % 12;
+    if(semiDiff === 1 || semiDiff === 2 || semiDiff === 10 || semiDiff === 11){
+      const currIdx = cycle.indexOf(curr.letter);
+      const nextIdx = cycle.indexOf(next.letter);
+      let diff = nextIdx - currIdx;
+      if(diff > 3) diff -= 7;
+      if(diff < -3) diff += 7;
+      if(Math.abs(diff) > 1){
+        const step = midis[i+1] >= midis[i] ? 1 : -1;
+        const target = cycle[(currIdx + step + 7) % 7];
+        full[i+1] = midiToLetterPart(midis[i+1], target);
       }
     }
   }
