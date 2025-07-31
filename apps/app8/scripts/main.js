@@ -386,7 +386,7 @@ const tourSteps = [
 
 const startWelcomeTour = createTour(tourSteps, {
   stageBackground: 'transparent',
-  opacity: 0.5
+  opacity: 0.8
 });
 
 const levelTourSteps = [
@@ -466,7 +466,7 @@ function onLevelHighlight(element){
 const startLevelTour = createTour(levelTourSteps, {
   allowClose: false,
   stageBackground: 'transparent',
-  opacity: 0.5,
+  opacity: 0.8,
   onHighlightStarted: onLevelHighlight,
   onHighlighted: onLevelHighlight
 });
