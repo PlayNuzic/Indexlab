@@ -155,4 +155,46 @@ button.disabled{background:#555;color:#999;cursor:default;}
   justify-content:center;
 }
 
+/* Center avatar and level blocks vertically */
+#welcome{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:1;
+}
+.welcome-content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+#game{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:1;
+}
+.game-content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+#summary{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:1;
+}
+.summary-content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
 
