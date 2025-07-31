@@ -132,7 +132,21 @@ button.disabled{background:#555;color:#999;cursor:default;}
 }
 
 #driver-page-overlay {
-  z-index: -2 !important;
+  z-index: 100002 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+#driver-popover-item {
+  background: #FEFFF4 !important;
+}
+
+#driver-popover-item .driver-popover-title,
+#driver-popover-item .driver-popover-description {
+  font-size: 115%;
+}
+
+#driver-popover-item .driver-popover-footer button {
+  border-radius: 6px;
 }
 
 
