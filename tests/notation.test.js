@@ -117,7 +117,7 @@ describe('notation helpers', () => {
       { key:'c/4', accidental:'' },
       { key:'d/4', accidental:'b' },
       { key:'e/4', accidental:'b' },
-      { key:'e/4', accidental:nat }
+      { key:'f/4', accidental:'b' }
     ]);
   });
 

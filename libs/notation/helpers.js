@@ -2,6 +2,20 @@ import { KeySignature } from '../vendor/vexflow/entry/vexflow.js';
 
 export const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
 
+export function midiToLetterPart(midi, letter){
+  const pc = ((midi % 12) + 12) % 12;
+  const base = letterToPc[letter];
+  let diff = (pc - base + 12) % 12;
+  if(diff > 6) diff -= 12;
+  let acc = '';
+  if(diff === -2) acc = 'bb';
+  else if(diff === -1) acc = 'b';
+  else if(diff === 1) acc = '#';
+  else if(diff === 2) acc = '##';
+  const octave = Math.floor(midi / 12) - 1;
+  return { key:`${letter}/${octave}`, accidental: acc, pc, letter };
+}
+
 export function parseKeySignatureArray(arr){
   const map = {};
   if(!Array.isArray(arr)) return map;
@@ -214,6 +228,26 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
     const altLeaps = leaps(altSeq);
     full = prefLeaps <= altLeaps ? prefSeq : altSeq;
     prefer = prefLeaps <= altLeaps ? prefer : (prefer === '#' ? 'b' : '#');
+  }
+
+  const cycle = ['c','d','e','f','g','a','b'];
+  for(let i=1;i<full.length;i++){
+    const prev = full[i-1];
+    const curr = full[i];
+    if(curr.diff === undefined){
+      curr.diff = Math.abs(curr.pc - prev.pc) % 12;
+    }
+    const prevIdx = cycle.indexOf(prev.letter);
+    const currIdx = cycle.indexOf(curr.letter);
+    const letterDiff = (currIdx - prevIdx + 7) % 7;
+    const stepDir = midis[i] >= midis[i-1] ? 1 : -1;
+    const expectedIdx = (prevIdx + stepDir + 7) % 7;
+    if((curr.diff === 1 || curr.diff === 2) && letterDiff !== (stepDir === 1 ? 1 : 6)){
+      const targetLetter = cycle[expectedIdx];
+      const repl = midiToLetterPart(midis[i], targetLetter);
+      repl.diff = curr.diff;
+      full[i] = repl;
+    }
   }
   for(let i=0;i<full.length-1;i++){
     const curr = full[i];
