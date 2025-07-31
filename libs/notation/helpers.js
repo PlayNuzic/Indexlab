@@ -98,8 +98,12 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
     if(diff === 1 || diff === 2){
       const stepDir = delta <= 6 ? 1 : -1;
       const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
-      const target = NOTE_CYCLE[(prevIdx + stepDir + 7) % 7];
-      if(cand.letter !== target){
+      const candIdx = NOTE_CYCLE.indexOf(cand.letter);
+      let ldiff = candIdx - prevIdx;
+      if(ldiff > 3) ldiff -= 7;
+      if(ldiff < -3) ldiff += 7;
+      if(ldiff !== 0 && ldiff !== stepDir){
+        const target = NOTE_CYCLE[(prevIdx + stepDir + 7) % 7];
         cand = midiToLetterPart(midi, target);
       }
     }
