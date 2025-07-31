@@ -16,7 +16,12 @@ const avatarFiles = [
   'avatar7.png',
   'avatar8.png',
   'avatar9.png',
-  'avatar10.png'
+  'avatar10.png',
+  'avatar11.png',
+  'avatar12.png',
+  'avatar13.png',
+  'avatar14.png',
+  'avatar15.png'
 ];
 const levelNames = {
   1: 'Intervals dissonants (iS 1 y 2)',
