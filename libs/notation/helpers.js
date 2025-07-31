@@ -1,9 +1,12 @@
 import { KeySignature } from '../vendor/vexflow/entry/vexflow.js';
 
+// Single reference array for diatonic letter cycle
+const NOTE_CYCLE = ['c','d','e','f','g','a','b'];
+
 export const letterToPc = { c:0, d:2, e:4, f:5, g:7, a:9, b:11 };
 
 export function midiToLetterPart(midi, letter){
-  const cycle = ['c','d','e','f','g','a','b'];
+  const cycle = NOTE_CYCLE;
   const pc = ((midi % 12) + 12) % 12;
   let base = letterToPc[letter];
   let diff = (pc - base + 12) % 12;
@@ -111,7 +114,7 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
     diff = Math.abs(pc - prev.pc) % 12;
     delta = (pc - prev.pc + 12) % 12;
     if(diff === 3 || diff === 4 || diff === 8 || diff === 9){
-      const cycle = ['c','d','e','f','g','a','b'];
+      const cycle = NOTE_CYCLE;
       const prevIdx = cycle.indexOf(prev.letter);
       const useStep = prev && prev.diff && (prev.diff === 1 || prev.diff === 2);
       if(useStep){
@@ -167,8 +170,18 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
       }else if(candFlat.letter === target){
         cand = candFlat;
       }
+    }else if(diff === 2 || diff === 10){
+      const cycle = NOTE_CYCLE;
+      const prevIdx = cycle.indexOf(prev.letter);
+      const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
+      const target = cycle[targetIdx];
+      if(candSharp.letter === target){
+        cand = candSharp;
+      }else if(candFlat.letter === target){
+        cand = candFlat;
+      }
     }else if(diff === 1 || diff === 11){
-      const cycle = ['c','d','e','f','g','a','b'];
+      const cycle = NOTE_CYCLE;
       const prevIdx = cycle.indexOf(prev.letter);
       const targetIdx = delta === diff ? (prevIdx + 1) % 7 : (prevIdx + 7 - 1) % 7;
       const target = cycle[targetIdx];
@@ -293,7 +306,7 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
       }
     }
   }
-  const cycle = ['c','d','e','f','g','a','b'];
+  const cycle = NOTE_CYCLE;
   for(let i=0;i<full.length-1;i++){
     const curr = full[i];
     const next = full[i+1];
