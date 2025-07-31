@@ -450,7 +450,9 @@ function onLevelHighlight(element){
         highlightIntervals:[[0,1,color]],
         noteColors:[],
         scaleId:'CROM',
-        root:0
+        root:0,
+        singleClef: bestClef(game.note1, game.note2),
+        width:350
       });
     });
   }
