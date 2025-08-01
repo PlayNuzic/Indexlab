@@ -5,4 +5,4 @@ Aquesta app permet seleccionar l'escala, el mode i la nota d'arrel per visualitz
 ### Features
 
 - Selector d'escala, mode i nota d'arrel.
-- Mostra la corresponent armadura i dibuixa la seqüència de notes de la escala.
+- Mostra la corresponent armadura i dibuixa la seqüència de notes de la escala tant al pentagrama com en text amb les alteracions correctes.

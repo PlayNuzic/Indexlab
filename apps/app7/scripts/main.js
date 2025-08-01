@@ -1,4 +1,4 @@
-import { drawPentagram } from '../../../libs/notation/index.js';
+import { drawPentagram, midiSequenceToChromaticParts } from '../../../libs/notation/index.js';
 import { init as initSound, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis, currentSemis, changeMode, isSymmetricScale } from '../../../shared/scales.js';
 
@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rotSel = document.getElementById('rotSel');
   const rootSel = document.getElementById('rootSel');
   const ksSwitch = document.getElementById('ksSwitch');
-  const modeLock = document.getElementById('modeLock');
+  const noteNamesEl = document.getElementById('noteNames');
 
   let useKeySig = true;
   let lockMode = false;
@@ -76,6 +76,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     const withKs = useKeySig && ksScales.includes(state.id);
     const options = { duration:'w', scaleId: state.id, root: state.root, paired:true, useKeySig: withKs };
     drawPentagram(staffEl, midisData, options);
+    const parts = midiSequenceToChromaticParts(asc);
+    const names = parts.map(p => p.key[0].toUpperCase() + (p.accidental || ''));
+    noteNamesEl.textContent = names.join(' ');
     setupNoteEvents();
   }
 
