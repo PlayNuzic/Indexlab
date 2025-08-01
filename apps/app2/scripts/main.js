@@ -18,6 +18,7 @@ const levelNames = {
 };
 
 let currentMode = 'iS';
+const SYM_OPTS = { scaleId:'CROM', root:0 };
 
 async function startGame(selected, level = 1){
   currentMode = selected;
@@ -96,7 +97,7 @@ function submitAnswer(value){
   if(res.correct){
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${(game.note2%12)} - ${(game.note1%12)} = ${game.currentInterval} => ${game.mode}(${game.currentInterval})`;
     const notationEl = document.getElementById('notation');
-    drawInterval(notationEl, game.note1, game.note2, game.mode, undefined, { scaleId:'CROM', root:0 });
+    drawInterval(notationEl, game.note1, game.note2, game.mode, undefined, SYM_OPTS);
     const proceed = () => {
       notationEl.removeEventListener('click', proceed);
       clearTimeout(timer);

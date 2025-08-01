@@ -1,4 +1,4 @@
-import drawPentagram from '../../../libs/notation/pentagram.js';
+import { drawPentagram } from '../../../libs/notation/index.js';
 import { init, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis, intervalColor, intervalCategory, intervalTypeBySemitone, intervalCategoryFor, degToSemi, degDiffToSemi, currentSemis } from '../../../shared/scales.js';
 import { pitchColor } from '../../../libs/vendor/chromatone-theory/index.js';
@@ -64,6 +64,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const scaleSel = document.getElementById('scaleSel');
   const rotSel = document.getElementById('rotSel');
   const rootSel = document.getElementById('rootSel');
+  const scaleMode = document.getElementById('scaleMode');
   const seqInput = document.getElementById('seq');
   const seqPrefix = document.getElementById('seqPrefix');
   const baseSelect = document.getElementById('baseNote');
@@ -110,17 +111,28 @@ window.addEventListener('DOMContentLoaded', async () => {
     return sems.slice(1).map((s,i)=>((s - sems[i] + 12) % 12));
   };
 
-  const scaleIDs = Object.keys(motherScalesData);
-  scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
-  [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
+  const asymScales=['DIAT','ACUS','ARMma','ARMme'];
+  const symScales=['CROM','OCT','HEX','TON'];
 
   function refreshRot(){
     rotSel.innerHTML='';
     motherScalesData[scale.id].rotNames.forEach((n,i)=> rotSel.add(new Option(`${i} – ${n}`, i)));
     rotSel.value = scale.rot;
   }
-  refreshRot();
-  scaleSel.value = scale.id;
+
+  function populateScales(){
+    const ids = scaleMode.value==='sym'?symScales:asymScales;
+    scaleSel.innerHTML='';
+    ids.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
+    if(!ids.includes(scale.id)) scale.id = ids[0];
+    scaleSel.value = scale.id;
+    refreshRot();
+  }
+
+  [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
+
+  populateScales();
+  scaleMode.onchange=()=>{ populateScales(); useKeySig = !symScales.includes(scale.id); modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals'; fitNotes(); renderAll(); seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes); };
   rootSel.value = scale.root;
 
   const enNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -565,9 +577,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  scaleSel.onchange=()=>{scale.id=scaleSel.value;refreshRot();renderAll();};
-  rotSel.onchange=()=>{scale.rot=parseInt(rotSel.value,10);renderAll();};
-  rootSel.onchange=()=>{scale.root=parseInt(rootSel.value,10);renderAll();};
+  scaleSel.onchange=()=>{scale.id=scaleSel.value;useKeySig=!symScales.includes(scale.id);modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';refreshRot();fitNotes();renderAll();seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes);};
+  rotSel.onchange=()=>{scale.rot=parseInt(rotSel.value,10);fitNotes();renderAll();};
+  rootSel.onchange=()=>{scale.root=parseInt(rootSel.value,10);fitNotes();renderAll();};
 
   modeBtn.onclick=()=>{
     useKeySig = !useKeySig;

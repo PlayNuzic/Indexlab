@@ -1,5 +1,5 @@
 import { init, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import drawPentagram from '../../../libs/notation/pentagram.js';
+import { drawPentagram } from '../../../libs/notation/index.js';
 import { motherScalesData, scaleSemis, degToSemi, degDiffToSemi, currentSemis } from '../../../shared/scales.js';
 import { generateComponents, ensureDuplicateComponents, transposeNotes,
   rotateLeft, rotateRight, shiftOct, moveCards as moveCardsLib,
@@ -135,25 +135,39 @@ window.addEventListener('DOMContentLoaded', async () => {
   const scaleSel=document.getElementById('scaleSel');
   const rotSel=document.getElementById('rotSel');
   const rootSel=document.getElementById('rootSel');
+  const scaleMode=document.getElementById('scaleMode');
   const showNmBtn=document.getElementById('showNm');
   seqInput.value=notesToEA(notes, scaleSemis(scale.id).length);
 
-  const scaleIDs = Object.keys(motherScalesData);
-  scaleSel.innerHTML='';
-  scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
-  rootSel.innerHTML='';
-  [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
+  const asymScales=['DIAT','ACUS','ARMma','ARMme'];
+  const symScales=['CROM','OCT','HEX','TON'];
+
   function refreshRot(){
     rotSel.innerHTML='';
     motherScalesData[scale.id].rotNames.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
     rotSel.value=scale.rot;
   }
-  refreshRot();
-  scaleSel.value=scale.id;
+
+  function populateScales(){
+    const ids = scaleMode.value==='sym'?symScales:asymScales;
+    scaleSel.innerHTML='';
+    ids.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
+    if(!ids.includes(scale.id)) scale.id = ids[0];
+    scaleSel.value = scale.id;
+    refreshRot();
+  }
+
+  rootSel.innerHTML='';
+  [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
+
+  populateScales();
+  scaleMode.onchange=()=>{ populateScales(); useKeySig = !symScales.includes(scale.id); modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals'; fitNotes(); renderAll(); seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes); };
   rootSel.value=scale.root;
 
   scaleSel.onchange=()=>{
     scale.id=scaleSel.value;
+    useKeySig = !symScales.includes(scale.id);
+    modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
     refreshRot();
     fitNotes();
     renderAll();

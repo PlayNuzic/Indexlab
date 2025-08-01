@@ -1,5 +1,5 @@
 import { init as initCards } from '../../../libs/cards/index.js';
-import drawPentagram from '../../../libs/notation/pentagram.js';
+import { drawPentagram } from '../../../libs/notation/index.js';
 import { init as initSound, playChord, ensureAudio, toggleMute, isMuted } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis, currentSemis } from '../../../shared/scales.js';
 import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
@@ -13,6 +13,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const scaleSel = document.getElementById('scaleSel');
   const rotSel = document.getElementById('rotSel');
   const rootSel = document.getElementById('rootSel');
+  const scaleMode = document.getElementById('scaleMode');
   const baseSel = document.getElementById('baseNote');
   const seqInput = document.getElementById('seq');
   const tabEA = document.getElementById('tabEA');
@@ -51,7 +52,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   let mode = 'eA';
   let scale = { id: 'DIAT', rot: 0, root: 0 };
   let baseMidi = 60;
-  const CHROM_SCALES = ['CROM','OCT','HEX','TON'];
+  const asymScales = ['DIAT','ACUS','ARMma','ARMme'];
+  const symScales = ['CROM','OCT','HEX','TON'];
 
   let notes = eaToNotes([2,2,1], inputLen());
   let colorIntervals = false;
@@ -146,9 +148,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 
   function refreshSelectors(){
-    const ids = Object.keys(motherScalesData);
+    const ids = scaleMode.value==='sym'?symScales:asymScales;
     scaleSel.innerHTML='';
     ids.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
+    if(!ids.includes(scale.id)) scale.id = ids[0];
     scaleSel.value = scale.id;
     rotSel.innerHTML='';
     motherScalesData[scale.id].rotNames.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
@@ -158,6 +161,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     rootSel.value = scale.root;
   }
   refreshSelectors();
+  scaleMode.onchange=()=>{ refreshSelectors(); scale.id=scaleSel.value; useKeySig=!symScales.includes(scale.id); modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals'; fitNotes(); renderAll(); };
 
   function onCardsChange(state){
     notes = state.notes.slice();
@@ -307,13 +311,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   baseSel.onchange=()=>{ baseMidi = parseInt(baseSel.value,10); renderStaff(); };
   scaleSel.onchange=()=>{
     scale.id=scaleSel.value;
-    useKeySig = !CHROM_SCALES.includes(scale.id);
+    useKeySig = !symScales.includes(scale.id);
     modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
     refreshSelectors();
+    fitNotes();
     renderAll();
   };
-  rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderAll(); };
-  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderAll(); };
+  rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); fitNotes(); renderAll(); };
+  rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); fitNotes(); renderAll(); };
   rotModeBtn.onclick=()=>{ voicingMode='rot'; rotModeBtn.classList.add('active'); permModeBtn.classList.remove('active'); generateMiniSets(); renderMini(); };
   permModeBtn.onclick=()=>{ voicingMode='perm'; permModeBtn.classList.add('active'); rotModeBtn.classList.remove('active'); generateMiniSets(); renderMini(); };
   toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
