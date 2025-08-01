@@ -191,7 +191,7 @@ export function currentSemis(scale, degrees, shifts=[]){
 
 
 export function isSymmetricScale(id){
-  return id==='OCT' || id==='HEX';
+  return id==='CROM' || id==='OCT' || id==='HEX' || id==='TON';
 }
 
 export function changeMode(scale, newRot, lockRoot=false){
