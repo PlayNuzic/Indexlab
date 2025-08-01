@@ -8,7 +8,7 @@ function loadHelpers(){
     .replace(/import[^\n]+\n/g, '')
     .replace(/export function/g, 'function')
     .replace(/export const/g, 'const') +
-    `\n${stub}\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, applyKeySignature, parseKeySignatureArray, SHARP_LINES, FLAT_LINES };`;
+    `\n${stub}\nmodule.exports = { midiToParts, midiToPartsByKeySig, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, spellMidiSequence, applyKeySignature, parseKeySignatureArray, SHARP_LINES, FLAT_LINES };`;
   const mod = { exports: {} };
   const fn = new Function('module','exports', transformed);
   fn(mod, mod.exports);
@@ -46,7 +46,7 @@ function loadPentagram(apply){
 }
 
 describe('notation helpers', () => {
-  const { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, applyKeySignature } = loadHelpers();
+  const { midiToParts, needsDoubleStaff, createNote, createChord, keySignatureFrom, midiSequenceToChromaticParts, spellMidiSequence, applyKeySignature } = loadHelpers();
 
   class StubNote {
     constructor(opts){ this.opts = opts; this.mods = []; }
@@ -242,6 +242,27 @@ describe('notation helpers', () => {
       { key:'f/4', accidental:'#' },
       { key:'g/4', accidental:'#' },
       { key:'a/4', accidental:'#' }
+    ]);
+  });
+
+  test('spellMidiSequence tracks accidentals within measures', () => {
+    const nat = '\\u266E';
+    const seq = [61,62,null,62];
+    expect(spellMidiSequence(seq)).toEqual([
+      { key:'d/4', accidental:'b' },
+      { key:'d/4', accidental:nat },
+      null,
+      { key:'d/4', accidental:'' }
+    ]);
+  });
+
+  test('spellMidiSequence respects key signatures and octaves', () => {
+    const nat = '\\u266E';
+    expect(spellMidiSequence([65,66,null,66], ['F#'])).toEqual([
+      { key:'f/4', accidental:nat },
+      { key:'f/4', accidental:'#' },
+      null,
+      { key:'f/4', accidental:'' }
     ]);
   });
 

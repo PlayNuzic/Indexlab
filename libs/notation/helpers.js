@@ -173,6 +173,42 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
   return full.map(({key, accidental}) => ({key, accidental}));
 }
 
+export function spellMidiSequence(seq, keySig = [], bar = null){
+  const ksMap = parseKeySignatureArray(keySig);
+  const prefMap = {};
+  for(const [pc, acc] of Object.entries(ksMap)){
+    const adj = acc === '#' ? 1 : acc === 'b' ? -1 : 0;
+    prefMap[(parseInt(pc,10) + adj + 12) % 12] = acc;
+  }
+  const midis = seq.filter(n => n !== bar);
+  const raw = midiSequenceToChromaticParts(midis, prefMap);
+  let idx = 0;
+  const result = [];
+  let active = {};
+  const reset = () => { active = {}; };
+  reset();
+  for(const n of seq){
+    if(n === bar){
+      reset();
+      result.push(bar);
+      continue;
+    }
+    const part = raw[idx++];
+    const [letter, octave] = part.key.split('/');
+    const pc = letterToPc[letter];
+    const key = `${letter}/${octave}`;
+    const actual = part.accidental === '\u266E' ? '' : part.accidental;
+    const prev = active[key] !== undefined ? active[key] : (ksMap[pc] || '');
+    let acc = '';
+    if(actual !== prev){
+      acc = actual === '' ? '\\u266E' : part.accidental;
+    }
+    active[key] = actual;
+    result.push({ key: part.key, accidental: acc });
+  }
+  return result;
+}
+
 export function needsDoubleStaff(n1, n2) {
   return n1 < 60 || n2 < 60 || n1 > 81 || n2 > 81;
 }
