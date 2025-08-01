@@ -463,9 +463,15 @@ function onLevelHighlight(element){
 
   if(element.id==='quickAns'){
     flashTutorialAnswer();
-    if(pop) pop.style.transform=`translateX(${quickBubbleOffset}px)`;
-  } else if(pop){
-    pop.style.transform='';
+    if(pop){
+      const orig = pop.dataset.origLeft || pop.style.left || '0px';
+      pop.dataset.origLeft = orig;
+      const left = parseInt(orig, 10) + quickBubbleOffset;
+      pop.style.left = `${left}px`;
+    }
+  } else if(pop && pop.dataset.origLeft){
+    pop.style.left = pop.dataset.origLeft;
+    delete pop.dataset.origLeft;
   }
   if(element.id==='notation'){
     requestAnimationFrame(() => {
@@ -482,11 +488,6 @@ function onLevelHighlight(element){
         width:350
       });
     });
-  }
-  if(element.id==='backBtn'){
-    const b=document.getElementById('backBtn');
-    b.disabled=false;
-    b.classList.remove('disabled');
   }
 }
 
