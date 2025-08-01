@@ -131,7 +131,7 @@ button.disabled{background:#555;color:#999;cursor:default;}
   pointer-events: none;
 }
 
-.driver-highlighted-element-stage {
+#driver-highlighted-element-stage {
   z-index: -1 !important;
   background: transparent !important;
   box-shadow: 0 0 0 2px red !important;
