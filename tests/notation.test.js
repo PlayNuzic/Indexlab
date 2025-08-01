@@ -197,6 +197,16 @@ describe('notation helpers', () => {
     ]);
   });
 
+  test('midiSequenceToChromaticParts keeps B# in lower octave', () => {
+    const midis = [60,61,70,60];
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'b' },
+      { key:'a/4', accidental:'#' },
+      { key:'b/3', accidental:'#' }
+    ]);
+  });
+
   test('midiSequenceToChromaticParts spells OCT scale with naturals', () => {
     const nat = '\u266E';
     const midis = [60,61,63,64,66,67,69,70];

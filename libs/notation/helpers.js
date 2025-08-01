@@ -24,7 +24,7 @@ export function midiToLetterPart(midi, letter){
   let acc = '';
   if(diff === -1) acc = 'b';
   else if(diff === 1) acc = '#';
-  const octave = Math.floor(midi / 12) - 1;
+  const octave = Math.floor((midi - diff) / 12) - 1;
   return { key:`${letter}/${octave}`, accidental: acc, pc, letter };
 }
 
@@ -82,7 +82,6 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
   const sharps = ['', '#', '', '#', '', '', '#', '', '#', '', '#', ''];
   const flats  = ['', 'b', '', 'b', '', '', 'b', '', 'b', '', 'b', ''];
   const pc = ((midi % 12) + 12) % 12;
-  const octave = Math.floor(midi / 12) - 1;
 
   let cand = prefer === '#'
     ? { letter: sharpLetters[pc], accidental: sharps[pc] }
@@ -117,6 +116,11 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
     acc = '\u266E';
   }
   if(forced === 'n') acc = '\u266E';
+
+  const base = letterToPc[cand.letter];
+  let diff = (pc - base + 12) % 12;
+  if(diff > 6) diff -= 12;
+  const octave = Math.floor((midi - diff) / 12) - 1;
 
   return { key: `${cand.letter}/${octave}`, accidental: acc, pc, letter: cand.letter };
 }
