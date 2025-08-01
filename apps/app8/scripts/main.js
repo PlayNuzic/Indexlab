@@ -53,6 +53,7 @@ let tutorialFlash = null;
 let tutorialFlashTimeout = null;
 const quickBubbleOffset = 400;
 const tutorialDemoNotes = [48,50];
+const disablePrevSteps = new Set(['notation','score','backBtn']);
 const skipBtn = document.getElementById('skipTutorial');
 
 function showSkipButton(){
@@ -448,44 +449,41 @@ const levelTourSteps = [
 ];
 
 function onLevelHighlight(element){
-  const pop=document.getElementById('driver-popover-item');
-  const prev=document.querySelector('.driver-prev-btn');
+  const pop = document.getElementById('driver-popover-item');
+  const prev = document.querySelector('.driver-prev-btn');
 
-  if(['notation','score','backBtn'].includes(element.id)){
-    if(prev){
-      prev.classList.add('driver-disabled');
-      prev.disabled = true;
-    }
-  } else if(prev){
-    prev.classList.remove('driver-disabled');
-    prev.disabled = false;
+  if (prev) {
+    const disable = disablePrevSteps.has(element.id);
+    prev.classList.toggle('driver-disabled', disable);
+    prev.disabled = disable;
   }
 
-  if(element.id==='quickAns'){
+  if (element.id === 'quickAns') {
     flashTutorialAnswer();
-    if(pop){
-      const orig = pop.dataset.origLeft || pop.style.left || '0px';
-      pop.dataset.origLeft = orig;
-      const left = parseInt(orig, 10) + quickBubbleOffset;
-      pop.style.left = `${left}px`;
+    if (pop) {
+      if (!pop.dataset.origLeft) {
+        pop.dataset.origLeft = pop.style.left || '0px';
+      }
+      pop.style.left = `${parseInt(pop.dataset.origLeft, 10) + quickBubbleOffset}px`;
     }
-  } else if(pop && pop.dataset.origLeft){
+  } else if (pop && pop.dataset.origLeft) {
     pop.style.left = pop.dataset.origLeft;
     delete pop.dataset.origLeft;
   }
-  if(element.id==='notation'){
+
+  if (element.id === 'notation') {
     requestAnimationFrame(() => {
-      const el=document.getElementById('notation');
+      const el = document.getElementById('notation');
       const [n1, n2] = tutorialDemoNotes;
       drawPentagram(el, tutorialDemoNotes, {
-        chord:false,
-        duration:'q',
-        highlightIntervals:[[0,1,'red']],
-        noteColors:['red','red'],
-        scaleId:'CROM',
-        root:0,
+        chord: false,
+        duration: 'q',
+        highlightIntervals: [[0, 1, 'red']],
+        noteColors: ['red', 'red'],
+        scaleId: 'CROM',
+        root: 0,
         singleClef: bestClef(n1, n2),
-        width:350
+        width: 350
       });
     });
   }
