@@ -70,6 +70,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let lastStaffMidis = absoluteMidis(notes);
   let isMuted = false;
   let miniSets = [];
+  let regenMiniFlag = true;
 
   function inputLen(){
     return scaleSemis(scale.id).length;
@@ -125,7 +126,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const snap=undoStack.pop();
     notes=snap.notes.slice();
     components=snap.components.slice();
-    renderAll();
+    renderAll(false);
   }
 
   function redoAction(){
@@ -135,7 +136,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const snap=redoStack.pop();
     notes=snap.notes.slice();
     components=snap.components.slice();
-    renderAll();
+    renderAll(false);
   }
 
   function fitNotes(){
@@ -163,7 +164,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     components = state.components.slice();
     if(highlightRoot) updateRootInfo();
     renderStaff();
-    generateMiniSets();
+    if(regenMiniFlag) generateMiniSets();
     renderMini();
     seqInput.value = mode==='eA'
       ? notesToEA(notes, inputLen())
@@ -271,6 +272,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderAll(regenMini=true){
+    regenMiniFlag = regenMini;
     fitNotes();
     renderCards();
     renderStaff();
@@ -317,10 +319,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
 
   // Invert rotation buttons to match apps 5 and 6 behavior
-  rotLeft.onclick=()=>{ pushUndo(); rotRightLib(notes, components); fitNotes(); renderAll(); };
-  rotRight.onclick=()=>{ pushUndo(); rotLeftLib(notes, components); fitNotes(); renderAll(); };
-  globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
-  globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
+  rotLeft.onclick=()=>{ pushUndo(); rotRightLib(notes, components); fitNotes(); renderAll(false); };
+  rotRight.onclick=()=>{ pushUndo(); rotLeftLib(notes, components); fitNotes(); renderAll(false); };
+  globUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(false); };
+  globDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(false); };
   let muted = false;
   muteBtn.onclick=()=>{
     muted = !muted;
@@ -332,8 +334,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
-  transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(); };
-  transposeDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(); };
+  transposeUp.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),1); fitNotes(); renderAll(false); };
+  transposeDown.onclick=()=>{ pushUndo(); notes=transposeNotes(notes, inputLen(),-1); fitNotes(); renderAll(false); };
 
   saveBtn.onclick=()=>{
     const free=snapshots.findIndex(s=>s===null);
