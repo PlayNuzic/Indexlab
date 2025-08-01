@@ -391,7 +391,11 @@ const tourSteps = [
 
 const startWelcomeTour = createTour(tourSteps, {
   stageBackground: 'transparent',
-  opacity: 0.8
+  opacity: 0.8,
+  nextBtnText: 'Siguiente',
+  prevBtnText: 'Anterior',
+  closeBtnText: 'Cerrar',
+  doneBtnText: 'Cerrar'
 });
 
 const levelTourSteps = [
@@ -442,21 +446,25 @@ const levelTourSteps = [
 ];
 
 function onLevelHighlight(element){
+  const pop=document.getElementById('driver-popover-item');
   if(element.id==='quickAns'){
     flashTutorialAnswer();
+    if(pop) pop.style.transform='translateX(400px)';
+  } else if(pop){
+    pop.style.transform='';
   }
   if(element.id==='notation'){
     requestAnimationFrame(() => {
       const el=document.getElementById('notation');
-      const color=intervalColor(tutorialInterval);
-      drawPentagram(el, [game.note1, game.note2], {
+      const color=intervalColor(2);
+      drawPentagram(el, [48,50], {
         chord:false,
         duration:'q',
         highlightIntervals:[[0,1,color]],
-        noteColors:[],
+        noteColors:['red','red'],
         scaleId:'CROM',
         root:0,
-        singleClef: bestClef(game.note1, game.note2),
+        singleClef: bestClef(48,50),
         width:350
       });
     });
@@ -472,6 +480,10 @@ const startLevelTour = createTour(levelTourSteps, {
   allowClose: false,
   stageBackground: 'transparent',
   opacity: 0.8,
+  nextBtnText: 'Siguiente',
+  prevBtnText: 'Anterior',
+  closeBtnText: 'Cerrar',
+  doneBtnText: 'Cerrar',
   onHighlightStarted: onLevelHighlight,
   onHighlighted: onLevelHighlight
 });
