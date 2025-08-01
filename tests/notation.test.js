@@ -131,18 +131,6 @@ describe('notation helpers', () => {
       { key:'g/4', accidental:'b' }
     ]);
   });
-  test('midiSequenceToChromaticParts spells HEX scale with naturals', () => {
-    const nat = '\u266E';
-    const midis = [60,61,64,65,68,69];
-    expect(midiSequenceToChromaticParts(midis)).toEqual([
-      { key:'c/4', accidental:'' },
-      { key:'d/4', accidental:'b' },
-      { key:'e/4', accidental:'' },
-      { key:'f/4', accidental:'' },
-      { key:'a/4', accidental:'b' },
-      { key:'a/4', accidental:nat }
-    ]);
-  });
 
   test('midiSequenceToChromaticParts spells OCT scale with naturals', () => {
     const nat = '\u266E';
@@ -204,6 +192,46 @@ describe('notation helpers', () => {
     ]);
   });
 
+  test('midiSequenceToChromaticParts spells HEX scale with naturals', () => {
+    const nat = '\u266E';
+    const midis = [60,61,64,65,68,69];
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'b' },
+      { key:'e/4', accidental:'' },
+      { key:'f/4', accidental:'' },
+      { key:'g/4', accidental:'#' },
+      { key:'a/4', accidental:'' }
+    ]);
+  });
+
+  test('midiSequenceToChromaticParts spells OCT scale with naturals', () => {
+    const nat = '\u266E';
+    const midis = [60,61,63,64,66,67,69,70];
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'b' },
+      { key:'e/4', accidental:'b' },
+      { key:'e/4', accidental:nat },
+      { key:'f/4', accidental:'#' },
+      { key:'g/4', accidental:'' },
+      { key:'a/4', accidental:'' },
+      { key:'b/4', accidental:'b' }
+    ]);
+  });
+
+  test('midiSequenceToChromaticParts spells TON scale consistently', () => {
+    const midis = [60,62,64,66,68,70];
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'' },
+      { key:'e/4', accidental:'' },
+      { key:'f/4', accidental:'#' },
+      { key:'g/4', accidental:'#' },
+      { key:'a/4', accidental:'#' }
+    ]);
+  });
+
   test('spellMidiSequence tracks accidentals within measures', () => {
     const nat = '\\u266E';
     const seq = [61,62,null,62];
@@ -222,6 +250,15 @@ describe('notation helpers', () => {
       { key:'f/4', accidental:'#' },
       null,
       { key:'f/4', accidental:'' }
+    ]);
+  });
+
+  test('spellMidiSequence adds courtesy naturals after bar', () => {
+    const nat = '\\u266E';
+    expect(spellMidiSequence([61,null,62])).toEqual([
+      { key:'d/4', accidental:'b' },
+      null,
+      { key:'d/4', accidental:nat, cautionary:true }
     ]);
   });
 

@@ -77,7 +77,11 @@ export function drawPentagram(container, midis = [], options = {}) {
         const note = new StaveNote({ keys, duration, clef: singleClef });
         partsSeq.forEach((p,i)=>{
           const need = useKs ? needsAccidental(p, ksMap) : !!p.accidental;
-          if(need) note.addModifier(new Accidental(p.accidental), i);
+          if(need){
+            const acc = new Accidental(p.accidental);
+            if(p.cautionary) acc.setAsCautionary();
+            note.addModifier(acc, i);
+          }
           const color = noteColors[i];
           if(color) note.setKeyStyle(i, { fillStyle: color, strokeStyle: '#000' });
           noteObjs[i] = { note, keyIndex: i };
@@ -92,7 +96,11 @@ export function drawPentagram(container, midis = [], options = {}) {
           const parts = (useKs || keepSpelling) ? midiToPartsByKeySig(m, ksMap) : partsSeq[idx];
           const note = new StaveNote({ keys: [parts.key], duration, clef: singleClef });
           const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;
-          if (need) note.addModifier(new Accidental(parts.accidental), 0);
+          if (need){
+            const acc = new Accidental(parts.accidental);
+            if(parts.cautionary) acc.setAsCautionary();
+            note.addModifier(acc, 0);
+          }
           const color = noteColors[idx];
           if (color) note.setStyle({ fillStyle: color, strokeStyle: '#000' });
           noteObjs[idx] = { note, keyIndex: 0 };
@@ -181,7 +189,11 @@ export function drawPentagram(container, midis = [], options = {}) {
       byClef[clef].forEach((obj, i) => {
         const p = obj.parts;
         const need = useKs ? needsAccidental(p, ksMap) : !!p.accidental;
-        if (need) note.addModifier(new Accidental(p.accidental), i);
+        if (need){
+          const acc = new Accidental(p.accidental);
+          if(p.cautionary) acc.setAsCautionary();
+          note.addModifier(acc, i);
+        }
         const color = noteColors[obj.idx];
         if (color) note.setKeyStyle(i, { fillStyle: color, strokeStyle: '#000' });
         obj.note = note;
@@ -202,9 +214,17 @@ export function drawPentagram(container, midis = [], options = {}) {
       const tNote = new StaveNote({ keys: [tParts.key], duration, clef: 'treble' });
       const bNote = new StaveNote({ keys: [bParts.key], duration, clef: 'bass' });
       const needT = useKs ? needsAccidental(tParts, ksMap) : !!tParts.accidental;
-      if (needT) tNote.addModifier(new Accidental(tParts.accidental), 0);
+      if (needT){
+        const acc = new Accidental(tParts.accidental);
+        if(tParts.cautionary) acc.setAsCautionary();
+        tNote.addModifier(acc, 0);
+      }
       const needB = useKs ? needsAccidental(bParts, ksMap) : !!bParts.accidental;
-      if (needB) bNote.addModifier(new Accidental(bParts.accidental), 0);
+      if (needB){
+        const acc = new Accidental(bParts.accidental);
+        if(bParts.cautionary) acc.setAsCautionary();
+        bNote.addModifier(acc, 0);
+      }
       const color = noteColors[idx];
       if (color) {
         tNote.setStyle({ fillStyle: color, strokeStyle: '#000' });
@@ -225,7 +245,11 @@ export function drawPentagram(container, midis = [], options = {}) {
       const clef = m < 60 ? 'bass' : 'treble';
       const note = new StaveNote({ keys: [parts.key], duration, clef });
       const need = useKs ? needsAccidental(parts, ksMap) : !!parts.accidental;
-      if (need) note.addModifier(new Accidental(parts.accidental), 0);
+      if (need){
+        const acc = new Accidental(parts.accidental);
+        if(parts.cautionary) acc.setAsCautionary();
+        note.addModifier(acc, 0);
+      }
       const color = noteColors[idx];
       if (color) note.setStyle({ fillStyle: color, strokeStyle: '#000' });
       byClef[clef].push({ parts, idx, note, keyIndex: 0 });

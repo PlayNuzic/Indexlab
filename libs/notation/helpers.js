@@ -95,9 +95,12 @@ export function midiToChromaticPart(midi, prev, prefer, forced){
   if(prev){
     const delta = (pc - prev.pc + 12) % 12;
     const diff = delta <= 6 ? delta : 12 - delta;
-    if(diff === 1 || diff === 2){
-      const stepDir = delta <= 6 ? 1 : -1;
-      const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
+    const stepDir = delta <= 6 ? 1 : -1;
+    const prevIdx = NOTE_CYCLE.indexOf(prev.letter);
+    if(!prefer && diff === 1){
+      const target = stepDir === 1 ? prev.letter : NOTE_CYCLE[(prevIdx + 6) % 7];
+      cand = midiToLetterPart(midi, target);
+    }else if(diff === 1 || diff === 2){
       const candIdx = NOTE_CYCLE.indexOf(cand.letter);
       let ldiff = candIdx - prevIdx;
       if(ldiff > 3) ldiff -= 7;
@@ -185,10 +188,12 @@ export function spellMidiSequence(seq, keySig = [], bar = null){
   let idx = 0;
   const result = [];
   let active = {};
+  let prevMeasure = {};
   const reset = () => { active = {}; };
   reset();
   for(const n of seq){
     if(n === bar){
+      prevMeasure = active;
       reset();
       result.push(bar);
       continue;
@@ -200,11 +205,20 @@ export function spellMidiSequence(seq, keySig = [], bar = null){
     const actual = part.accidental === '\u266E' ? '' : part.accidental;
     const prev = active[key] !== undefined ? active[key] : (ksMap[pc] || '');
     let acc = '';
+    let cautionary = false;
     if(actual !== prev){
       acc = actual === '' ? '\\u266E' : part.accidental;
+      if(actual === '' && prevMeasure[key] && prevMeasure[key] !== ''){
+        cautionary = true;
+      }
+    }else if(actual === '' && prevMeasure[key] && prevMeasure[key] !== ''){
+      acc = '\\u266E';
+      cautionary = true;
     }
     active[key] = actual;
-    result.push({ key: part.key, accidental: acc });
+    const obj = { key: part.key, accidental: acc };
+    if(cautionary) obj.cautionary = true;
+    result.push(obj);
   }
   return result;
 }
