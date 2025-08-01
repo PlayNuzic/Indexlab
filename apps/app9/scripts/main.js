@@ -69,6 +69,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let lastSaved=null;
   let lastStaffMidis = absoluteMidis(notes);
   let isMuted = false;
+  let miniSets = [];
 
   function inputLen(){
     return scaleSemis(scale.id).length;
@@ -162,6 +163,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     components = state.components.slice();
     if(highlightRoot) updateRootInfo();
     renderStaff();
+    generateMiniSets();
     renderMini();
     seqInput.value = mode==='eA'
       ? notesToEA(notes, inputLen())
@@ -198,17 +200,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     playStaffIfChanged(abs);
   }
 
+  function generateMiniSets(){
+    if(!toggleMini.checked){
+      miniSets = [];
+      return;
+    }
+    if(voicingMode==='rot'){
+      miniSets = rotatePairs(notes, components);
+    }else{
+      miniSets = permutePairsFixedBass(notes, components);
+    }
+  }
+
   function renderMini(){
     miniWrap.innerHTML='';
     if(!toggleMini.checked) return;
-    const comps = components.slice();
-    let sets;
-    if(voicingMode==='rot'){
-      sets = rotatePairs(notes, comps);
-    }else{
-      sets = permutePairsFixedBass(notes, comps);
-    }
-    sets.forEach(obj=>{
+    miniSets.forEach(obj=>{
       const mdiv=document.createElement('div');
       const midis=absoluteMidis(obj.notes);
       drawPentagram(mdiv, midis, { chord:true, noteColors:[], scaleId: useKeySig ? scale.id : 'CROM', root: useKeySig ? scale.root : 0 });
@@ -228,7 +235,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const wrap=document.createElement('div');
       wrap.appendChild(mdiv); wrap.appendChild(info);
       wrap.style.cursor='pointer';
-      wrap.onclick=()=>{ pushUndo(); notes=obj.notes.slice(); components=obj.components.slice(); renderAll(); };
+      wrap.onclick=()=>{ pushUndo(); notes=obj.notes.slice(); components=obj.components.slice(); renderAll(false); };
       miniWrap.appendChild(wrap);
     });
   }
@@ -263,10 +270,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderAll();
   }
 
-  function renderAll(){
+  function renderAll(regenMini=true){
     fitNotes();
     renderCards();
     renderStaff();
+    if(regenMini) generateMiniSets();
     renderMini();
     if(highlightRoot) updateRootInfo();
     renderSnapshots();
@@ -304,8 +312,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
   rotSel.onchange=()=>{ scale.rot=parseInt(rotSel.value,10); renderAll(); };
   rootSel.onchange=()=>{ scale.root=parseInt(rootSel.value,10); renderAll(); };
-  rotModeBtn.onclick=()=>{ voicingMode='rot'; rotModeBtn.classList.add('active'); permModeBtn.classList.remove('active'); renderMini(); };
-  permModeBtn.onclick=()=>{ voicingMode='perm'; permModeBtn.classList.add('active'); rotModeBtn.classList.remove('active'); renderMini(); };
+  rotModeBtn.onclick=()=>{ voicingMode='rot'; rotModeBtn.classList.add('active'); permModeBtn.classList.remove('active'); generateMiniSets(); renderMini(); };
+  permModeBtn.onclick=()=>{ voicingMode='perm'; permModeBtn.classList.add('active'); rotModeBtn.classList.remove('active'); generateMiniSets(); renderMini(); };
   toggleMini.onchange=()=>{ miniWrap.style.display=toggleMini.checked?'':'none'; };
 
   // Invert rotation buttons to match apps 5 and 6 behavior
