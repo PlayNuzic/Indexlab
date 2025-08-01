@@ -146,22 +146,41 @@ describe('notation helpers', () => {
     ]);
   });
 
-  test('midiSequenceToChromaticParts spells full chromatic scale with naturals', () => {
-    const nat = '\u266E';
-    const midis = Array.from({length:12}, (_,i) => 60 + i);
+  test('midiSequenceToChromaticParts spells chromatic scale ascending with sharps', () => {
+    const midis = Array.from({length:13}, (_,i) => 60 + i);
     expect(midiSequenceToChromaticParts(midis)).toEqual([
       { key:'c/4', accidental:'' },
-      { key:'d/4', accidental:'b' },
-      { key:'d/4', accidental:nat },
-      { key:'e/4', accidental:'b' },
-      { key:'e/4', accidental:nat },
+      { key:'c/4', accidental:'#' },
+      { key:'d/4', accidental:'' },
+      { key:'d/4', accidental:'#' },
+      { key:'e/4', accidental:'' },
       { key:'f/4', accidental:'' },
-      { key:'g/4', accidental:'b' },
-      { key:'g/4', accidental:nat },
-      { key:'a/4', accidental:'b' },
-      { key:'a/4', accidental:nat },
+      { key:'f/4', accidental:'#' },
+      { key:'g/4', accidental:'' },
+      { key:'g/4', accidental:'#' },
+      { key:'a/4', accidental:'' },
+      { key:'a/4', accidental:'#' },
+      { key:'b/4', accidental:'' },
+      { key:'c/5', accidental:'' }
+    ]);
+  });
+
+  test('midiSequenceToChromaticParts spells chromatic scale descending with flats', () => {
+    const midis = Array.from({length:13}, (_,i) => 72 - i);
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/5', accidental:'' },
+      { key:'b/4', accidental:'' },
       { key:'b/4', accidental:'b' },
-      { key:'b/4', accidental:nat }
+      { key:'a/4', accidental:'' },
+      { key:'a/4', accidental:'b' },
+      { key:'g/4', accidental:'' },
+      { key:'g/4', accidental:'b' },
+      { key:'f/4', accidental:'' },
+      { key:'e/4', accidental:'' },
+      { key:'e/4', accidental:'b' },
+      { key:'d/4', accidental:'' },
+      { key:'d/4', accidental:'b' },
+      { key:'c/4', accidental:'' }
     ]);
   });
 

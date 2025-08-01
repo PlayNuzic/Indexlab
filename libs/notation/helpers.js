@@ -132,18 +132,31 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
     return out;
   }
 
-  const initial = build(null);
+  const diffs = [];
+  for(let i=1;i<midis.length;i++){
+    const d = midis[i] - midis[i-1];
+    if(d !== 0) diffs.push(d);
+  }
+  const allUpChrom = midis.length > 2 && diffs.length === midis.length -1 && diffs.every(d => d === 1);
+  const allDownChrom = midis.length > 2 && diffs.length === midis.length -1 && diffs.every(d => d === -1);
   let prefer = null;
-  for(const p of initial){
-    if(p.accidental && p.accidental !== '\u266E'){
-      if(p.accidental.includes('b')) prefer = 'b';
-      else if(p.accidental.includes('#')) prefer = '#';
-      if(prefer) break;
+  let directPref = false;
+  if(allUpChrom){ prefer = '#'; directPref = true; }
+  else if(allDownChrom){ prefer = 'b'; directPref = true; }
+
+  const initial = build(prefer);
+  if(!prefer){
+    for(const p of initial){
+      if(p.accidental && p.accidental !== '\u266E'){
+        if(p.accidental.includes('b')) prefer = 'b';
+        else if(p.accidental.includes('#')) prefer = '#';
+        if(prefer) break;
+      }
     }
   }
 
   let full = initial;
-  if(prefer){
+  if(prefer && !directPref){
     const prefSeq = build(prefer);
     const altSeq = build(prefer === '#' ? 'b' : '#');
     const leaps = seq => seq.slice(1).reduce((acc,curr,i)=>{
@@ -163,7 +176,7 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
     const curr = full[i];
     const next = full[i+1];
     const forcedNext = prefMap ? prefMap[((midis[i+1] % 12)+12)%12] : null;
-    if(curr.letter === next.letter && !forcedNext){
+    if(!directPref && curr.letter === next.letter && !forcedNext){
       const alt = midiToChromaticPart(midis[i+1], curr, prefer === 'b' ? '#' : 'b', null);
       if(alt.letter !== curr.letter){
         full[i+1] = alt;
