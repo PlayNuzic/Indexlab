@@ -203,14 +203,15 @@ export function drawPentagram(container, midis = [], options = {}) {
       else { bassVoice.addTickable(note); }
     });
   } else if (paired) {
-    const flat = midis.flat();
-    let partsSeq = null;
+    let trebleSeq = null;
+    let bassSeq = null;
     if(!useKs && !keepSpelling){
-      partsSeq = midiSequenceToChromaticParts(flat, ksMap);
+      trebleSeq = midiSequenceToChromaticParts(midis.map(p => p[0]), ksMap);
+      bassSeq = midiSequenceToChromaticParts(midis.map(p => p[1]), ksMap);
     }
     midis.forEach(([t,b], idx) => {
-      const tParts = (useKs || keepSpelling) ? midiToPartsByKeySig(t, ksMap) : partsSeq[idx*2];
-      const bParts = (useKs || keepSpelling) ? midiToPartsByKeySig(b, ksMap) : partsSeq[idx*2+1];
+      const tParts = (useKs || keepSpelling) ? midiToPartsByKeySig(t, ksMap) : trebleSeq[idx];
+      const bParts = (useKs || keepSpelling) ? midiToPartsByKeySig(b, ksMap) : bassSeq[idx];
       const tNote = new StaveNote({ keys: [tParts.key], duration, clef: 'treble' });
       const bNote = new StaveNote({ keys: [bParts.key], duration, clef: 'bass' });
       const needT = useKs ? needsAccidental(tParts, ksMap) : !!tParts.accidental;
