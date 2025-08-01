@@ -447,6 +447,14 @@ const levelTourSteps = [
 
 function onLevelHighlight(element){
   const pop=document.getElementById('driver-popover-item');
+  const prev=document.querySelector('.driver-prev-btn');
+
+  if(['notation','score','backBtn'].includes(element.id)){
+    if(prev) prev.classList.add('driver-disabled');
+  } else if(prev){
+    prev.classList.remove('driver-disabled');
+  }
+
   if(element.id==='quickAns'){
     flashTutorialAnswer();
     if(pop) pop.style.transform='translateX(400px)';
