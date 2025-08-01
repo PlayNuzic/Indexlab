@@ -51,6 +51,8 @@ let tutorialCleanup = null;
 const tutorialInterval = 2;
 let tutorialFlash = null;
 let tutorialFlashTimeout = null;
+const quickBubbleOffset = 400;
+const tutorialDemoNotes = [48,50];
 const skipBtn = document.getElementById('skipTutorial');
 
 function showSkipButton(){
@@ -457,22 +459,23 @@ function onLevelHighlight(element){
 
   if(element.id==='quickAns'){
     flashTutorialAnswer();
-    if(pop) pop.style.transform='translateX(400px)';
+    if(pop) pop.style.transform=`translateX(${quickBubbleOffset}px)`;
   } else if(pop){
     pop.style.transform='';
   }
   if(element.id==='notation'){
     requestAnimationFrame(() => {
       const el=document.getElementById('notation');
+      const [n1, n2] = tutorialDemoNotes;
       const color=intervalColor(2);
-      drawPentagram(el, [48,50], {
+      drawPentagram(el, tutorialDemoNotes, {
         chord:false,
         duration:'q',
         highlightIntervals:[[0,1,color]],
         noteColors:['red','red'],
         scaleId:'CROM',
         root:0,
-        singleClef: bestClef(48,50),
+        singleClef: bestClef(n1, n2),
         width:350
       });
     });
