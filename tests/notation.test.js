@@ -205,6 +205,46 @@ describe('notation helpers', () => {
     ]);
   });
 
+  test('midiSequenceToChromaticParts spells HEX scale with naturals', () => {
+    const nat = '\u266E';
+    const midis = [60,61,64,65,68,69];
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'b' },
+      { key:'e/4', accidental:'' },
+      { key:'f/4', accidental:'' },
+      { key:'a/4', accidental:'b' },
+      { key:'a/4', accidental:nat }
+    ]);
+  });
+
+  test('midiSequenceToChromaticParts spells OCT scale with naturals', () => {
+    const nat = '\u266E';
+    const midis = [60,61,63,64,66,67,69,70];
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'b' },
+      { key:'e/4', accidental:'b' },
+      { key:'e/4', accidental:nat },
+      { key:'f/4', accidental:'#' },
+      { key:'g/4', accidental:'' },
+      { key:'a/4', accidental:'' },
+      { key:'b/4', accidental:'b' }
+    ]);
+  });
+
+  test('midiSequenceToChromaticParts spells TON scale consistently', () => {
+    const midis = [60,62,64,66,68,70];
+    expect(midiSequenceToChromaticParts(midis)).toEqual([
+      { key:'c/4', accidental:'' },
+      { key:'d/4', accidental:'' },
+      { key:'e/4', accidental:'' },
+      { key:'f/4', accidental:'#' },
+      { key:'g/4', accidental:'#' },
+      { key:'a/4', accidental:'#' }
+    ]);
+  });
+
   test('applyKeySignature is a function', () => {
     expect(typeof applyKeySignature).toBe('function');
   });

@@ -75,9 +75,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     midisData = asc.map((n,i)=>[n, desc[i]]);
     const withKs = useKeySig && ksScales.includes(state.id);
     const options = { duration:'w', scaleId: state.id, root: state.root, paired:true, useKeySig: withKs };
+    const flat = midisData.flat();
+    const partsSeq = midiSequenceToChromaticParts(flat);
+    const names = partsSeq.filter((_, i) => i % 2 === 0)
+      .map(p => p.key[0].toUpperCase() + (p.accidental || ''));
     drawPentagram(staffEl, midisData, options);
-    const parts = midiSequenceToChromaticParts(asc);
-    const names = parts.map(p => p.key[0].toUpperCase() + (p.accidental || ''));
     noteNamesEl.textContent = names.join(' ');
     setupNoteEvents();
   }
