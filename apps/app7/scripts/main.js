@@ -1,6 +1,6 @@
-import { drawPentagram, midiSequenceToChromaticParts } from '../../../libs/notation/index.js';
+import { drawPentagram, spellMidiSequence } from '../../../libs/notation/index.js';
 import { init as initSound, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis, currentSemis, changeMode, isSymmetricScale } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, currentSemis, changeMode, isSymmetricScale, getKeySignature } from '../../../shared/scales.js';
 
 function toAbsolute(notes, base){
   const result=[base+notes[0]];
@@ -27,6 +27,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rootSel = document.getElementById('rootSel');
   const ksSwitch = document.getElementById('ksSwitch');
   const noteNamesEl = document.getElementById('noteNames');
+  const modeLock = document.getElementById('modeLock');
 
   let useKeySig = true;
   let lockMode = false;
@@ -76,7 +77,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const withKs = useKeySig && ksScales.includes(state.id);
     const options = { duration:'w', scaleId: state.id, root: state.root, paired:true, useKeySig: withKs };
     const flat = midisData.flat();
-    const partsSeq = midiSequenceToChromaticParts(flat);
+    const ksArr = withKs ? getKeySignature(state.id, state.root) : [];
+    const partsSeq = spellMidiSequence(flat, ksArr);
     const names = partsSeq.filter((_, i) => i % 2 === 0)
       .map(p => p.key[0].toUpperCase() + (p.accidental || ''));
     drawPentagram(staffEl, midisData, options);
