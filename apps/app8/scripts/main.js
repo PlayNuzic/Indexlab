@@ -452,9 +452,13 @@ function onLevelHighlight(element){
   const prev=document.querySelector('.driver-prev-btn');
 
   if(['notation','score','backBtn'].includes(element.id)){
-    if(prev) prev.classList.add('driver-disabled');
+    if(prev){
+      prev.classList.add('driver-disabled');
+      prev.disabled = true;
+    }
   } else if(prev){
     prev.classList.remove('driver-disabled');
+    prev.disabled = false;
   }
 
   if(element.id==='quickAns'){
@@ -467,11 +471,10 @@ function onLevelHighlight(element){
     requestAnimationFrame(() => {
       const el=document.getElementById('notation');
       const [n1, n2] = tutorialDemoNotes;
-      const color=intervalColor(2);
       drawPentagram(el, tutorialDemoNotes, {
         chord:false,
         duration:'q',
-        highlightIntervals:[[0,1,color]],
+        highlightIntervals:[[0,1,'red']],
         noteColors:['red','red'],
         scaleId:'CROM',
         root:0,
