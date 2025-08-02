@@ -36,8 +36,7 @@ const levelNames = {
   10: 'Tots els intervals: iS(1,2,3,4,5,6,7,8,9,10,11)'
 };
 
-const SYM_OPTS = { scaleId:'CROM', root:0 };
-const staffOpts = extra => ({ ...SYM_OPTS, ...extra });
+const staffOpts = (extra = {}, root = 0) => ({ scaleId: 'CROM', root, ...extra });
 
 const profileSlots = 5;
 let profiles = JSON.parse(localStorage.getItem('profiles')||'[]');
@@ -89,7 +88,7 @@ function prepareTutorialQuestion(){
   document.getElementById('question').textContent = `Pregunta 1 · ${levelLabel}`;
   const notationEl = document.getElementById('notation');
   notationEl.innerHTML = '';
-  drawPentagram(notationEl, [], staffOpts({ singleClef:'treble', width:350 }));
+  drawPentagram(notationEl, [], staffOpts({ singleClef:'treble', width:350 }, game.note1 % 12));
   initButtons();
 }
 
@@ -480,16 +479,14 @@ function onLevelHighlight(element){
       const el = document.getElementById('notation');
       const [n1, n2] = tutorialDemoNotes;
       const col = intervalColor(tutorialInterval, 12);
-      drawPentagram(el, tutorialDemoNotes, {
+      drawPentagram(el, tutorialDemoNotes, staffOpts({
         chord: false,
         duration: 'q',
         highlightIntervals: [[0, 1, col]],
         noteColors: ['#000', '#000'],
-        scaleId: 'CROM',
-        root: 0,
         singleClef: bestClef(n1, n2),
         width: 350
-      });
+      }, n1 % 12));
     });
   }
 }
@@ -572,7 +569,7 @@ function nextMixedQuestion(){
   document.getElementById('feedback').textContent='';
   const notationEl = document.getElementById('notation');
   notationEl.innerHTML='';
-  drawPentagram(notationEl, [], staffOpts({ singleClef:'treble', width:350 }));
+  drawPentagram(notationEl, [], staffOpts({ singleClef:'treble', width:350 }, game.note1 % 12));
   initButtons();
 }
 
@@ -593,7 +590,7 @@ function submitAnswer(value){
       noteColors:[],
       singleClef: clef,
       width:350
-    }));
+    }, game.note1 % 12));
     consecutiveFails=0; consecutiveWins++;
     if(consecutiveWins>=3) showAvatarMessage('Molt bé!');
     const proceed = () => {
@@ -616,7 +613,7 @@ function submitAnswer(value){
       document.getElementById('feedback').textContent=`\u274C Era ${game.mode}(${game.currentInterval})`;
       const notationEl = document.getElementById('notation');
       notationEl.innerHTML='';
-      drawPentagram(notationEl, [], staffOpts({ singleClef: bestClef(game.note1, game.note2), width:350 }));
+      drawPentagram(notationEl, [], staffOpts({ singleClef: bestClef(game.note1, game.note2), width:350 }, game.note1 % 12));
       const color = intervalColor(game.currentInterval);
       const ball=document.createElement('div');
       ball.className='fail-ball';
