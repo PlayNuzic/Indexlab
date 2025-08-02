@@ -33,7 +33,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const snapsFile = document.getElementById('snapsFile');
   const modeBtn = document.getElementById('modeBtn');
   const iaColorBtn = document.getElementById('iaColorBtn');
-  const noteColorBtn = document.getElementById('noteColorBtn');
   const rootBtn = document.getElementById('rootBtn');
   const rootInfo = document.getElementById('rootInfo');
   const rootClose = document.getElementById('rootClose');
@@ -58,7 +57,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   let notes = eaToNotes([2,2,1], inputLen());
   let colorIntervals = false;
-  let colorNotes = false;
   let useKeySig = true;
   let highlightRoot = false;
   let voicingMode = 'rot';
@@ -85,6 +83,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function absoluteMidis(arr){
     return absoluteWithShifts(semisFromNotes(arr), baseMidi);
+  }
+
+  function consecutiveSemiDiffs(){
+    const sems = semisFromNotes(notes);
+    return sems.slice(1).map((s,i)=> (s - sems[i] + 12) % 12);
   }
 
   function playStaffIfChanged(midis){
@@ -191,16 +194,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function renderStaff(){
     const abs = absoluteMidis(notes);
-    let colors = [];
-    if(colorNotes) colors = notes.map(n=>window.Helpers.noteColor ? window.Helpers.noteColor(n%12) : '');
-    if(colorIntervals) colors = notes.map((n,i)=>window.Helpers.intervalColor ? window.Helpers.intervalColor((n-notes[0]+12)%12) : '');
-    const options = { chord:true, noteColors:colors };
+    const options = { chord:true, noteColors:[] };
     if(useKeySig){
       options.scaleId = scale.id;
       options.root = scale.root;
     }else{
       options.scaleId = 'CROM';
       options.root = 0;
+    }
+    if(colorIntervals){
+      const semiDiffs = consecutiveSemiDiffs();
+      options.highlightIntervals = semiDiffs.map((sd,i)=>[
+        i,
+        i+1,
+        window.Helpers.intervalColor ? window.Helpers.intervalColor(sd,12) : ''
+      ]);
     }
     drawPentagram(staffEl, abs, options);
     playStaffIfChanged(abs);
@@ -371,8 +379,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   uploadBtn.onclick=()=>{ window.Presets.importPresets(snapsFile, data=>{ snapshots = window.SnapUtils.initSnapshots(data); localStorage.setItem('app9Snapshots', JSON.stringify(snapshots)); renderSnapshots(); }); };
 
   modeBtn.onclick=()=>{ useKeySig=!useKeySig; modeBtn.textContent=useKeySig?'Armadura':'Accidentals'; renderStaff(); };
-  iaColorBtn.onclick=()=>{ colorIntervals=!colorIntervals; iaColorBtn.classList.toggle('active', colorIntervals); if(colorIntervals){ colorNotes=false; noteColorBtn.classList.remove('active'); } renderStaff(); };
-  noteColorBtn.onclick=()=>{ colorNotes=!colorNotes; noteColorBtn.classList.toggle('active', colorNotes); if(colorNotes){ colorIntervals=false; iaColorBtn.classList.remove('active'); } renderStaff(); };
+  iaColorBtn.onclick=()=>{ colorIntervals=!colorIntervals; iaColorBtn.classList.toggle('active', colorIntervals); renderStaff(); };
   rootBtn.onclick=()=>{
     highlightRoot = !highlightRoot;
     rootBtn.classList.toggle('active', highlightRoot);
