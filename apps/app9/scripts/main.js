@@ -133,6 +133,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(!m) return '#000';
     return Number(m[3]) > 60 ? '#000' : '#fff';
   }
+<<<<<<< ours
 
   function renderLegend(){
     const build = nums => nums.map(n => {
