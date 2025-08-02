@@ -54,6 +54,8 @@ const tutorialInterval = 2;
 let tutorialFlash = null;
 let tutorialFlashTimeout = null;
 const tutorialDemoNotes = [60,62];
+let tutorialAnswerEl = null;
+let tutorialAnswerFn = null;
 const skipBtn = document.getElementById('skipTutorial');
 
 function showSkipButton(){
@@ -139,6 +141,8 @@ function setupLevelTutorialListeners(driver){
   };
   playBtn.addEventListener('click', onPlay, { once: true });
   answers.addEventListener('click', onAnswer);
+  tutorialAnswerEl = answers;
+  tutorialAnswerFn = onAnswer;
   return () => {
     playBtn.removeEventListener('click', onPlay);
     answers.removeEventListener('click', onAnswer);
@@ -461,6 +465,10 @@ function onLevelHighlight(element){
 
   if (id === 'quickAns') {
     flashTutorialAnswer();
+    if (tutorialAnswerEl && tutorialAnswerFn) {
+      tutorialAnswerEl.removeEventListener('click', tutorialAnswerFn);
+      tutorialAnswerEl.addEventListener('click', tutorialAnswerFn);
+    }
   }
 
   if (id === 'notation') {
