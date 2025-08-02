@@ -6,6 +6,13 @@ import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rot
   duplicateCards, omitCards, generateComponents, rotatePairs, permutePairsFixedBass } from '../../../shared/cards.js';
 import { findChordRoot, intervalRoot } from '../../../shared/hindemith.js';
 
+function contrastColor(color){
+  const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
+  if(!m) return '#000';
+  const l = Number(m[3]);
+  return l > 60 ? '#000' : '#fff';
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   await initSound('piano');
   const { parseNums, eAToNotes: eaToNotes, notesToEA, notesToAc, toAbsolute, absoluteWithShifts } = window.Helpers;
@@ -38,6 +45,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rootInfo = document.getElementById('rootInfo');
   const rootClose = document.getElementById('rootClose');
   const rootContent = document.getElementById('rootContent');
+  const noteLegend = document.getElementById('noteLegend');
+  const intervalLegend = document.getElementById('intervalLegend');
   const rotLeft = document.getElementById('rotLeft');
   const rotRight = document.getElementById('rotRight');
   const globUp = document.getElementById('globUp');
@@ -123,6 +132,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
     if(!m) return '#000';
     return Number(m[3]) > 60 ? '#000' : '#fff';
+  }
+
+  function renderLegend(){
+    const build = nums => nums.map(n => {
+      const col = intervalColor(n);
+      const txt = contrastColor(col);
+      return `<span style="background:${col};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">iA(${n})</span>`;
+    }).join(' ');
+    noteLegend.innerHTML = build([1,2,3,4,5,6]);
+    intervalLegend.innerHTML = build([11,10,9,8,7,6]);
   }
 
   function pushUndo(){
@@ -438,5 +457,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   muteBtn.classList.toggle('muted', muted);
   muteBtn.textContent = muted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
 
+  renderLegend();
   renderAll();
 });
