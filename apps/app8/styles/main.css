@@ -33,7 +33,7 @@ button.small{font-size:.8rem;padding:.3rem .7rem;margin-top:.5rem;}
 #question{
   display:inline-block;
   margin:0 auto;
-  border:2px solid red;
+  border:2px solid #ffbb33;
   padding:0 .3rem;
 }
 #quickAns{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;margin-top:.5rem;}
