@@ -454,14 +454,15 @@ const levelTourSteps = [
 function onLevelHighlight(element){
   const pop = document.getElementById('driver-popover-item');
   const prev = document.querySelector('.driver-prev-btn');
+  const id = element && element.node ? element.node.id : null;
 
   if (prev) {
-    const disable = disablePrevSteps.has(element.id);
+    const disable = disablePrevSteps.has(id);
     prev.classList.toggle('driver-disabled', disable);
     prev.disabled = disable;
   }
 
-  if (element.id === 'quickAns') {
+  if (id === 'quickAns') {
     flashTutorialAnswer();
     if (pop) {
       if (!pop.dataset.origLeft) {
@@ -474,18 +475,20 @@ function onLevelHighlight(element){
     delete pop.dataset.origLeft;
   }
 
-  if (element.id === 'notation') {
+  if (id === 'notation') {
     requestAnimationFrame(() => {
       const el = document.getElementById('notation');
       const [n1, n2] = tutorialDemoNotes;
-      drawPentagram(el, tutorialDemoNotes, staffOpts({
-        chord:false,
-        duration:'q',
-        highlightIntervals:[[0,1,'red']],
-        noteColors:['red','red'],
+      drawPentagram(el, tutorialDemoNotes, {
+        chord: false,
+        duration: 'q',
+        highlightIntervals: [[0, 1, 'red']],
+        noteColors: ['red', 'red'],
+        scaleId: 'CROM',
+        root: 0,
         singleClef: bestClef(n1, n2),
-        width:350
-      }));
+        width: 350
+      });
     });
   }
 }
