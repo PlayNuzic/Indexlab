@@ -479,16 +479,14 @@ function onLevelHighlight(element){
     requestAnimationFrame(() => {
       const el = document.getElementById('notation');
       const [n1, n2] = tutorialDemoNotes;
-      drawPentagram(el, tutorialDemoNotes, {
-        chord: false,
-        duration: 'q',
-        highlightIntervals: [[0, 1, 'red']],
-        noteColors: ['red', 'red'],
-        scaleId: 'CROM',
-        root: 0,
+      drawPentagram(el, tutorialDemoNotes, staffOpts({
+        chord:false,
+        duration:'q',
+        highlightIntervals:[[0,1,'red']],
+        noteColors:['red','red'],
         singleClef: bestClef(n1, n2),
-        width: 350
-      });
+        width:350
+      }));
     });
   }
 }
