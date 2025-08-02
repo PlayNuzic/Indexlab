@@ -25,6 +25,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const miniWrap = document.getElementById('miniWrap');
   const toggleMini = document.getElementById('toggleMini');
   const staffEl = document.getElementById('staff');
+  const eeInfo = document.getElementById('eeInfo');
   const snapshotsEl = document.getElementById('snapshots');
   const saveBtn = document.getElementById('saveBtn');
   const resetSnapsBtn = document.getElementById('resetSnaps');
@@ -118,7 +119,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       `Pitch Class: ${pcs.join(' ')}\nRaíz: ${pc}\niA: ${just.join(' ')}`;
   }
 
-  const enNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  function contrastColor(color){
+    const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
+    if(!m) return '#000';
+    return Number(m[3]) > 60 ? '#000' : '#fff';
+  }
 
   function pushUndo(){
     undoStack.push({notes:notes.slice(), components:components.slice()});
@@ -211,6 +216,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       ]);
     }
     drawPentagram(staffEl, abs, options);
+    const baseEE = motherScalesData[scale.id].ee;
+    const len = baseEE.length;
+    const rot = ((scale.rot % len) + len) % len;
+    const rotEE = baseEE.slice(rot).concat(baseEE.slice(0, rot));
+    eeInfo.innerHTML = rotEE.map(sd => {
+      const bg = intervalColor(sd, 12);
+      const txt = contrastColor(bg);
+      return `<span style="background:${bg};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${sd}</span>`;
+    }).join(' ');
     playStaffIfChanged(abs);
   }
 
