@@ -2,6 +2,8 @@ class EarTrainingGame {
   constructor(options = {}) {
     this.randInt = options.randInt || ((a, b) => Math.floor(Math.random() * (b - a + 1)) + a);
     this.requiredToLevelUp = 5;
+    this.requiredPerMode = options.requiredPerMode || null;
+    this.correctPerMode = { iS: 0, iA: 0 };
     this.intervals = {
       1: [0, 1, 2, 12],                       // dissonant seconds
       2: [0, 3, 4, 12],                       // consonant thirds
@@ -27,6 +29,7 @@ class EarTrainingGame {
     this.wrongTotal = 0;
     this.repeat = false;
     this.history = [];
+    this.correctPerMode = { iS: 0, iA: 0 };
   }
 
   generateQuestion() {
@@ -68,8 +71,11 @@ class EarTrainingGame {
       if (!ignore) {
         this.correctLevel++;
         this.correctTotal++;
+        this.correctPerMode[this.mode]++;
       }
-      const levelUp = this.correctLevel >= this.requiredToLevelUp;
+      const levelUp = this.requiredPerMode
+        ? (this.correctPerMode.iS >= this.requiredPerMode && this.correctPerMode.iA >= this.requiredPerMode)
+        : (this.correctLevel >= this.requiredToLevelUp);
       this.repeat = false;
       return { correct: true, levelUp };
     }

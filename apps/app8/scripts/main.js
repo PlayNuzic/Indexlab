@@ -5,7 +5,7 @@ import { drawPentagram } from '../../../libs/notation/index.js';
 import { intervalColor } from '../../../shared/scales.js';
 import { createTour } from '../../../libs/guide/index.js';
 
-const game = new EarTrainingGame({ randInt });
+const game = new EarTrainingGame({ randInt, requiredPerMode: 4 });
 const avatarFiles = [
   'avatar1.png',
   'avatar2.png',
