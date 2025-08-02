@@ -29,4 +29,4 @@ h1{margin-bottom:.5rem;}
 .scale-btn{padding:.4rem 1rem;background:#F7B559;color:#222;border:none;border-radius:4px;cursor:pointer;}
 .scale-btn.on{background:var(--accent);color:#222;}
 
-#noteNames{margin-top:0.5rem;font-size:1.2rem;text-align:center;}
+#eeInfo{margin-top:0.5rem;font-size:1.2rem;text-align:center;}

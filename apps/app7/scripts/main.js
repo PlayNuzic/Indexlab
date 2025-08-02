@@ -1,6 +1,6 @@
-import { drawPentagram, spellMidiSequence } from '../../../libs/notation/index.js';
+import { drawPentagram } from '../../../libs/notation/index.js';
 import { init as initSound, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis, currentSemis, changeMode, isSymmetricScale, getKeySignature } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, currentSemis, changeMode, isSymmetricScale, intervalColor } from '../../../shared/scales.js';
 
 function toAbsolute(notes, base){
   const result=[base+notes[0]];
@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rotSel = document.getElementById('rotSel');
   const rootSel = document.getElementById('rootSel');
   const ksSwitch = document.getElementById('ksSwitch');
-  const noteNamesEl = document.getElementById('noteNames');
+  const eeInfo = document.getElementById('eeInfo');
   const modeLock = document.getElementById('modeLock');
 
   let useKeySig = true;
@@ -78,6 +78,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  function contrastColor(color){
+    const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
+    if(!m) return '#000';
+    return Number(m[3]) > 60 ? '#000' : '#fff';
+  }
+
   function render(){
     const len = scaleSemis(state.id).length;
     const degrees = Array.from({length: len + 1}, (_,i) => i);
@@ -87,11 +93,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     midisData = asc.map((n,i)=>[n, desc[i]]);
     const withKs = useKeySig && ksScales.includes(state.id);
     const options = { duration:'w', scaleId: state.id, root: state.root, paired:true, useKeySig: withKs };
-    const ksArr = withKs ? getKeySignature(state.id, state.root) : [];
-    const ascParts = spellMidiSequence(asc, ksArr);
-    const names = ascParts.map(p => p.key[0].toUpperCase() + (p.accidental || ''));
     drawPentagram(staffEl, midisData, options);
-    noteNamesEl.textContent = names.join(' ');
+    const baseEE = motherScalesData[state.id].ee;
+    const rot = ((state.rot % baseEE.length) + baseEE.length) % baseEE.length;
+    const rotEE = baseEE.slice(rot).concat(baseEE.slice(0, rot));
+    eeInfo.innerHTML = rotEE.map(sd => {
+      const bg = intervalColor(sd, 12);
+      const txt = contrastColor(bg);
+      return `<span style="background:${bg};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${sd}</span>`;
+    }).join(' ');
     setupNoteEvents();
   }
 
