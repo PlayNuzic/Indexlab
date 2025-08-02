@@ -23,6 +23,7 @@ export function drawIntervalEllipse(svg, p1, p2, color){
   ell.setAttribute('pointer-events', 'none');
   ell.style.zIndex = -1;
   svg.prepend(ell);
+  return ell;
 }
 
 export function needsAccidental(parts, ksMap){

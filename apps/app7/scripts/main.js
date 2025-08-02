@@ -1,4 +1,4 @@
-import { drawPentagram } from '../../../libs/notation/index.js';
+import { drawPentagram, drawIntervalEllipse } from '../../../libs/notation/index.js';
 import { init as initSound, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis, currentSemis, changeMode, isSymmetricScale, intervalColor } from '../../../shared/scales.js';
 
@@ -48,23 +48,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     const tEl = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="treble"] .vf-notehead`);
     const bEl = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="bass"] .vf-notehead`);
     if(!tEl || !bEl) return;
-    const tBox = tEl.getBBox();
-    const bBox = bEl.getBBox();
-    const xLeft = Math.min(tBox.x, bBox.x);
-    const xRight = Math.max(tBox.x + tBox.width, bBox.x + bBox.width);
-    const yTop = Math.min(tBox.y, bBox.y);
-    const yBot = Math.max(tBox.y + tBox.height, bBox.y + bBox.height);
-    const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-    ell.setAttribute('cx', (xLeft + xRight) / 2);
-    ell.setAttribute('cy', (yTop + yBot) / 2);
-    ell.setAttribute('rx', (xRight - xLeft + 6) / 2);
-    ell.setAttribute('ry', (yBot - yTop) / 2 + 3);
-    ell.setAttribute('fill', color);
-    ell.setAttribute('stroke', color);
-    ell.setAttribute('fill-opacity', '0.35');
-    ell.setAttribute('pointer-events','none');
-    ell.classList.add('ee-ellipse');
-    svg.appendChild(ell);
+    const svgRect = svg.getBoundingClientRect();
+    const tRect = tEl.getBoundingClientRect();
+    const bRect = bEl.getBoundingClientRect();
+    const p1 = { x: tRect.left - svgRect.left, y: tRect.top - svgRect.top + tRect.height / 2, w: tRect.width };
+    const p2 = { x: bRect.left - svgRect.left, y: bRect.top - svgRect.top + bRect.height / 2, w: bRect.width };
+    const ell = drawIntervalEllipse(svg, p1, p2, color);
+    if(ell){
+      ell.setAttribute('fill-opacity', '0.35');
+      ell.classList.add('ee-ellipse');
+    }
   }
 
   function updateModeBtn(){
