@@ -454,15 +454,12 @@ const levelTourSteps = [
 function onLevelHighlight(element){
   const pop = document.getElementById('driver-popover-item');
   const prev = document.querySelector('.driver-prev-btn');
-  const target = element && element.node ? element.node : element;
-  const id = target ? target.id : null;
+  const id = element?.node?.id || element?.id;
 
   if (prev) {
     const disable = disablePrevSteps.has(id);
     prev.classList.toggle('driver-disabled', disable);
     prev.disabled = disable;
-    prev.setAttribute('aria-disabled', disable ? 'true' : 'false');
-    prev.style.pointerEvents = disable ? 'none' : '';
   }
 
   if (id === 'quickAns') {
