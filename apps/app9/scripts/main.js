@@ -1,7 +1,7 @@
 import { init as initCards } from '../../../libs/cards/index.js';
 import { drawPentagram } from '../../../libs/notation/index.js';
 import { init as initSound, playChord, ensureAudio, toggleMute, isMuted } from '../../../libs/sound/index.js';
-import { motherScalesData, scaleSemis, currentSemis } from '../../../shared/scales.js';
+import { motherScalesData, scaleSemis, currentSemis, intervalColor } from '../../../shared/scales.js';
 import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
   duplicateCards, omitCards, generateComponents, rotatePairs, permutePairsFixedBass } from '../../../shared/cards.js';
 import { findChordRoot, intervalRoot } from '../../../shared/hindemith.js';
@@ -207,7 +207,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       options.highlightIntervals = semiDiffs.map((sd,i)=>[
         i,
         i+1,
-        window.Helpers.intervalColor ? window.Helpers.intervalColor(sd,12) : ''
+        intervalColor(sd,12)
       ]);
     }
     drawPentagram(staffEl, abs, options);
