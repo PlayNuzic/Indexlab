@@ -49,6 +49,7 @@ button.small{font-size:.8rem;padding:.3rem .7rem;margin-top:.5rem;}
 }
 #notation svg{user-select:none;}
 .profiles{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin:.5rem 0;}
+.profile-buttons{display:flex;justify-content:center;gap:.5rem;}
 .profile-slot{
   width:106px;
   height:106px;
