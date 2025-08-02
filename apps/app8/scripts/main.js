@@ -55,7 +55,7 @@ const tutorialInterval = 2;
 let tutorialFlash = null;
 let tutorialFlashTimeout = null;
 const quickBubbleOffset = 400;
-const tutorialDemoNotes = [48,50];
+const tutorialDemoNotes = [60,62];
 const disablePrevSteps = new Set(['notation','score','backBtn']);
 const skipBtn = document.getElementById('skipTutorial');
 
