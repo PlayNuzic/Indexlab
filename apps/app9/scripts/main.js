@@ -145,6 +145,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     intervalLegend.innerHTML = build([11,10,9,8,7,6]);
   }
 
+  function renderLegend(){
+    if(!noteLegend || !intervalLegend) return;
+    const build = nums => nums.map(n => {
+      const col = intervalColor(n);
+      const txt = contrastColor(col);
+      return `<span style="background:${col};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">iA(${n})</span>`;
+    }).join(' ');
+    noteLegend.innerHTML = build([1,2,3,4,5,6]);
+    intervalLegend.innerHTML = build([11,10,9,8,7,6]);
+  }
+
   function pushUndo(){
     undoStack.push({notes:notes.slice(), components:components.slice()});
     if(undoStack.length>5) undoStack.shift();
@@ -218,6 +229,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderStaff(){
+    if(!staffEl) return;
     const abs = absoluteMidis(notes);
     const options = { chord:true, noteColors:[] };
     if(useKeySig){
