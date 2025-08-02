@@ -460,6 +460,8 @@ function onLevelHighlight(element){
     const disable = disablePrevSteps.has(id);
     prev.classList.toggle('driver-disabled', disable);
     prev.disabled = disable;
+    prev.setAttribute('aria-disabled', disable ? 'true' : 'false');
+    prev.style.pointerEvents = disable ? 'none' : '';
   }
 
   if (id === 'quickAns') {
@@ -479,14 +481,17 @@ function onLevelHighlight(element){
     requestAnimationFrame(() => {
       const el = document.getElementById('notation');
       const [n1, n2] = tutorialDemoNotes;
-      drawPentagram(el, tutorialDemoNotes, staffOpts({
-        chord:false,
-        duration:'q',
-        highlightIntervals:[[0,1,'red']],
-        noteColors:['red','red'],
+      const col = intervalColor(tutorialInterval, 12);
+      drawPentagram(el, tutorialDemoNotes, {
+        chord: false,
+        duration: 'q',
+        highlightIntervals: [[0, 1, col]],
+        noteColors: ['#000', '#000'],
+        scaleId: 'CROM',
+        root: 0,
         singleClef: bestClef(n1, n2),
-        width:350
-      }));
+        width: 350
+      });
     });
   }
 }
