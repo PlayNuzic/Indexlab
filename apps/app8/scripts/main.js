@@ -53,7 +53,6 @@ let tutorialCleanup = null;
 const tutorialInterval = 2;
 let tutorialFlash = null;
 let tutorialFlashTimeout = null;
-const quickBubbleOffset = 400;
 const tutorialDemoNotes = [60,62];
 const skipBtn = document.getElementById('skipTutorial');
 
@@ -450,7 +449,6 @@ const levelTourSteps = [
 ];
 
 function onLevelHighlight(element){
-  const pop = document.getElementById('driver-popover-item');
   const prev = document.querySelector('.driver-prev-btn');
   const id = element?.node?.id || element?.id;
 
@@ -463,15 +461,6 @@ function onLevelHighlight(element){
 
   if (id === 'quickAns') {
     flashTutorialAnswer();
-    if (pop) {
-      if (!pop.dataset.origLeft) {
-        pop.dataset.origLeft = pop.style.left || '0px';
-      }
-      pop.style.left = `${parseInt(pop.dataset.origLeft, 10) + quickBubbleOffset}px`;
-    }
-  } else if (pop && pop.dataset.origLeft) {
-    pop.style.left = pop.dataset.origLeft;
-    delete pop.dataset.origLeft;
   }
 
   if (id === 'notation') {
