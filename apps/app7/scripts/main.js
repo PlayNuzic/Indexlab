@@ -34,6 +34,39 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   let midisData = [];
 
+  function clearEEHighlight(){
+    const svg = staffEl.querySelector('svg');
+    if(!svg) return;
+    svg.querySelectorAll('.ee-ellipse').forEach(el=>el.remove());
+  }
+
+  function highlightEE(idx, color){
+    const svg = staffEl.querySelector('svg');
+    if(!svg) return;
+    clearEEHighlight();
+    const pairIdx = idx + 1;
+    const tEl = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="treble"]`);
+    const bEl = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="bass"]`);
+    if(!tEl || !bEl) return;
+    const tBox = tEl.getBBox();
+    const bBox = bEl.getBBox();
+    const xLeft = Math.min(tBox.x, bBox.x);
+    const dx = Math.abs(tBox.x - bBox.x);
+    const width = dx + Math.max(tBox.width, bBox.width);
+    const yTop = Math.min(tBox.y, bBox.y);
+    const yBot = Math.max(tBox.y + tBox.height, bBox.y + bBox.height);
+    const ell = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+    ell.setAttribute('cx', xLeft + width / 2);
+    ell.setAttribute('cy', (yTop + yBot) / 2);
+    ell.setAttribute('rx', (width + 6) / 2);
+    ell.setAttribute('ry', (yBot - yTop) / 2 + 3);
+    ell.setAttribute('fill', color);
+    ell.setAttribute('stroke', color);
+    ell.setAttribute('pointer-events','none');
+    ell.classList.add('ee-ellipse');
+    svg.prepend(ell);
+  }
+
   function updateModeBtn(){
     modeLock.textContent = lockMode ? 'Paralelo' : 'Relativo';
     modeLock.classList.toggle('on', lockMode);
@@ -98,11 +131,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     const baseEE = motherScalesData[state.id].ee;
     const rot = ((state.rot % baseEE.length) + baseEE.length) % baseEE.length;
     const rotEE = baseEE.slice(rot).concat(baseEE.slice(0, rot));
-    eeInfo.innerHTML = rotEE.map(sd => {
+    eeInfo.innerHTML = rotEE.map((sd,i) => {
       const bg = intervalColor(sd, 12);
       const txt = contrastColor(bg);
-      return `<span style="background:${bg};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${sd}</span>`;
+      return `<span data-idx="${i}" style="background:${bg};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${sd}</span>`;
     }).join(' ');
+    eeInfo.querySelectorAll('span').forEach(span => {
+      const i = parseInt(span.dataset.idx,10);
+      span.addEventListener('mouseenter', () => highlightEE(i, intervalColor(rotEE[i], 12)));
+      span.addEventListener('mouseleave', clearEEHighlight);
+    });
     setupNoteEvents();
   }
 
