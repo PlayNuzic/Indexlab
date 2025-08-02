@@ -114,42 +114,26 @@ button#generate:hover{background:#e6a12b;}
   transform-origin:top left;
   user-select:none;
 }
-#helpContainer{
-  position:absolute;
+#iaLegend{
+  position:fixed;
   top:50%;
   left:0;
   transform:translateY(-50%);
-  display:flex;
-  flex-direction:column;
-  gap:.5rem;
-  max-width:16rem;
-  z-index:50;
-}
-#legendWrap{
   margin:0;
   text-align:left;
+  z-index:50;
 }
-#legendWrap summary{
+#iaLegend summary{
   cursor:pointer;
   margin-bottom:.2rem;
   width:100%;
   text-align:left;
 }
-#infoWrap summary{
-  cursor:pointer;
-  margin-bottom:.2rem;
-  width:100%;
-  text-align:left;
-}
-#noteLegend,#intervalLegend{
+#iaLegend .legend-row{
   display:flex;
   flex-wrap:wrap;
   justify-content:flex-start;
   gap:.3rem;
-}
-#infoWrap{
-  margin:0;
-  text-align:left;
 }
 #error{color:#ff7a7a;height:1.2em;}
 #grid{display:flex;justify-content:center;}
