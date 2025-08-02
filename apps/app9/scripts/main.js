@@ -32,7 +32,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const miniWrap = document.getElementById('miniWrap');
   const toggleMini = document.getElementById('toggleMini');
   const staffEl = document.getElementById('staff');
-  const eeInfo = document.getElementById('eeInfo');
   const snapshotsEl = document.getElementById('snapshots');
   const saveBtn = document.getElementById('saveBtn');
   const resetSnapsBtn = document.getElementById('resetSnaps');
@@ -45,8 +44,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rootInfo = document.getElementById('rootInfo');
   const rootClose = document.getElementById('rootClose');
   const rootContent = document.getElementById('rootContent');
-  const noteLegend = document.getElementById('noteLegend');
-  const intervalLegend = document.getElementById('intervalLegend');
+  const iaLegend = document.getElementById('iaLegend');
   const rotLeft = document.getElementById('rotLeft');
   const rotRight = document.getElementById('rotRight');
   const globUp = document.getElementById('globUp');
@@ -128,44 +126,17 @@ window.addEventListener('DOMContentLoaded', async () => {
       `Pitch Class: ${pcs.join(' ')}\nRaíz: ${pc}\niA: ${just.join(' ')}`;
   }
 
-  function contrastColor(color){
-    const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
-    if(!m) return '#000';
-    return Number(m[3]) > 60 ? '#000' : '#fff';
-  }
-
-  function renderLegend(){
+  function renderIaLegend(){
+    if(!iaLegend) return;
+    const rows = iaLegend.querySelectorAll('.legend-row');
+    if(rows.length < 2) return;
     const build = nums => nums.map(n => {
       const col = intervalColor(n);
       const txt = contrastColor(col);
       return `<span style="background:${col};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">iA(${n})</span>`;
     }).join(' ');
-    noteLegend.innerHTML = build([1,2,3,4,5,6]);
-    intervalLegend.innerHTML = build([11,10,9,8,7,6]);
-  }
-
-  function renderLegend(){
-    if(!noteLegend || !intervalLegend) return;
-    const build = nums => nums.map(n => {
-      const col = intervalColor(n);
-      const txt = contrastColor(col);
-      return `<span style="background:${col};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">iA(${n})</span>`;
-    }).join(' ');
-    noteLegend.innerHTML = build([1,2,3,4,5,6]);
-    intervalLegend.innerHTML = build([11,10,9,8,7,6]);
-  }
-
-  function renderLegend(){
-    const noteEl = document.getElementById('noteLegend');
-    const intEl = document.getElementById('intervalLegend');
-    if(!noteEl || !intEl) return;
-    const build = nums => nums.map(n => {
-      const col = intervalColor(n);
-      const txt = contrastColor(col);
-      return `<span style="background:${col};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">iA(${n})</span>`;
-    }).join(' ');
-    noteEl.innerHTML = build([1,2,3,4,5,6]);
-    intEl.innerHTML = build([11,10,9,8,7,6]);
+    rows[0].innerHTML = build([1,2,3,4,5,6]);
+    rows[1].innerHTML = build([11,10,9,8,7,6]);
   }
 
   function pushUndo(){
@@ -476,6 +447,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   muteBtn.classList.toggle('muted', muted);
   muteBtn.textContent = muted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
 
-  renderLegend();
+  renderIaLegend();
   renderAll();
 });
