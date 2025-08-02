@@ -454,7 +454,8 @@ const levelTourSteps = [
 function onLevelHighlight(element){
   const pop = document.getElementById('driver-popover-item');
   const prev = document.querySelector('.driver-prev-btn');
-  const id = element && element.node ? element.node.id : null;
+  const target = element && element.node ? element.node : element;
+  const id = target ? target.id : null;
 
   if (prev) {
     const disable = disablePrevSteps.has(id);

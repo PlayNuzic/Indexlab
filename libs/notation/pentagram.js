@@ -18,7 +18,7 @@ export function drawIntervalEllipse(svg, p1, p2, color){
   ell.setAttribute('cy', cy);
   ell.setAttribute('rx', rx);
   ell.setAttribute('ry', ry);
-  ell.setAttribute('fill', 'none');
+  ell.setAttribute('fill', color);
   ell.setAttribute('stroke', color);
   ell.setAttribute('pointer-events', 'none');
   ell.style.zIndex = -1;
