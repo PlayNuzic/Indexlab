@@ -60,6 +60,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const allowed = ['DIAT','ACUS','ARMma','ARMme'].includes(state.id);
     modeLock.style.display = allowed ? 'inline-block' : 'none';
     updateModeBtn();
+    ksSwitch.style.display = isSymmetricScale(state.id) ? 'none' : 'inline-block';
   }
 
   function setupNoteEvents(){
