@@ -282,6 +282,8 @@ export function drawPentagram(container, midis = [], options = {}) {
       if(el){
         el.dataset.idx = o.idx;
         el.dataset.clef = 'treble';
+        el.dataset.keyIndex = o.keyIndex;
+        el.vfNote = o.note;
       }
     });
     byClef.bass.forEach(o => {
@@ -289,6 +291,8 @@ export function drawPentagram(container, midis = [], options = {}) {
       if(el){
         el.dataset.idx = o.idx;
         el.dataset.clef = 'bass';
+        el.dataset.keyIndex = o.keyIndex;
+        el.vfNote = o.note;
       }
     });
 
