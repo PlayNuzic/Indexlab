@@ -34,6 +34,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   let midisData = [];
 
+  function updateModeBtn(){
+    modeLock.textContent = lockMode ? 'Paralelo' : 'Relativo';
+    modeLock.classList.toggle('on', lockMode);
+    modeLock.setAttribute('aria-pressed', lockMode);
+  }
+
+  function updateKsBtn(){
+    ksSwitch.textContent = useKeySig ? 'Armadura' : 'Accidentales';
+    ksSwitch.classList.toggle('on', useKeySig);
+    ksSwitch.setAttribute('aria-pressed', useKeySig);
+  }
+
   const state = { id: 'DIAT', rot: 0, root: 0 };
 
   scaleIDs.forEach(id => scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
@@ -47,8 +59,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     rotSel.value = state.rot;
     const allowed = ['DIAT','ACUS','ARMma','ARMme'].includes(state.id);
     modeLock.style.display = allowed ? 'inline-block' : 'none';
-    modeLock.classList.toggle('on', lockMode);
-    modeLock.setAttribute('aria-pressed', lockMode);
+    updateModeBtn();
   }
 
   function setupNoteEvents(){
@@ -87,8 +98,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   refreshRot();
   scaleSel.value = state.id;
   rootSel.value = state.root;
-  ksSwitch.classList.toggle('on', useKeySig);
-  ksSwitch.setAttribute('aria-pressed', useKeySig);
+  updateKsBtn();
   render();
 
   scaleSel.onchange = () => {
@@ -106,10 +116,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   rootSel.onchange = () => { state.root = parseInt(rootSel.value, 10); render(); };
   modeLock.onclick = () => {
     lockMode = !lockMode;
-    modeLock.classList.toggle('on', lockMode);
-    modeLock.setAttribute('aria-pressed', lockMode);
+    updateModeBtn();
   };
-  ksSwitch.onclick = () => { useKeySig = !useKeySig; ksSwitch.classList.toggle('on', useKeySig); ksSwitch.setAttribute('aria-pressed', useKeySig); render(); };
+  ksSwitch.onclick = () => { useKeySig = !useKeySig; updateKsBtn(); render(); };
 
   playTrebleFwd.onclick = async () => {
     await ensureAudio();
