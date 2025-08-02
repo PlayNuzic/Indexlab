@@ -2,6 +2,7 @@ import { init as loadInstrument, playNote, playChord, ensureAudio } from '../../
 import EarTrainingGame from '../../../libs/ear-training/index.js';
 import { randInt } from '../../../libs/utils/index.js';
 import { drawInterval } from '../../../libs/notation/index.js';
+import { getKeySignature } from '../../../shared/scales.js';
 
 const game = new EarTrainingGame({ randInt });
 const levelNames = {
@@ -18,7 +19,10 @@ const levelNames = {
 };
 
 let currentMode = 'iS';
-const SYM_OPTS = { scaleId:'CROM', root:0 };
+
+function staffOpts(root){
+  return { scaleId: 'CROM', root };
+}
 
 async function startGame(selected, level = 1){
   currentMode = selected;
@@ -97,7 +101,9 @@ function submitAnswer(value){
   if(res.correct){
     document.getElementById('feedback').textContent=`\u2714 Correcte! ${(game.note2%12)} - ${(game.note1%12)} = ${game.currentInterval} => ${game.mode}(${game.currentInterval})`;
     const notationEl = document.getElementById('notation');
-    drawInterval(notationEl, game.note1, game.note2, game.mode, undefined, SYM_OPTS);
+    const root = game.note1 % 12;
+    const ks = getKeySignature('CROM', root);
+    drawInterval(notationEl, game.note1, game.note2, game.mode, ks, staffOpts(root));
     const proceed = () => {
       notationEl.removeEventListener('click', proceed);
       clearTimeout(timer);
