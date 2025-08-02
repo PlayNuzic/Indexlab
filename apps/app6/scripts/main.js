@@ -113,6 +113,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const asymScales=['DIAT','ACUS','ARMma','ARMme'];
   const symScales=['CROM','OCT','HEX','TON'];
+  const allScales=[...asymScales,...symScales];
 
   function refreshRot(){
     rotSel.innerHTML='';
@@ -121,10 +122,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function populateScales(){
-    const ids = scaleMode.value==='sym'?symScales:asymScales;
     scaleSel.innerHTML='';
-    ids.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
-    if(!ids.includes(scale.id)) scale.id = ids[0];
+    allScales.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
+    if(!allScales.includes(scale.id)) scale.id = allScales[0];
     scaleSel.value = scale.id;
     refreshRot();
   }
@@ -132,7 +132,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   [...Array(12).keys()].forEach(i => rootSel.add(new Option(i, i)));
 
   populateScales();
-  scaleMode.onchange=()=>{ populateScales(); useKeySig = !symScales.includes(scale.id); modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals'; fitNotes(); renderAll(); seqInput.value=mode==='eA'?notesToEA(notes, scaleSemis(scale.id).length):notesToAc(notes); };
+  useKeySig = !symScales.includes(scale.id);
+  modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
   rootSel.value = scale.root;
 
   const enNotes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];

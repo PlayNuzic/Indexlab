@@ -54,6 +54,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let baseMidi = 60;
   const asymScales = ['DIAT','ACUS','ARMma','ARMme'];
   const symScales = ['CROM','OCT','HEX','TON'];
+  const allScales = [...asymScales, ...symScales];
 
   let notes = eaToNotes([2,2,1], inputLen());
   let colorIntervals = false;
@@ -148,10 +149,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 
   function refreshSelectors(){
-    const ids = scaleMode.value==='sym'?symScales:asymScales;
     scaleSel.innerHTML='';
-    ids.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
-    if(!ids.includes(scale.id)) scale.id = ids[0];
+    allScales.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
+    if(!allScales.includes(scale.id)) scale.id = allScales[0];
     scaleSel.value = scale.id;
     rotSel.innerHTML='';
     motherScalesData[scale.id].rotNames.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
@@ -161,7 +161,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     rootSel.value = scale.root;
   }
   refreshSelectors();
-  scaleMode.onchange=()=>{ refreshSelectors(); scale.id=scaleSel.value; useKeySig=!symScales.includes(scale.id); modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals'; fitNotes(); renderAll(); };
+  useKeySig=!symScales.includes(scale.id);
+  modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
 
   function onCardsChange(state){
     notes = state.notes.slice();
@@ -272,6 +273,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     scale = data.scale;
     activeSnapshot = idx;
     refreshSelectors();
+    useKeySig = !symScales.includes(scale.id);
+    modeBtn.textContent = useKeySig ? 'Armadura' : 'Accidentals';
     renderAll();
   }
 
