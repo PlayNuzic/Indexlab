@@ -36,7 +36,7 @@ const levelNames = {
   10: 'Tots els intervals: iS(1,2,3,4,5,6,7,8,9,10,11)'
 };
 
-const staffOpts = (extra = {}, root = 0) => ({ scaleId: 'CROM', root, ...extra });
+const staffOpts = (extra = {}, root = 0) => ({ scaleId: 'CROM', useKeySig: false, root, ...extra });
 
 const profileSlots = 5;
 let profiles = JSON.parse(localStorage.getItem('profiles')||'[]');
