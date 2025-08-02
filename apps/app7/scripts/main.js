@@ -45,14 +45,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(!svg) return;
     clearEEHighlight();
     const pairIdx = idx + 1;
-    const tEl = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="treble"] .vf-notehead`);
-    const bEl = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="bass"] .vf-notehead`);
-    if(!tEl || !bEl) return;
-    const svgRect = svg.getBoundingClientRect();
-    const tRect = tEl.getBoundingClientRect();
-    const bRect = bEl.getBoundingClientRect();
-    const p1 = { x: tRect.left - svgRect.left, y: tRect.top - svgRect.top + tRect.height / 2, w: tRect.width };
-    const p2 = { x: bRect.left - svgRect.left, y: bRect.top - svgRect.top + bRect.height / 2, w: bRect.width };
+    const tGroup = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="treble"]`);
+    const bGroup = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="bass"]`);
+    if(!tGroup || !bGroup) return;
+    const tNote = tGroup.vfNote;
+    const bNote = bGroup.vfNote;
+    if(!tNote || !bNote) return;
+    const tKey = parseInt(tGroup.dataset.keyIndex || '0', 10);
+    const bKey = parseInt(bGroup.dataset.keyIndex || '0', 10);
+    const p1 = { x: tNote.getAbsoluteX(), y: tNote.getYs()[tKey], w: tNote.getWidth() };
+    const p2 = { x: bNote.getAbsoluteX(), y: bNote.getYs()[bKey], w: bNote.getWidth() };
     const ell = drawIntervalEllipse(svg, p1, p2, color);
     if(ell){
       ell.setAttribute('fill-opacity', '0.35');
