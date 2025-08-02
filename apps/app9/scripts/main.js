@@ -155,6 +155,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     intervalLegend.innerHTML = build([11,10,9,8,7,6]);
   }
 
+  function renderLegend(){
+    const noteEl = document.getElementById('noteLegend');
+    const intEl = document.getElementById('intervalLegend');
+    if(!noteEl || !intEl) return;
+    const build = nums => nums.map(n => {
+      const col = intervalColor(n);
+      const txt = contrastColor(col);
+      return `<span style="background:${col};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">iA(${n})</span>`;
+    }).join(' ');
+    noteEl.innerHTML = build([1,2,3,4,5,6]);
+    intEl.innerHTML = build([11,10,9,8,7,6]);
+  }
+
   function pushUndo(){
     undoStack.push({notes:notes.slice(), components:components.slice()});
     if(undoStack.length>5) undoStack.shift();
@@ -228,7 +241,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderStaff(){
-    if(!staffEl) return;
+    const container = document.getElementById('staff');
+    if(!container) return;
     const abs = absoluteMidis(notes);
     const options = { chord:true, noteColors:[] };
     if(useKeySig){
@@ -246,16 +260,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         intervalColor(sd,12)
       ]);
     }
-    drawPentagram(staffEl, abs, options);
-    const baseEE = motherScalesData[scale.id].ee;
-    const len = baseEE.length;
-    const rot = ((scale.rot % len) + len) % len;
-    const rotEE = baseEE.slice(rot).concat(baseEE.slice(0, rot));
-    eeInfo.innerHTML = rotEE.map(sd => {
-      const bg = intervalColor(sd, 12);
-      const txt = contrastColor(bg);
-      return `<span style="background:${bg};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${sd}</span>`;
-    }).join(' ');
+    drawPentagram(container, abs, options);
     playStaffIfChanged(abs);
   }
 
@@ -452,11 +457,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
   document.addEventListener('mouseup',()=>{dragging=false;});
 
-  staffEl.addEventListener('click', async () => {
-    const abs = absoluteMidis(notes);
-    await initSound('piano');
-    playChord(abs,2);
-  });
+  if(staffEl){
+    staffEl.addEventListener('click', async () => {
+      const abs = absoluteMidis(notes);
+      await initSound('piano');
+      playChord(abs,2);
+    });
+  }
 
   miniWrap.style.display = toggleMini.checked ? '' : 'none';
 
