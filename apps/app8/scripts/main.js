@@ -55,7 +55,6 @@ let tutorialFlash = null;
 let tutorialFlashTimeout = null;
 const quickBubbleOffset = 400;
 const tutorialDemoNotes = [60,62];
-const disablePrevSteps = new Set(['notation','score','backBtn']);
 const skipBtn = document.getElementById('skipTutorial');
 
 function showSkipButton(){
@@ -456,9 +455,10 @@ function onLevelHighlight(element){
   const id = element?.node?.id || element?.id;
 
   if (prev) {
-    const disable = disablePrevSteps.has(id);
-    prev.classList.toggle('driver-disabled', disable);
-    prev.disabled = disable;
+    if (!prev.dataset.origDisplay) {
+      prev.dataset.origDisplay = prev.style.display || 'inline-block';
+    }
+    prev.style.display = id === 'notation' ? 'none' : prev.dataset.origDisplay;
   }
 
   if (id === 'quickAns') {
