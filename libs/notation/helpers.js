@@ -190,6 +190,17 @@ export function midiSequenceToChromaticParts(midis, prefMap = null){
     }
   }
 
+  if(midis.length === 2 && Math.abs(midis[1] - midis[0]) === 12){
+    const acc1 = full[0].accidental || '';
+    const acc2 = full[1].accidental || '';
+    const mixSharpFlat = (acc1.includes('#') && acc2.includes('b')) ||
+                         (acc1.includes('b') && acc2.includes('#'));
+    if(mixSharpFlat){
+      const orient = acc1.includes('#') || acc2.includes('#') ? '#' : 'b';
+      full = build(orient);
+    }
+  }
+
   return full.map(({key, accidental}) => ({key, accidental}));
 }
 
