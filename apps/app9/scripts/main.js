@@ -4,7 +4,8 @@ import { init as initSound, playChord, ensureAudio, toggleMute, isMuted } from '
 import { motherScalesData, scaleSemis, currentSemis, intervalColor } from '../../../shared/scales.js';
 import { eAToNotes, transposeNotes, rotateLeft as rotLeftLib, rotateRight as rotRightLib,
   duplicateCards, omitCards, generateComponents, rotatePairs, permutePairsFixedBass } from '../../../shared/cards.js';
-import { findChordRoot, intervalRoot } from '../../../shared/hindemith.js';
+import { findChordRoot } from '../../../shared/hindemith.js';
+import { identificarConjuntoForte } from '../../../shared/forte.js';
 
 function contrastColor(color){
   const m = color.match(/hsla?\((\d+),(\d+)%?,(\d+)%?,?(\d+(?:\.\d+)?)?\)/);
@@ -112,18 +113,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     const semis = semisFromNotes(notes);
     const pcs = [...new Set(semis.map(n => n % 12))];
     const pc = findChordRoot(semis);
-    let just = [];
-    for(let i=0;i<pcs.length;i++){
-      for(let j=i+1;j<pcs.length;j++){
-        const interval = (pcs[j]-pcs[i]+12)%12;
-        const pos = intervalRoot[interval];
-        if(pos==='lower' && pcs[i]===pc) just.push(interval);
-        if(pos==='upper' && pcs[j]===pc) just.push(interval);
-      }
-    }
-    just = [...new Set(just)].sort((a,b)=>a-b);
-    rootContent.textContent =
-      `Pitch Class: ${pcs.join(' ')}\nRaíz: ${pc}\niA: ${just.join(' ')}`;
+    const forte = identificarConjuntoForte(pcs);
+    const lines = [
+      `Raíz: ${pc}`,
+      forte.nombreForte ? `Forte: ${forte.nombreForte}` : null,
+      `Forma normal: ${forte.formaNormal.join(' ')}`,
+      `Forma prima: ${forte.formaPrima.join(' ')}`,
+      `Vector intervalos: <${forte.vectorIntervalos.join(' ')}>`
+    ];
+    if(forte.infoAdicional) lines.push(forte.infoAdicional);
+    rootContent.textContent = lines.filter(Boolean).join('\n');
   }
 
   function renderIaLegend(){
