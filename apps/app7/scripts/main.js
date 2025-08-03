@@ -45,6 +45,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     render();
   }
 
+  eeInfo.addEventListener('mouseleave', clearEEHighlight);
+  staffEl.addEventListener('mouseleave', clearEEHighlight);
+
   function updateModeBtn(){
     modeLock.textContent = lockMode ? 'Paralelo' : 'Relativo';
     modeLock.classList.toggle('on', lockMode);
