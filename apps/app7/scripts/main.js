@@ -33,33 +33,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   let lockMode = false;
 
   let midisData = [];
+  let hoverEEIdx = null;
 
   function clearEEHighlight(){
-    const svg = staffEl.querySelector('svg');
-    if(!svg) return;
-    svg.querySelectorAll('.ee-ellipse').forEach(el=>el.remove());
+    hoverEEIdx = null;
+    render();
   }
 
-  function highlightEE(idx, color){
-    const svg = staffEl.querySelector('svg');
-    if(!svg) return;
-    clearEEHighlight();
-    const pairIdx = idx + 1;
-    const tGroup = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="treble"]`);
-    const bGroup = svg.querySelector(`[data-idx="${pairIdx}"][data-clef="bass"]`);
-    if(!tGroup || !bGroup) return;
-    const tNote = tGroup.vfNote;
-    const bNote = bGroup.vfNote;
-    if(!tNote || !bNote) return;
-    const tKey = parseInt(tGroup.dataset.keyIndex || '0', 10);
-    const bKey = parseInt(bGroup.dataset.keyIndex || '0', 10);
-    const p1 = { x: tNote.getAbsoluteX(), y: tNote.getYs()[tKey], w: tNote.getWidth() };
-    const p2 = { x: bNote.getAbsoluteX(), y: bNote.getYs()[bKey], w: bNote.getWidth() };
-    const ell = drawIntervalEllipse(svg, p1, p2, color);
-    if(ell){
-      ell.setAttribute('fill-opacity', '0.35');
-      ell.classList.add('ee-ellipse');
-    }
+  function highlightEE(idx){
+    hoverEEIdx = idx;
+    render();
   }
 
   function updateModeBtn(){
@@ -120,12 +103,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     const asc = toAbsolute(sems, 60);
     const desc = asc.slice().reverse().map(m => m - 24);
     midisData = asc.map((n,i)=>[n, desc[i]]);
-    const withKs = useKeySig && ksScales.includes(state.id);
-    const options = { duration:'w', scaleId: state.id, root: state.root, paired:true, useKeySig: withKs };
-    drawPentagram(staffEl, midisData, options);
     const baseEE = motherScalesData[state.id].ee;
     const rot = ((state.rot % baseEE.length) + baseEE.length) % baseEE.length;
     const rotEE = baseEE.slice(rot).concat(baseEE.slice(0, rot));
+    const withKs = useKeySig && ksScales.includes(state.id);
+    const options = { duration:'w', scaleId: state.id, root: state.root, paired:true, useKeySig: withKs };
+    if(hoverEEIdx !== null){
+      options.highlightInterval = [hoverEEIdx, hoverEEIdx + 1, intervalColor(rotEE[hoverEEIdx], 12)];
+    }
+    drawPentagram(staffEl, midisData, options);
     eeInfo.innerHTML = rotEE.map((sd,i) => {
       const bg = intervalColor(sd, 12);
       const txt = contrastColor(bg);
@@ -133,7 +119,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }).join(' ');
     eeInfo.querySelectorAll('span').forEach(span => {
       const i = parseInt(span.dataset.idx,10);
-      span.addEventListener('mouseenter', () => highlightEE(i, intervalColor(rotEE[i], 12)));
+      span.addEventListener('mouseenter', () => highlightEE(i));
       span.addEventListener('mouseleave', clearEEHighlight);
     });
     setupNoteEvents();
