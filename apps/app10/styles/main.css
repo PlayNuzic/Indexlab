@@ -2,7 +2,7 @@
   --bg-body:#2b1c4a;
   --txt-main:#f0f0f0;
 }
-body{font-family:'Ubuntu',sans-serif;background:var(--bg-body);color:var(--txt-main);text-align:center;padding:2rem;margin:0;}
+body{font-family:'Ubuntu',sans-serif;background:var(--bg-body);color:var(--txt-main);text-align:center;padding:2rem;margin:0;display:block;}
 h1{margin-bottom:1rem;font-weight:400;}
 #app-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;}
 .controls,label{display:flex;gap:.5rem;align-items:center;justify-content:center;margin-bottom:0;}
