@@ -35,7 +35,7 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [], useKeySig = true, singleClef = null, width = 550 } = options;
+  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [], highlightChordIdx = null, useKeySig = true, singleClef = null, width = 550 } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
@@ -96,6 +96,19 @@ export function drawPentagram(container, midis = [], options = {}) {
           if(!el && o.note && typeof o.note.getSVGElement === 'function'){ el = o.note.getSVGElement(); }
           if(el){ el.dataset.idx = i; el.dataset.clef = singleClef; }
         });
+        const svg = container.querySelector('svg');
+        if(svg && highlightChordIdx!==null){
+          const obj = noteObjs[highlightChordIdx];
+          if(obj && obj.note){
+            const getPos = idx => ({ y: obj.note.getYs()[idx], x: obj.note.getAbsoluteX(), w: obj.note.getWidth() });
+            highlightIntervals.forEach(([i1,i2,color])=>{
+              const p1 = getPos(i1);
+              const p2 = getPos(i2);
+              if(!p1 || !p2) return;
+              drawIntervalEllipse(svg,p1,p2,color);
+            });
+          }
+        }
         return;
       }
 
