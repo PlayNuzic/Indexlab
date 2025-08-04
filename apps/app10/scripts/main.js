@@ -1,6 +1,6 @@
 import { generateITPermutations } from '../../../shared/rhythm.js';
 import { init, ensureAudio, playRhythm } from '../../../libs/sound/index.js';
-import { Renderer, Stave, StaveNote, Voice, Formatter, Tuplet, Dot } from '../../../libs/vendor/vexflow/entry/vexflow.js';
+import { Renderer, Stave, StaveNote, Voice, Formatter, Tuplet, Dot, Beam } from '../../../libs/vendor/vexflow/entry/vexflow.js';
 
 const { initSnapshots, saveSnapshot, loadSnapshot, resetSnapshots } = window.SnapUtils;
 const Presets = window.Presets;
@@ -79,24 +79,38 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function drawPerm(container, perm, iT){
     container.innerHTML='';
     const renderer = new Renderer(container, Renderer.Backends.SVG);
-    renderer.resize(140,100);
+    renderer.resize(260,100);
     const ctx = renderer.getContext();
-    const stave = new Stave(10,40,120);
+    const stave = new Stave(10,40,240);
     stave.addClef('treble');
     stave.setContext(ctx).draw();
     const baseDur=getBaseDuration(iT);
     const notes=perm.map(n=>{
       const {duration,dots}=noteFromUnits(n,baseDur);
-      const note=new StaveNote({keys:['c/4/x'],duration});
+      const note=new StaveNote({keys:['c/5/x'],duration});
       for(let i=0;i<dots;i++) Dot.buildAndAttach([note]);
       return note;
     });
     const voice=new Voice({numBeats:perm.length,beatValue:4});
     voice.setStrict(false);
     voice.addTickables(notes);
-    new Formatter().joinVoices([voice]).format([voice],100);
+    new Formatter().joinVoices([voice]).format([voice],220);
+    const beams=[];
+    let group=[];
+    notes.forEach(note=>{
+      const d=note.getDuration();
+      if(d==='w'||d==='h'||d==='q'){
+        if(group.length>1) beams.push(new Beam(group));
+        group=[];
+      }else{
+        group.push(note);
+      }
+    });
+    if(group.length>1) beams.push(new Beam(group));
+    const tuplet=new Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
     voice.draw(ctx,stave);
-    new Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
+    beams.forEach(b=>b.setContext(ctx).draw());
+    tuplet.setContext(ctx).draw();
 
     const svg = container.querySelector('svg');
     const bbox = svg.getBBox();
