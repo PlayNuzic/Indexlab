@@ -117,15 +117,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     const pcs = [...new Set(semis.map(n => n % 12))];
     const pc = findChordRoot(semis);
     const forte = identificarConjuntoForte(pcs);
-    const lines = [
-      `Raíz: ${pc}`,
-      forte.nombreForte ? `Forte: ${forte.nombreForte}` : null,
-      `Forma normal: ${forte.formaNormal.join(' ')}`,
-      `Forma prima: ${forte.formaPrima.join(' ')}`,
-      `Vector intervalos: <${forte.vectorIntervalos.join(' ')}>`
-    ];
-    if(forte.infoAdicional) lines.push(forte.infoAdicional);
-    rootContent.textContent = lines.filter(Boolean).join('\n');
+    const rows = [
+      ['Raíz', pc],
+      forte.nombreForte ? ['Forte', forte.nombreForte] : null,
+      ['Forma normal', forte.formaNormal.join(' ')],
+      ['Forma prima', forte.formaPrima.join(' ')],
+      ['Vector intervalos', `&lt;${forte.vectorIntervalos.join(' ')}&gt;`]
+    ].filter(Boolean);
+    if(forte.infoAdicional) rows.push([forte.infoAdicional, '']);
+    const table = rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+    rootContent.innerHTML = `<table>${table}</table>`;
   }
 
   function renderIaLegend(){
@@ -434,7 +435,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   let dragging=false,dx=0,dy=0;
   rootInfo.addEventListener('mousedown',e=>{
     if(e.target.tagName==='BUTTON') return;
-    dragging=true;dx=e.offsetX;dy=e.offsetY;rootInfo.style.right='auto';
+    dragging=true;
+    const rect=rootInfo.getBoundingClientRect();
+    dx=e.clientX-rect.left;
+    dy=e.clientY-rect.top;
+    rootInfo.style.right='auto';
+    rootInfo.style.width=rect.width+'px';
   });
   document.addEventListener('mousemove',e=>{
     if(!dragging) return;
