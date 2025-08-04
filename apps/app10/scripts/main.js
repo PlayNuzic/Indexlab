@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function drawPerm(container, perm, iT){
     container.innerHTML='';
     const renderer = new Renderer(container, Renderer.Backends.SVG);
+    renderer.resize(420,260);
     const ctx = renderer.getContext();
     const stave = new Stave(10,40,120);
     stave.addClef('treble');
@@ -98,8 +99,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     new Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
 
     const svg=container.querySelector('svg');
-    const { width, height } = svg.getBBox();
-    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    const inner=svg.querySelector('g');
+    const { x, y, width, height } = inner.getBBox();
+    svg.setAttribute('viewBox', `${x} ${y} ${width} ${height}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   }
