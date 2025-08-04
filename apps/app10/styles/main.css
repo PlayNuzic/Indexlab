@@ -1,0 +1,10 @@
+body{font-family:'Ubuntu',sans-serif;margin:0;padding:1rem;background:#f5f5f5;color:#222;}
+h1{font-weight:400;text-align:center;}
+.controls,label{display:flex;gap:.5rem;align-items:center;justify-content:center;margin-bottom:1rem;}
+#miniWrap{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+.mini{width:140px;height:87px;overflow:hidden;background:#fff;border:1px solid #ccc;border-radius:4px;}
+.mini.selected{border-color:#0074D9;}
+.snapshots{display:flex;gap:.25rem;}
+.snapshots button{width:24px;height:24px;}
+.snapshots button.saved{background:#8f8;}
+.preset-row{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:1rem;}

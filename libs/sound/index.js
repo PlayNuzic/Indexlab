@@ -43,6 +43,12 @@ export async function init(type='piano'){
     }catch(e){
       console.error('Error carregant mostres:', e);
     }
+  }else if(type==='woodblocks'){
+    synth = new Tone.MembraneSynth({
+      octaves: 2,
+      pitchDecay: 0.01,
+      envelope: { attack: 0.001, decay: 0.1, sustain: 0.001, release: 0.01 }
+    }).toDestination();
   }else{
     synth = new Tone.PolySynth(Tone.Synth).toDestination();
   }
@@ -65,6 +71,19 @@ export function playMelody(midis,duration=1.5,gap=0.2){
     setTimeout(()=>{
       synth.triggerAttackRelease(Tone.Frequency(n,'midi'), duration);
     },i*(duration*1000+gap*1000));
+  });
+}
+
+export function playRhythm(permutation, bpm){
+  if(!synth || muted) return;
+  const iT = permutation.reduce((a,b)=>a+b,0);
+  const beatDur = 60 / (bpm || 120);
+  const unit = beatDur / iT;
+  let time = Tone.now();
+  permutation.forEach((n,idx)=>{
+    const note = idx===0 ? 'C4' : 'C5';
+    synth.triggerAttackRelease(note, 0.05, time);
+    time += unit * n;
   });
 }
 

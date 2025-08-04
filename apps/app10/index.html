@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Permutacions Temporals – Nuzic</title>
+  <link rel="stylesheet" href="../../libs/shared-ui/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="icon" href="favicon.ico" />
+</head>
+<body>
+  <h1>Permutacions Temporals – Nuzic</h1>
+  <div id="controls" class="controls">
+    <label>iT <select id="itSelect"></select></label>
+    <label>BPM <input id="bpm" type="number" value="120" min="30" max="300"></label>
+    <button id="midiBtn">MIDI</button>
+  </div>
+  <div class="preset-row">
+    <button id="downloadSnaps" title="Descarrega presets">&#x2B07;</button>
+    <button id="uploadSnaps" title="Carrega presets">&#x2B06;</button>
+    <input type="file" id="snapsFile" accept="application/json" style="display:none">
+    <button id="resetSnaps" title="Reset presets">&times;</button>
+    <div id="snapshots" class="snapshots"></div>
+    <button id="saveBtn">Guardar</button>
+  </div>
+  <div id="miniWrap"></div>
+
+  <script src="../../libs/vendor/Tone.js"></script>
+  <script src="../../libs/vendor/Midi.js"></script>
+  <script src="../../libs/vendor/vexflow/entry/vexflow.js"></script>
+  <script src="../../shared/presets.js"></script>
+  <script src="./scripts/snapshotUtils.js"></script>
+  <script type="module" src="./scripts/main.js"></script>
+</body>
+</html>
