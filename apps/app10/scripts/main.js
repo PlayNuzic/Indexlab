@@ -99,15 +99,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     new Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
 
     const svg = container.querySelector('svg');
-    const boxes = Array.from(svg.querySelectorAll('g')).map(g => g.getBBox());
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    boxes.forEach(({ x, y, width, height }) => {
-      if (x < minX) minX = x;
-      if (y < minY) minY = y;
-      if (x + width > maxX) maxX = x + width;
-      if (y + height > maxY) maxY = y + height;
-    });
-    svg.setAttribute('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
+    const bbox = svg.getBBox();
+    svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   }
