@@ -1,5 +1,6 @@
 import { generateITPermutations } from '../../../shared/rhythm.js';
 import { init, ensureAudio, playRhythm } from '../../../libs/sound/index.js';
+import Vex from '../../../libs/vendor/vexflow/entry/vexflow.js';
 
 const { initSnapshots, saveSnapshot, loadSnapshot, resetSnapshots } = window.SnapUtils;
 const Presets = window.Presets;
