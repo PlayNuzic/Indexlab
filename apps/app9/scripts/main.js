@@ -120,6 +120,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const pc = findChordRoot(semis);
     const forte = identificarConjuntoForte(pcs);
     const rows = [
+    let rows = [
       forte.nombreForte ? ['Pitch Class', forte.nombreForte] : null,
       ['Raíz', pc],
       ['Vector intervalos', `&lang;${forte.vectorIntervalos.join(' ')}&rang;`],
@@ -127,6 +128,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       ['Forma prima', forte.formaPrima.join(' ')]
     ].filter(Boolean);
     if(forte.infoAdicional) rows.push([forte.infoAdicional, '']);
+    rows = rows.filter(r=>!r.some(c=>/[<>=]{7}/.test(c)));
     const table = rows.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('');
     rootContent.innerHTML = `<table><tbody>${table}</tbody></table>`;
   }
@@ -436,7 +438,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   rootCopy.onclick=()=>{ navigator.clipboard.writeText(rootContent.innerText).catch(()=>{}); };
 
   let dragging=false,dx=0,dy=0,parentRect=null,dragW=0,dragH=0;
-  rootHandle.addEventListener('mousedown',e=>{
+  rootInfo.addEventListener('mousedown',e=>{
     if(e.target.tagName==='BUTTON') return;
     dragging=true;
     const rect=rootInfo.getBoundingClientRect();
