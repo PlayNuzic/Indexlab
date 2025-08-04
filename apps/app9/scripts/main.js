@@ -43,7 +43,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const iaColorBtn = document.getElementById('iaColorBtn');
   const rootBtn = document.getElementById('rootBtn');
   const rootInfo = document.getElementById('rootInfo');
-  const rootHandle = document.getElementById('rootHandle');
   const rootClose = document.getElementById('rootClose');
   const rootCopy = document.getElementById('rootCopy');
   const rootContent = document.getElementById('rootContent');
@@ -437,8 +436,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   rootCopy.onclick=()=>{ navigator.clipboard.writeText(rootContent.innerText).catch(()=>{}); };
 
   let dragging=false,dx=0,dy=0,parentRect=null,dragW=0,dragH=0;
-  rootHandle.addEventListener('mousedown',e=>{
+  rootInfo.addEventListener('mousedown',e=>{
     if(e.target.tagName==='BUTTON') return;
+    e.preventDefault();
     dragging=true;
     const rect=rootInfo.getBoundingClientRect();
     parentRect=rootInfo.offsetParent.getBoundingClientRect();
