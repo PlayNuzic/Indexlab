@@ -31,6 +31,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let showNm=false;
   let undoStack=[];
   let redoStack=[];
+  let resetPoint=0;
   // cache of diagonal MIDI notes and numbers for the currently rendered grid
   let diagArr=[];
   let diagNumsArr=[];
@@ -128,6 +129,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const globUp=document.getElementById('globUp');
   const globDown=document.getElementById('globDown');
   const undoBtn=document.getElementById('undoBtn');
+  const resetBtn=document.getElementById('resetBtn');
   const redoBtn=document.getElementById('redoBtn');
   const transposeControls=document.getElementById('transposeControls');
   const transposeUp=document.getElementById('transposeUp');
@@ -227,6 +229,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     errorEl.textContent='';
     renderAll();
     notesChanged();
+    resetPoint = undoStack.length;
   };
 
   function renderGrid(){
@@ -630,6 +633,9 @@ function renderStaff(){
     selectedCards.clear();
     renderAll();
     notesChanged();
+  };
+  resetBtn.onclick=()=>{
+    while(undoStack.length>resetPoint) undoAction();
   };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
