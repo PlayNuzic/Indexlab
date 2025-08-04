@@ -75,6 +75,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let activeSnapshot = null;
   let cardsApi = null;
   let components = generateComponents(notes);
+  const UNDO_LIMIT = 100;
   let undoStack=[];
   let redoStack=[];
   let resetPoint=null;
@@ -142,7 +143,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function pushUndo(){
     undoStack.push({notes:notes.slice(), components:components.slice()});
-    if(undoStack.length>5) undoStack.shift();
+    if(undoStack.length>UNDO_LIMIT){
+      undoStack.shift();
+      if(resetPoint!==null) resetPoint = Math.max(0, resetPoint-1);
+    }
     redoStack=[];
   }
 
@@ -158,7 +162,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   function redoAction(){
     if(!redoStack.length) return;
     undoStack.push({notes:notes.slice(), components:components.slice()});
-    if(undoStack.length>5) undoStack.shift();
+    if(undoStack.length>UNDO_LIMIT){
+      undoStack.shift();
+      if(resetPoint!==null) resetPoint = Math.max(0, resetPoint-1);
+    }
     const snap=redoStack.pop();
     notes=snap.notes.slice();
     components=snap.components.slice();
