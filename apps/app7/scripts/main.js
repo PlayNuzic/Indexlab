@@ -28,9 +28,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   const ksSwitch = document.getElementById('ksSwitch');
   const eeInfo = document.getElementById('eeInfo');
   const modeLock = document.getElementById('modeLock');
+  const chordsSwitch = document.getElementById('chordsSwitch');
+  const voicesLabel = document.getElementById('voicesLabel');
+  const voicesSel = document.getElementById('voicesSel');
+  const thirdsLabel = document.getElementById('thirdsLabel');
+  const thirdsSel = document.getElementById('thirdsSel');
 
   let useKeySig = true;
   let lockMode = false;
+  let chordMode = false;
+  let chordVoices = 3;
+  let chordPattern = null;
 
   let midisData = [];
   let hoverEEIdx = null;
@@ -49,16 +57,31 @@ window.addEventListener('DOMContentLoaded', async () => {
   staffEl.addEventListener('mouseleave', clearEEHighlight);
 
   staffEl.addEventListener('click', async e => {
-    const el = e.target.closest('[data-idx][data-clef]');
+    const el = e.target.closest('[data-idx]');
     if (!el) return;
     await ensureAudio();
     const idx = parseInt(el.dataset.idx, 10);
-    if (e.shiftKey) {
-      playChord(midisData[idx], 1);
+    if (chordMode) {
+      const chordNotes = midisData[idx];
+      if (e.shiftKey && e.altKey) {
+        const desc = chordNotes.slice().sort((a,b)=>b-a);
+        playMelody(desc, 0.3, 0);
+      } else if (e.shiftKey) {
+        const ascNotes = chordNotes.slice().sort((a,b)=>a-b);
+        playMelody(ascNotes, 0.3, 0);
+      } else {
+        playChord(chordNotes, 1);
+      }
+      const intervals = chordNotes.slice(1).map((m,i)=>(m - chordNotes[i] + 12)%12);
+      eeInfo.textContent = intervals.join(' ');
     } else {
-      const clef = el.dataset.clef;
-      const midi = clef === 'treble' ? midisData[idx][0] : midisData[idx][1];
-      playNote(midi, 1);
+      if (e.shiftKey) {
+        playChord(midisData[idx], 1);
+      } else {
+        const clef = el.dataset.clef;
+        const midi = clef === 'treble' ? midisData[idx][0] : midisData[idx][1];
+        playNote(midi, 1);
+      }
     }
   });
 
@@ -72,6 +95,29 @@ window.addEventListener('DOMContentLoaded', async () => {
     ksSwitch.textContent = useKeySig ? 'Armadura' : 'Accidentales';
     ksSwitch.classList.toggle('on', useKeySig);
     ksSwitch.setAttribute('aria-pressed', useKeySig);
+  }
+
+  function defaultPattern(){
+    const map = { 3:[4,3], 4:[4,3,3], 5:[4,3,3,4] };
+    return map[chordVoices];
+  }
+
+  const thirdOptions = {
+    3:['4 3','3 4','4 4','3 3'],
+    4:['4 3 3','3 4 3','4 3 4','3 3 4','3 3 3','3 4 4','4 4 3'],
+    5:['4 4 3 3','4 3 4 4','3 4 4 3','4 4 3 4','4 3 4 3','3 4 3 4','3 4 3 3']
+  };
+
+  function populateThirdsOptions(){
+    const opts = thirdOptions[chordVoices] || [];
+    thirdsSel.innerHTML = '';
+    opts.forEach(p => thirdsSel.add(new Option(p, p)));
+    const def = defaultPattern();
+    if(def){
+      const defStr = def.join(' ');
+      thirdsSel.value = defStr;
+      chordPattern = def;
+    }
   }
 
   const state = { id: 'DIAT', rot: 0, root: 0 };
@@ -99,6 +145,38 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function render(){
     const len = scaleSemis(state.id).length;
+    if(chordMode){
+      const degrees = Array.from({length: len + 1}, (_,i) => i);
+      const sems = currentSemis(state, degrees);
+      const asc = toAbsolute(sems, 60);
+      midisData = asc.map((root,i) => {
+        if(state.id === 'CROM'){
+          const pattern = chordPattern || defaultPattern();
+          const notes = [root];
+          let acc = root;
+          (pattern||[]).forEach(step=>{ acc += step; notes.push(acc); });
+          return notes;
+        }else{
+          const degList = [];
+          for(let j=0;j<chordVoices;j++) degList.push(i + 2*j);
+          const semis = currentSemis(state, degList);
+          return toAbsolute(semis, 60);
+        }
+      });
+      const withKs = useKeySig && ksScales.includes(state.id);
+      const options = { singleClef:'treble', chord:true, duration:'w', scaleId: state.id, root: state.root, useKeySig: withKs };
+      drawPentagram(staffEl, midisData, options);
+      eeInfo.textContent = '(Seleccione un acorde para ver su estructura)';
+      playTrebleFwd.style.display = 'none';
+      playTrebleRev.style.display = 'none';
+      playBassFwd.style.display = 'none';
+      playBassRev.style.display = 'none';
+      return;
+    }
+    playTrebleFwd.style.display = '';
+    playTrebleRev.style.display = '';
+    playBassFwd.style.display = '';
+    playBassRev.style.display = '';
     const degrees = Array.from({length: len + 1}, (_,i) => i);
     const sems = currentSemis(state, degrees);
     const asc = toAbsolute(sems, 60);
@@ -135,6 +213,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     state.id = scaleSel.value;
     if(motherScalesData[state.id].rotNames.length === 1) state.rot = 0;
     refreshRot();
+    if(chordMode){
+      if(state.id === 'CROM'){
+        thirdsLabel.style.display = 'inline-block';
+        populateThirdsOptions();
+      }else{
+        thirdsLabel.style.display = 'none';
+        chordPattern = null;
+      }
+    }
     render();
   };
   rotSel.onchange = () => {
@@ -149,6 +236,33 @@ window.addEventListener('DOMContentLoaded', async () => {
     updateModeBtn();
   };
   ksSwitch.onclick = () => { useKeySig = !useKeySig; updateKsBtn(); render(); };
+  chordsSwitch.onclick = () => {
+    chordMode = !chordMode;
+    chordsSwitch.classList.toggle('on', chordMode);
+    chordsSwitch.setAttribute('aria-pressed', chordMode);
+    hoverEEIdx = null;
+    voicesLabel.style.display = chordMode ? 'inline-block' : 'none';
+    if(!chordMode){
+      thirdsLabel.style.display = 'none';
+      chordPattern = null;
+    }else if(state.id === 'CROM'){
+      thirdsLabel.style.display = 'inline-block';
+      populateThirdsOptions();
+    }
+    render();
+  };
+  voicesSel.onchange = () => {
+    chordVoices = parseInt(voicesSel.value,10);
+    if(chordMode && state.id === 'CROM'){
+      populateThirdsOptions();
+      thirdsLabel.style.display = 'inline-block';
+    }
+    render();
+  };
+  thirdsSel.onchange = () => {
+    chordPattern = thirdsSel.value.trim().split(' ').map(n=>parseInt(n,10));
+    render();
+  };
 
   playTrebleFwd.onclick = async () => {
     await ensureAudio();
