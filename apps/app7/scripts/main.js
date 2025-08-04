@@ -48,6 +48,20 @@ window.addEventListener('DOMContentLoaded', async () => {
   eeInfo.addEventListener('mouseleave', clearEEHighlight);
   staffEl.addEventListener('mouseleave', clearEEHighlight);
 
+  staffEl.addEventListener('click', async e => {
+    const el = e.target.closest('[data-idx][data-clef]');
+    if (!el) return;
+    await ensureAudio();
+    const idx = parseInt(el.dataset.idx, 10);
+    if (e.shiftKey) {
+      playChord(midisData[idx], 1);
+    } else {
+      const clef = el.dataset.clef;
+      const midi = clef === 'treble' ? midisData[idx][0] : midisData[idx][1];
+      playNote(midi, 1);
+    }
+  });
+
   function updateModeBtn(){
     modeLock.textContent = lockMode ? 'Paralelo' : 'Relativo';
     modeLock.classList.toggle('on', lockMode);
@@ -75,22 +89,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     modeLock.style.display = allowed ? 'inline-block' : 'none';
     updateModeBtn();
     ksSwitch.style.display = isSymmetricScale(state.id) ? 'none' : 'inline-block';
-  }
-
-  function setupNoteEvents(){
-    const els = staffEl.querySelectorAll('[data-idx][data-clef]');
-    els.forEach(el => {
-      const idx = parseInt(el.dataset.idx,10);
-      const clef = el.dataset.clef;
-      el.addEventListener('click', async e=>{
-        await ensureAudio();
-        if(e.shiftKey){
-          playChord(midisData[idx], 1);
-        }else{
-          playNote(clef==='treble'?midisData[idx][0]:midisData[idx][1], 1);
-        }
-      });
-    });
   }
 
   function contrastColor(color){
@@ -125,7 +123,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       span.addEventListener('mouseenter', () => highlightEE(i));
       span.addEventListener('mouseleave', clearEEHighlight);
     });
-    setupNoteEvents();
   }
 
   refreshRot();
