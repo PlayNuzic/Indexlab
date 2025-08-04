@@ -78,6 +78,7 @@ function intervalVector(pcs){
 function generateForteTable(){
   const table = {};
   const byCard = Array.from({length:13},()=>[]);
+  const allPcs = Array.from({length:12},(_,i)=>i);
   for(let mask=1; mask< (1<<12); mask++){
     const pcs=[];
     for(let p=0;p<12;p++) if(mask & (1<<p)) pcs.push(p);
@@ -88,6 +89,11 @@ function generateForteTable(){
       const entry={prime, iv, card:prime.length};
       table[key]=entry;
       byCard[prime.length].push(entry);
+      if(prime.length===6){
+        const comp = allPcs.filter(n=>!prime.includes(n));
+        const compKey = comp.join(',');
+        if(!table[compKey]) table[compKey]=entry;
+      }
     }
   }
   for(let n=1;n<byCard.length;n++){
