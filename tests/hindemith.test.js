@@ -22,6 +22,13 @@ describe('findChordRoot', () => {
     expect(findChordRoot([0,4,7])).toBe(0);
   });
 
+  test.each([
+    [[0,4,11], 0],
+    [[1,5,0], 1]
+  ])('major seventh chord root %p', (chord, root) => {
+    expect(findChordRoot(chord)).toBe(root);
+  });
+
   test('quartal chord root', () => {
     expect(findChordRoot([0,5,9])).toBe(5);
   });

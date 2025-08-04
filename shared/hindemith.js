@@ -24,6 +24,14 @@ export function findChordRoot(chord, type = 'notes'){
   }
   notes = [...new Set(notes.map(n => ((n % 12) + 12) % 12))].sort((a,b)=>a-b);
   if(!notes.length) return null;
+  // If chord contains root, major third and major seventh, root is the lower note
+  for(const n of notes){
+    const third = (n + 4) % 12;
+    const seventh = (n + 11) % 12;
+    if(notes.includes(third) && notes.includes(seventh)){
+      return n;
+    }
+  }
   let bestRank = Infinity;
   let chordRoot = null;
   let bestLowerIndex = null;
