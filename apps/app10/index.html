@@ -11,20 +11,22 @@
 </head>
 <body>
   <h1>Permutacions Temporals – Nuzic</h1>
-  <div id="controls" class="controls">
-    <label>iT <select id="itSelect"></select></label>
-    <label>BPM <input id="bpm" type="number" value="120" min="30" max="300"></label>
-    <button id="midiBtn">MIDI</button>
+  <div id="app-wrap">
+    <div id="controls-box" class="controls">
+      <label>iT <select id="itSelect"></select></label>
+      <label>BPM <input id="bpm" type="number" value="120" min="30" max="300"></label>
+      <button id="midiBtn">MIDI</button>
+    </div>
+    <div class="preset-row">
+      <button id="downloadSnaps" title="Descarrega presets">&#x2B07;</button>
+      <button id="uploadSnaps" title="Carrega presets">&#x2B06;</button>
+      <input type="file" id="snapsFile" accept="application/json" style="display:none">
+      <button id="resetSnaps" title="Reset presets">&times;</button>
+      <div id="snapshots" class="snapshots"></div>
+      <button id="saveBtn">Guardar</button>
+    </div>
+    <div id="miniWrap"></div>
   </div>
-  <div class="preset-row">
-    <button id="downloadSnaps" title="Descarrega presets">&#x2B07;</button>
-    <button id="uploadSnaps" title="Carrega presets">&#x2B06;</button>
-    <input type="file" id="snapsFile" accept="application/json" style="display:none">
-    <button id="resetSnaps" title="Reset presets">&times;</button>
-    <div id="snapshots" class="snapshots"></div>
-    <button id="saveBtn">Guardar</button>
-  </div>
-  <div id="miniWrap"></div>
 
   <script src="../../libs/vendor/Tone.js"></script>
   <script src="../../libs/vendor/Midi.js"></script>
