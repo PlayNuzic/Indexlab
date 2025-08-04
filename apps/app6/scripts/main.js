@@ -35,6 +35,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let components = generateComponents(notes);
   let undoStack = [];
   let redoStack = [];
+  let resetPoint = 0;
   let selectedCards = new Set();
   let hoverIdx = null;
   let hoverIntervalIdx = null;
@@ -79,6 +80,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const dupBtn = document.getElementById('dupBtn');
   const reduceBtn = document.getElementById('reduceBtn');
   const undoBtn = document.getElementById('undoBtn');
+  const resetBtn = document.getElementById('resetBtn');
   const redoBtn = document.getElementById('redoBtn');
   const generateBtn = document.getElementById('generate');
   const modeBtn = document.getElementById('modeBtn');
@@ -537,6 +539,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     activeSnapshot = null;
     lastSaved = null;
     renderAll();
+    resetPoint = undoStack.length;
   };
 
   rotLeft.onclick=()=>{pushUndo();rotateRight(notes, octShifts, components);renderAll();};
@@ -567,6 +570,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     fitNotes();
     selectedCards.clear();
     renderAll();
+  };
+  resetBtn.onclick=()=>{
+    while(undoStack.length>resetPoint) undoAction();
   };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;

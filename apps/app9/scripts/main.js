@@ -53,6 +53,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const muteBtn = document.getElementById('muteBtn');
   const undoBtn = document.getElementById('undoBtn');
   const redoBtn = document.getElementById('redoBtn');
+  const resetBtn = document.getElementById('resetBtn');
   const transposeControls = document.getElementById('transposeControls');
   const transposeUp = document.getElementById('transposeUp');
   const transposeDown = document.getElementById('transposeDown');
@@ -76,6 +77,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let components = generateComponents(notes);
   let undoStack=[];
   let redoStack=[];
+  let resetPoint=0;
   let lastSaved=null;
   let lastStaffMidis = absoluteMidis(notes);
   let isMuted = false;
@@ -334,6 +336,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     fitNotes();
     activeSnapshot = null;
     renderAll();
+    resetPoint = undoStack.length;
   };
 
   tabEA.onclick=()=>{ mode='eA'; tabEA.classList.add('active'); tabAc.classList.remove('active'); seqPrefix.textContent='eA('; transposeControls.style.display='none'; renderAll(); };
@@ -367,6 +370,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     muteBtn.classList.toggle('muted', muted);
     muteBtn.textContent = muted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
+  };
+  resetBtn.onclick=()=>{
+    while(undoStack.length>resetPoint) undoAction();
   };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
