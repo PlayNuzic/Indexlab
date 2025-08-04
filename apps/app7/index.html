@@ -12,6 +12,19 @@
 <body>
   <h1>Escalas</h1>
   <div class="scale-controls">
+    <span class="chord-controls">
+      <label><button id="chordsSwitch" class="scale-btn" aria-pressed="false">Acordes</button></label>
+      <label id="voicesLabel" style="display:none;">Voces 
+        <select id="voicesSel">
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </label>
+      <label id="thirdsLabel" style="display:none;">Terceras 
+        <select id="thirdsSel"></select>
+      </label>
+    </span>
     <label>Escala Madre <select id="scaleSel"></select></label>
     <label>Hija / Modo <select id="rotSel"></select> <button id="modeLock" class="scale-btn" aria-pressed="false">Relativo</button></label>
     <label>Raíz <select id="rootSel"></select></label>

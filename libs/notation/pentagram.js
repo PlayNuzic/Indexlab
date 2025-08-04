@@ -56,14 +56,51 @@ export function drawPentagram(container, midis = [], options = {}) {
     stave.setContext(context).draw();
 
     if(midis.length){
-      const voice = new Voice({ numBeats: midis.length, beatValue: 4 });
-      voice.setStrict(false);
-
       const normScaleId = scaleId.toUpperCase();
       const noKsIds = ['CROM','OCT','HEX','TON'];
       const useKs = useKeySig && !noKsIds.includes(normScaleId);
       const ksSpellingIds = ['DIAT','ACUS','ARMMA','ARMME'];
       const keepSpelling = !useKs && ksSpellingIds.includes(normScaleId);
+
+      if(chord && Array.isArray(midis[0])){
+        const voice = new Voice({ numBeats: midis.length, beatValue: 4 });
+        voice.setStrict(false);
+        const noteObjs = [];
+        midis.forEach((chordNotes, idx) => {
+          let partsSeq;
+          if(useKs || keepSpelling){
+            partsSeq = chordNotes.map(m => midiToPartsByKeySig(m, ksMap));
+          }else{
+            const sorted = chordNotes.map((m,i)=>({m,i})).sort((a,b)=>a.m-b.m);
+            const chromParts = midiSequenceToChromaticParts(sorted.map(s=>s.m), ksMap);
+            partsSeq = new Array(chordNotes.length);
+            sorted.forEach((obj, i)=>{ partsSeq[obj.i] = chromParts[i]; });
+          }
+          const keys = partsSeq.map(p => p.key);
+          const note = new StaveNote({ keys, duration, clef: singleClef });
+          partsSeq.forEach((p, i) => {
+            const need = useKs ? needsAccidental(p, ksMap) : !!p.accidental;
+            if(need){
+              const acc = new Accidental(p.accidental);
+              if(p.cautionary) acc.setAsCautionary();
+              note.addModifier(acc, i);
+            }
+          });
+          voice.addTickable(note);
+          noteObjs.push({ note });
+        });
+        new Formatter().joinVoices([voice]).format([voice], width - 145);
+        voice.draw(context, stave);
+        noteObjs.forEach((o,i)=>{
+          let el = o.note && o.note.attrs && o.note.attrs.el;
+          if(!el && o.note && typeof o.note.getSVGElement === 'function'){ el = o.note.getSVGElement(); }
+          if(el){ el.dataset.idx = i; el.dataset.clef = singleClef; }
+        });
+        return;
+      }
+
+      const voice = new Voice({ numBeats: midis.length, beatValue: 4 });
+      voice.setStrict(false);
       let noteObjs = [];
       if(chord){
         let partsSeq;
