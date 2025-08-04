@@ -160,11 +160,13 @@ window.addEventListener('DOMContentLoaded', async () => {
           const degList = [];
           for(let j=0;j<chordVoices;j++) degList.push(i + 2*j);
           const semis = currentSemis(state, degList);
-          return toAbsolute(semis, 60);
+          const base = root - semis[0];
+          return toAbsolute(semis, base);
         }
       });
       const withKs = useKeySig && ksScales.includes(state.id);
-      const options = { singleClef:'treble', chord:true, duration:'w', scaleId: state.id, root: state.root, useKeySig: withKs };
+      const width = ['CROM','OCT'].includes(state.id) ? 145 + midisData.length * 55 : 550;
+      const options = { singleClef:'treble', chord:true, duration:'w', scaleId: state.id, root: state.root, useKeySig: withKs, width };
       drawPentagram(staffEl, midisData, options);
       eeInfo.textContent = '(Seleccione un acorde para ver su estructura)';
       playTrebleFwd.style.display = 'none';
