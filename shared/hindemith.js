@@ -46,5 +46,49 @@ export function findChordRoot(chord, type = 'notes'){
       }
     }
   }
+  // Additional pattern analysis for special root resolution
+  const formsAny = (base, targets) => notes.some(n => n !== base && targets.includes((n - base + 12) % 12));
+
+  let candidate = null;
+
+  // Pattern 1: lowest note (without interval 7) forming 3/4 with upper note that also forms 10/11 or 1/2 with another note
+  for (let i = 0; i < notes.length && candidate === null; i++) {
+    const low = notes[i];
+    if (formsAny(low, [7])) continue;
+    for (let j = i + 1; j < notes.length && candidate === null; j++) {
+      const high = notes[j];
+      const interval = (high - low + 12) % 12;
+      if (interval === 3 || interval === 4) {
+        if (notes.some(n => n !== low && n !== high && [10,11,1,2].includes((n - high + 12) % 12))) {
+          candidate = low;
+        }
+      }
+    }
+  }
+
+  // Pattern 2: highest note (without interval 5) forming 8/9 with lower note that also forms 10/11 or 1/2 with another note
+  if (candidate === null) {
+    for (let j = notes.length - 1; j >= 0 && candidate === null; j--) {
+      const high = notes[j];
+      if (formsAny(high, [5])) continue;
+      for (let i = j - 1; i >= 0 && candidate === null; i--) {
+        const low = notes[i];
+        const interval = (high - low + 12) % 12;
+        if (interval === 8 || interval === 9) {
+          if (notes.some(n => n !== low && n !== high && [10,11,1,2].includes((n - low + 12) % 12))) {
+            candidate = low;
+          }
+        }
+      }
+    }
+  }
+
+  if (candidate !== null) {
+    const lowerSeven = notes.some(n => n < candidate && notes.some(m => ((m - n + 12) % 12) === 7));
+    if (!lowerSeven) {
+      chordRoot = candidate;
+    }
+  }
+
   return chordRoot;
 }
