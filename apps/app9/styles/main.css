@@ -115,11 +115,11 @@ button#generate:hover{background:#e6a12b;}
   overflow:auto;
   text-align:left;
   min-width:180px;
+  user-select:none;
+  cursor:move;
 }
 #rootHandle{
   margin-bottom:.3rem;
-  cursor:move;
-  user-select:none;
 }
 #rootInfo button{float:right;}
 #rootInfo table{border-collapse:collapse;}
