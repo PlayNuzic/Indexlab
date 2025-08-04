@@ -45,6 +45,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rootInfo = document.getElementById('rootInfo');
   const rootHandle = document.getElementById('rootHandle');
   const rootClose = document.getElementById('rootClose');
+  const rootCopy = document.getElementById('rootCopy');
   const rootContent = document.getElementById('rootContent');
   const iaLegend = document.getElementById('iaLegend');
   const rotLeft = document.getElementById('rotLeft');
@@ -432,6 +433,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderStaff();
   };
   rootClose.onclick=()=>{ highlightRoot=false; rootBtn.classList.remove('active'); rootInfo.hidden=true; if(flashTimer){ clearInterval(flashTimer); flashTimer=null; } renderStaff(); };
+  rootCopy.onclick=()=>{ navigator.clipboard.writeText(rootContent.innerText).catch(()=>{}); };
 
   let dragging=false,dx=0,dy=0,parentRect=null,dragW=0,dragH=0;
   rootHandle.addEventListener('mousedown',e=>{
