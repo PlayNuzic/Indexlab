@@ -119,7 +119,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const forte = identificarConjuntoForte(pcs);
     const rows = [
       ['Raíz', pc],
-      forte.nombreForte ? ['Forte', forte.nombreForte] : null,
+      forte.nombreForte ? ['Pitch Class', forte.nombreForte] : null,
       ['Forma normal', forte.formaNormal.join(' ')],
       ['Forma prima', forte.formaPrima.join(' ')],
       ['Vector intervalos', `&lt;${forte.vectorIntervalos.join(' ')}&gt;`]

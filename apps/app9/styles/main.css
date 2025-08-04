@@ -115,6 +115,7 @@ button#generate:hover{background:#e6a12b;}
   border:2px solid var(--accent);
   resize:both;
   overflow:auto;
+  text-align:left;
 }
 #rootInfo button{float:right;}
 #rootInfo table{border-collapse:collapse;}
