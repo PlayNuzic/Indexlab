@@ -29,5 +29,12 @@ describe('identificarConjuntoForte', () => {
     expect(res.formaInvertida).toBeNull();
     expect(res.vectorIntervalos).toEqual([0,0,0,3,0,0]);
   });
+
+  test('hexacorde 0,1,4,5,8,9', () => {
+    const res = identificarConjuntoForte([0,1,4,5,8,9]);
+    expect(res.nombreForte).toBe('6-40');
+    expect(res.formaPrima).toEqual([0,1,4,5,8,9]);
+    expect(res.vectorIntervalos).toEqual([3,0,3,6,3,0]);
+  });
 });
 
