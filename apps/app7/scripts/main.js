@@ -1,4 +1,4 @@
-import { drawPentagram, drawIntervalEllipse } from '../../../libs/notation/index.js';
+import { drawPentagram } from '../../../libs/notation/index.js';
 import { init as initSound, playNote, playChord, playMelody, ensureAudio } from '../../../libs/sound/index.js';
 import { motherScalesData, scaleSemis, currentSemis, changeMode, isSymmetricScale, intervalColor } from '../../../shared/scales.js';
 
@@ -42,14 +42,23 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   let midisData = [];
   let hoverEEIdx = null;
+  let hoverEAIdx = null;
+  let lastEA = null;
+  let selectedChordIdx = null;
 
   function clearEEHighlight(){
     hoverEEIdx = null;
+    hoverEAIdx = null;
     render();
   }
 
   function highlightEE(idx){
     hoverEEIdx = idx;
+    render();
+  }
+
+  function highlightEA(idx){
+    hoverEAIdx = idx;
     render();
   }
 
@@ -73,7 +82,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         playChord(chordNotes, 1);
       }
       const intervals = chordNotes.slice(1).map((m,i)=>(m - chordNotes[i] + 12)%12);
-      eeInfo.textContent = intervals.join(' ');
+      lastEA = intervals;
+      selectedChordIdx = idx;
+      renderEA();
     } else {
       if (e.shiftKey) {
         playChord(midisData[idx], 1);
@@ -143,6 +154,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     return Number(m[3]) > 60 ? '#000' : '#fff';
   }
 
+  function renderEA(){
+    if(lastEA && chordMode){
+      eeInfo.innerHTML = lastEA.map((sd,i)=>{
+        const bg = intervalColor(sd,12);
+        const txt = contrastColor(bg);
+        return `<span data-idx="${i}" style="background:${bg};color:${txt};padding:0 .3rem;margin:0 .2rem;border-radius:4px;">${sd}</span>`;
+      }).join(' ');
+      eeInfo.querySelectorAll('span').forEach(span => {
+        const i = parseInt(span.dataset.idx,10);
+        span.addEventListener('mouseenter',()=>highlightEA(i));
+        span.addEventListener('mouseleave',clearEEHighlight);
+      });
+    }else{
+      eeInfo.textContent = '(Seleccione un acorde para ver su estructura)';
+    }
+  }
+
   function render(){
     const len = scaleSemis(state.id).length;
     if(chordMode){
@@ -167,8 +195,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       const withKs = useKeySig && ksScales.includes(state.id);
       const width = ['CROM','OCT'].includes(state.id) ? 145 + midisData.length * 55 : 550;
       const options = { singleClef:'treble', chord:true, duration:'w', scaleId: state.id, root: state.root, useKeySig: withKs, width };
+      if(hoverEAIdx !== null && selectedChordIdx !== null && lastEA){
+        const col = intervalColor(lastEA[hoverEAIdx],12);
+        options.highlightChordIdx = selectedChordIdx;
+        options.highlightIntervals = [[hoverEAIdx, hoverEAIdx + 1, col]];
+      }
       drawPentagram(staffEl, midisData, options);
-      eeInfo.textContent = '(Seleccione un acorde para ver su estructura)';
+      renderEA();
       playTrebleFwd.style.display = 'none';
       playTrebleRev.style.display = 'none';
       playBassFwd.style.display = 'none';
@@ -224,15 +257,30 @@ window.addEventListener('DOMContentLoaded', async () => {
         chordPattern = null;
       }
     }
+    hoverEEIdx = null;
+    hoverEAIdx = null;
+    lastEA = null;
+    selectedChordIdx = null;
     render();
   };
   rotSel.onchange = () => {
     const val = parseInt(rotSel.value, 10);
     changeMode(state, val, lockMode || isSymmetricScale(state.id));
     rootSel.value = state.root;
+    hoverEEIdx = null;
+    hoverEAIdx = null;
+    lastEA = null;
+    selectedChordIdx = null;
     render();
   };
-  rootSel.onchange = () => { state.root = parseInt(rootSel.value, 10); render(); };
+  rootSel.onchange = () => {
+    state.root = parseInt(rootSel.value, 10);
+    hoverEEIdx = null;
+    hoverEAIdx = null;
+    lastEA = null;
+    selectedChordIdx = null;
+    render();
+  };
   modeLock.onclick = () => {
     lockMode = !lockMode;
     updateModeBtn();
@@ -243,6 +291,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     chordsSwitch.classList.toggle('on', chordMode);
     chordsSwitch.setAttribute('aria-pressed', chordMode);
     hoverEEIdx = null;
+    hoverEAIdx = null;
+    lastEA = null;
+    selectedChordIdx = null;
     voicesLabel.style.display = chordMode ? 'inline-block' : 'none';
     if(!chordMode){
       thirdsLabel.style.display = 'none';
