@@ -111,7 +111,7 @@ button#generate:hover{background:#e6a12b;}
   border-radius:4px;
   z-index:60;
   cursor:default;
-  user-select:text;
+  user-select:none;
   border:2px solid var(--accent);
   resize:both;
   overflow:auto;
