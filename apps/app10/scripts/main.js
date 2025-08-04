@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function drawPerm(container, perm, iT){
     container.innerHTML='';
     const renderer = new Renderer(container, Renderer.Backends.SVG);
-    renderer.resize(420,260);
+    renderer.resize(140,100);
     const ctx = renderer.getContext();
     const stave = new Stave(10,40,120);
     stave.addClef('treble');
