@@ -278,7 +278,10 @@ export function drawPentagram(container, midis = [], options = {}) {
     if(bassVoice.getTickables().length) bassVoice.draw(context, bass);
 
     byClef.treble.forEach(o => {
-      const el = o.note && o.note.attrs && o.note.attrs.el;
+      let el = o.note && o.note.attrs && o.note.attrs.el;
+      if(!el && o.note && typeof o.note.getSVGElement === 'function'){
+        el = o.note.getSVGElement();
+      }
       if(el){
         el.dataset.idx = o.idx;
         el.dataset.clef = 'treble';
@@ -287,7 +290,10 @@ export function drawPentagram(container, midis = [], options = {}) {
       }
     });
     byClef.bass.forEach(o => {
-      const el = o.note && o.note.attrs && o.note.attrs.el;
+      let el = o.note && o.note.attrs && o.note.attrs.el;
+      if(!el && o.note && typeof o.note.getSVGElement === 'function'){
+        el = o.note.getSVGElement();
+      }
       if(el){
         el.dataset.idx = o.idx;
         el.dataset.clef = 'bass';
