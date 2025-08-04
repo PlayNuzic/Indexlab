@@ -77,7 +77,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let components = generateComponents(notes);
   let undoStack=[];
   let redoStack=[];
-  let resetPoint=0;
+  let resetPoint=null;
   let lastSaved=null;
   let lastStaffMidis = absoluteMidis(notes);
   let isMuted = false;
@@ -322,7 +322,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       : notesToAc(notes);
   }
 
-  generateBtn.onclick=()=>{
+  function generateChord(){
     pushUndo();
     const nums = parseNums(seqInput.value);
     const len = inputLen();
@@ -336,8 +336,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     fitNotes();
     activeSnapshot = null;
     renderAll();
-    resetPoint = undoStack.length;
-  };
+  }
+
+  generateBtn.onclick=()=>{ generateChord(); resetPoint = undoStack.length; };
 
   tabEA.onclick=()=>{ mode='eA'; tabEA.classList.add('active'); tabAc.classList.remove('active'); seqPrefix.textContent='eA('; transposeControls.style.display='none'; renderAll(); };
   tabAc.onclick=()=>{ mode='Ac'; tabAc.classList.add('active'); tabEA.classList.remove('active'); seqPrefix.textContent='Ac('; transposeControls.style.display='flex'; renderAll(); };
@@ -372,7 +373,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     muteBtn.textContent = muted ? '\uD83D\uDD07' : '\uD83D\uDD0A';
   };
   resetBtn.onclick=()=>{
-    while(undoStack.length>resetPoint) undoAction();
+    if(resetPoint!==null){
+      while(undoStack.length>resetPoint) undoAction();
+    }
   };
   undoBtn.onclick=undoAction;
   redoBtn.onclick=redoAction;
