@@ -98,10 +98,16 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     voice.draw(ctx,stave);
     new Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
 
-    const svg=container.querySelector('svg');
-    const inner=svg.querySelector('g');
-    const { x, y, width, height } = inner.getBBox();
-    svg.setAttribute('viewBox', `${x} ${y} ${width} ${height}`);
+    const svg = container.querySelector('svg');
+    const boxes = Array.from(svg.querySelectorAll('g')).map(g => g.getBBox());
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    boxes.forEach(({ x, y, width, height }) => {
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x + width > maxX) maxX = x + width;
+      if (y + height > maxY) maxY = y + height;
+    });
+    svg.setAttribute('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   }
