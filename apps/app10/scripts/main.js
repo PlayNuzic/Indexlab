@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       const div=document.createElement('div');
       div.className='mini';
       div.perm=perm;
+      miniWrap.appendChild(div);
       drawPerm(div,perm,iT);
       div.onclick=async()=>{
         await ensureAudio();
@@ -132,7 +133,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         selectedDiv=div;
         selectedPerm=perm;
       };
-      miniWrap.appendChild(div);
     });
   }
 
