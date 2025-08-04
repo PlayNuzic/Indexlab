@@ -116,13 +116,14 @@ button#generate:hover{background:#e6a12b;}
   resize:both;
   overflow:auto;
   text-align:left;
+  min-width:180px;
 }
 #rootHandle{cursor:move;margin-bottom:.3rem;}
 #rootInfo button{float:right;}
 #rootInfo table{border-collapse:collapse;}
-#rootInfo td{padding:0 .3rem;}
-#rootInfo td:first-child{width:75px;}
-#rootInfo td:last-child{width:100px;}
+#rootInfo th,#rootInfo td{padding:0 .3rem;white-space:nowrap;text-align:left;}
+#rootInfo th{width:75px;font-weight:normal;}
+#rootInfo td{width:100px;}
 #staff svg{
   background:#fff;
   border-radius:8px;
