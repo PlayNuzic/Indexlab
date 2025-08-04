@@ -43,6 +43,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const iaColorBtn = document.getElementById('iaColorBtn');
   const rootBtn = document.getElementById('rootBtn');
   const rootInfo = document.getElementById('rootInfo');
+  const rootHandle = document.getElementById('rootHandle');
   const rootClose = document.getElementById('rootClose');
   const rootContent = document.getElementById('rootContent');
   const iaLegend = document.getElementById('iaLegend');
@@ -432,11 +433,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
   rootClose.onclick=()=>{ highlightRoot=false; rootBtn.classList.remove('active'); rootInfo.hidden=true; if(flashTimer){ clearInterval(flashTimer); flashTimer=null; } renderStaff(); };
 
-  let dragging=false,dx=0,dy=0;
-  rootInfo.addEventListener('mousedown',e=>{
+  let dragging=false,dx=0,dy=0,parentRect=null;
+  rootHandle.addEventListener('mousedown',e=>{
     if(e.target.tagName==='BUTTON') return;
     dragging=true;
     const rect=rootInfo.getBoundingClientRect();
+    parentRect=rootInfo.offsetParent.getBoundingClientRect();
     dx=e.clientX-rect.left;
     dy=e.clientY-rect.top;
     rootInfo.style.right='auto';
@@ -444,8 +446,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
   document.addEventListener('mousemove',e=>{
     if(!dragging) return;
-    rootInfo.style.left=(e.clientX-dx)+'px';
-    rootInfo.style.top=(e.clientY-dy)+'px';
+    rootInfo.style.left=(e.clientX-parentRect.left-dx)+'px';
+    rootInfo.style.top=(e.clientY-parentRect.top-dy)+'px';
   });
   document.addEventListener('mouseup',()=>{dragging=false;});
 
