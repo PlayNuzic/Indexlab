@@ -79,11 +79,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function drawPerm(container, perm, iT){
     container.innerHTML='';
     const renderer = new Renderer(container, Renderer.Backends.SVG);
-    renderer.resize(140,100);
-    const svg=container.querySelector('svg');
-    svg.setAttribute('viewBox','0 0 140 100');
-    svg.setAttribute('width','100%');
-    svg.setAttribute('height','100%');
     const ctx = renderer.getContext();
     const stave = new Stave(10,40,120);
     stave.addClef('treble');
@@ -101,6 +96,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     new Formatter().joinVoices([voice]).format([voice],100);
     voice.draw(ctx,stave);
     new Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
+
+    const svg=container.querySelector('svg');
+    const { width, height } = svg.getBBox();
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
   }
 
   function selectPerm(arr){
