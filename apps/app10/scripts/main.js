@@ -79,9 +79,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function drawPerm(container, perm, iT){
     container.innerHTML='';
     const renderer = new Renderer(container, Renderer.Backends.SVG);
-    renderer.resize(140,87);
+    renderer.resize(140,100);
     const svg=container.querySelector('svg');
-    svg.setAttribute('viewBox','0 0 140 87');
+    svg.setAttribute('viewBox','0 0 140 100');
     svg.setAttribute('width','100%');
     svg.setAttribute('height','100%');
     const ctx = renderer.getContext();
