@@ -119,15 +119,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     const pc = findChordRoot(semis);
     const forte = identificarConjuntoForte(pcs);
     const rows = [
-      ['Raíz', pc],
       forte.nombreForte ? ['Pitch Class', forte.nombreForte] : null,
+      ['Raíz', pc],
+      ['Vector intervalos', `&lang;${forte.vectorIntervalos.join(' ')}&rang;`],
       ['Forma normal', forte.formaNormal.join(' ')],
-      ['Forma prima', forte.formaPrima.join(' ')],
-      ['Vector intervalos', `&lt;${forte.vectorIntervalos.join(' ')}&gt;`]
+      ['Forma prima', forte.formaPrima.join(' ')]
     ].filter(Boolean);
     if(forte.infoAdicional) rows.push([forte.infoAdicional, '']);
-    const table = rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
-    rootContent.innerHTML = `<table>${table}</table>`;
+    const table = rows.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('');
+    rootContent.innerHTML = `<table><tbody>${table}</tbody></table>`;
   }
 
   function renderIaLegend(){
@@ -433,21 +433,23 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
   rootClose.onclick=()=>{ highlightRoot=false; rootBtn.classList.remove('active'); rootInfo.hidden=true; if(flashTimer){ clearInterval(flashTimer); flashTimer=null; } renderStaff(); };
 
-  let dragging=false,dx=0,dy=0,parentRect=null;
+  let dragging=false,dx=0,dy=0,parentRect=null,dragW=0,dragH=0;
   rootHandle.addEventListener('mousedown',e=>{
     if(e.target.tagName==='BUTTON') return;
     dragging=true;
     const rect=rootInfo.getBoundingClientRect();
     parentRect=rootInfo.offsetParent.getBoundingClientRect();
-    dx=e.clientX-rect.left;
-    dy=e.clientY-rect.top;
+    dx=rect.right-e.clientX;
+    dy=rect.bottom-e.clientY;
+    dragW=rect.width;
+    dragH=rect.height;
     rootInfo.style.right='auto';
-    rootInfo.style.width=rect.width+'px';
+    rootInfo.style.width=dragW+'px';
   });
   document.addEventListener('mousemove',e=>{
     if(!dragging) return;
-    rootInfo.style.left=(e.clientX-parentRect.left-dx)+'px';
-    rootInfo.style.top=(e.clientY-parentRect.top-dy)+'px';
+    rootInfo.style.left=(e.clientX-parentRect.left+dx-dragW)+'px';
+    rootInfo.style.top=(e.clientY-parentRect.top+dy-dragH)+'px';
   });
   document.addEventListener('mouseup',()=>{dragging=false;});
 
