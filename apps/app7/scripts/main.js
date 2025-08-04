@@ -85,9 +85,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       el.addEventListener('click', async e=>{
         await ensureAudio();
         if(e.shiftKey){
-          playChord(midisData[idx], 0.5);
+          playChord(midisData[idx], 1);
         }else{
-          playNote(clef==='treble'?midisData[idx][0]:midisData[idx][1], 0.5);
+          playNote(clef==='treble'?midisData[idx][0]:midisData[idx][1], 1);
         }
       });
     });
