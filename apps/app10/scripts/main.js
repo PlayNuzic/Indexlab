@@ -1,6 +1,6 @@
 import { generateITPermutations } from '../../../shared/rhythm.js';
 import { init, ensureAudio, playRhythm } from '../../../libs/sound/index.js';
-import { Renderer, Stave, StaveNote, Voice, Formatter, Tuplet } from '../../../libs/vendor/vexflow/entry/vexflow.js';
+import { Renderer, Stave, StaveNote, Voice, Formatter, Tuplet, Dot } from '../../../libs/vendor/vexflow/entry/vexflow.js';
 
 const { initSnapshots, saveSnapshot, loadSnapshot, resetSnapshots } = window.SnapUtils;
 const Presets = window.Presets;
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const notes=perm.map(n=>{
       const {duration,dots}=noteFromUnits(n,baseDur);
       const note=new StaveNote({keys:['c/4/x'],duration});
-      for(let i=0;i<dots;i++) note.addDot(0);
+      for(let i=0;i<dots;i++) Dot.buildAndAttach([note]);
       return note;
     });
     const voice=new Voice({numBeats:perm.length,beatValue:4});
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       drawPerm(div,perm,iT);
       div.onclick=async()=>{
         await ensureAudio();
-        playRhythm(perm, parseFloat(bpmInput.value)||120);
+        playRhythm(perm, parseFloat(bpmInput.value)||60);
         if(selectedDiv) selectedDiv.classList.remove('selected');
         div.classList.add('selected');
         selectedDiv=div;
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   saveBtn.onclick=()=>{
     if(selectedSnap==null || !selectedPerm) return;
-    saveSnapshot(snapshots,selectedSnap,{iT,permutation:selectedPerm,bpm:parseFloat(bpmInput.value)||120});
+    saveSnapshot(snapshots,selectedSnap,{iT,permutation:selectedPerm,bpm:parseFloat(bpmInput.value)||60});
     localStorage.setItem('app10Snapshots',JSON.stringify(snapshots));
     renderSnapshots();
   };
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const seq=snapshots.filter(s=>s);
     if(!seq.length) return;
     const midi=new Midi();
-    const bpm=parseFloat(bpmInput.value)||120;
+    const bpm=parseFloat(bpmInput.value)||60;
     midi.header.setTempo(bpm);
     midi.header.timeSignatures=[{ticks:0,timeSignature:[4,4]}];
     const ppq=480;
