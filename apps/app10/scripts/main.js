@@ -1,6 +1,6 @@
 import { generateITPermutations } from '../../../shared/rhythm.js';
 import { init, ensureAudio, playRhythm } from '../../../libs/sound/index.js';
-import Vex from '../../../libs/vendor/vexflow/entry/vexflow.js';
+import { Renderer, Stave, StaveNote, Voice, Formatter, Tuplet } from '../../../libs/vendor/vexflow/entry/vexflow.js';
 
 const { initSnapshots, saveSnapshot, loadSnapshot, resetSnapshots } = window.SnapUtils;
 const Presets = window.Presets;
@@ -66,23 +66,22 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }
 
   function drawPerm(container, perm, iT){
-    const VF = Vex.Flow;
     container.innerHTML='';
-    const renderer = new VF.Renderer(container, VF.Renderer.Backends.SVG);
+    const renderer = new Renderer(container, Renderer.Backends.SVG);
     renderer.resize(140,87);
     const ctx = renderer.getContext();
-    const stave = new VF.Stave(10,40,120);
+    const stave = new Stave(10,40,120);
     stave.addClef('treble');
     stave.setContext(ctx).draw();
     const dur=getBaseDuration(iT);
     const notes=[];
-    perm.forEach(()=>{ notes.push(new VF.StaveNote({ keys:['c/5/x'], duration:dur })); });
-    const voice=new VF.Voice({numBeats:perm.length,beatValue:4});
+    perm.forEach(()=>{ notes.push(new StaveNote({ keys:['c/5/x'], duration:dur })); });
+    const voice=new Voice({numBeats:perm.length,beatValue:4});
     voice.setStrict(false);
     voice.addTickables(notes);
-    new VF.Formatter().joinVoices([voice]).format([voice],100);
+    new Formatter().joinVoices([voice]).format([voice],100);
     voice.draw(ctx,stave);
-    new VF.Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
+    new Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
   }
 
   function selectPerm(arr){
