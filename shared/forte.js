@@ -111,12 +111,34 @@ function generateForteTable(){
 const forteTable = generateForteTable();
 
 const infoMap={
-  '0,3,7':'Triada mayor/menor',
-  '0,4,8':'Acorde aumentado',
-  '0,3,6':'Triada disminuida',
+  // Intervalos (2 notas)
+  '0,1':'Segunda menor/Séptima mayor',
+  '0,2':'Segunda mayor/Séptima menor',
+  '0,3':'Tercera menor/Sexta mayor',
+  '0,4':'Tercera mayor/Sexta menor',
+  '0,5':'Cuarta justa/Quinta justa (Power Chord)',
+  '0,6':'Tritono (cuarta aumentada/quinta disminuida)',
+
+  // Tríadas (3 notas)
+  '0,3,7':'Tríada mayor/menor',
+  '0,4,8':'Tríada aumentada',
+  '0,3,6':'Tríada disminuida',
+  '0,2,7':'Acorde suspendido (sus2/sus4)',
+  '0,1,2':'Acorde cluster (3 notas contiguas)',
+
+  // Cuatriadas (4 notas)
+  '0,2,5,8':'Acorde de séptima de dominante / Acorde de séptima semidisminuida / Acorde menor con sexta',
+  '0,1,5,8':'Acorde de séptima mayor',
+  '0,3,5,8':'Acorde menor séptima / Acorde de sexta mayor',
+  '0,1,4,8':'Acorde menor con séptima mayor / Acorde aumentado con séptima mayor',
+  '0,2,4,8':'Acorde de séptima con quinta aumentada',
+  '0,2,6,8':'Acorde de séptima con quinta disminuida',
+  '0,2,4,7':'Acorde mayor add9 / Acorde 7sus2',
+  '0,2,3,7':'Acorde menor add9',
+  '0,2,5,7':'Acorde suspendido con segunda añadida (sus4 add9 / 7sus4)',
   '0,3,6,9':'Acorde séptima disminuida',
-  '0,2,4,7':'Acorde mayor con cuarta',
-  '0,2,5,7':'Acorde sus4',
+
+  // Otros
   '0,2,4,6,8,10':'Escala de tonos enteros'
 };
 
