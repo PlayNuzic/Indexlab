@@ -84,7 +84,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       const intervals = chordNotes.slice(1).map((m,i)=>(m - chordNotes[i] + 12)%12);
       lastEA = intervals;
       selectedChordIdx = idx;
-      renderEA();
+      render();
     } else {
       if (e.shiftKey) {
         playChord(midisData[idx], 1);
@@ -195,9 +195,12 @@ window.addEventListener('DOMContentLoaded', async () => {
       const withKs = useKeySig && ksScales.includes(state.id);
       const width = ['CROM','OCT'].includes(state.id) ? 145 + midisData.length * 55 : 550;
       const options = { singleClef:'treble', chord:true, duration:'w', scaleId: state.id, root: state.root, useKeySig: withKs, width };
+      if(selectedChordIdx !== null){
+        options.highlightChordIdx = selectedChordIdx;
+        options.highlightChordColor = '#EFB94F';
+      }
       if(hoverEAIdx !== null && selectedChordIdx !== null && lastEA){
         const col = intervalColor(lastEA[hoverEAIdx],12);
-        options.highlightChordIdx = selectedChordIdx;
         options.highlightIntervals = [[hoverEAIdx, hoverEAIdx + 1, col]];
       }
       drawPentagram(staffEl, midisData, options);

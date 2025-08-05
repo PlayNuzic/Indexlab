@@ -35,7 +35,7 @@ export function needsAccidental(parts, ksMap){
 
 export function drawPentagram(container, midis = [], options = {}) {
   container.innerHTML = '';
-  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [], highlightChordIdx = null, useKeySig = true, singleClef = null, width = 550 } = options;
+  const { chord = false, paired = false, duration = 'q', noteColors = [], highlightInterval = null, highlightIntervals = [], highlightChordIdx = null, highlightChordColor = null, useKeySig = true, singleClef = null, width = 550 } = options;
   const scaleId = options.scaleId ? String(options.scaleId) : '';
   const ksArray = getKeySignature(scaleId, options.root);
   const ksMap = parseKeySignatureArray(ksArray);
@@ -107,6 +107,24 @@ export function drawPentagram(container, midis = [], options = {}) {
               if(!p1 || !p2) return;
               drawIntervalEllipse(svg,p1,p2,color);
             });
+            if(highlightChordColor){
+              let el = obj.note && obj.note.attrs && obj.note.attrs.el;
+              if(!el && obj.note && typeof obj.note.getSVGElement === 'function'){ el = obj.note.getSVGElement(); }
+              if(el){
+                const bb = el.getBBox();
+                const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+                rect.setAttribute('x', bb.x - 4);
+                rect.setAttribute('y', bb.y - 4);
+                rect.setAttribute('width', bb.width + 8);
+                rect.setAttribute('height', bb.height + 8);
+                rect.setAttribute('fill', 'none');
+                rect.setAttribute('stroke', highlightChordColor);
+                rect.setAttribute('stroke-width', 2);
+                rect.setAttribute('rx', 4);
+                rect.setAttribute('pointer-events','none');
+                svg.appendChild(rect);
+              }
+            }
           }
         }
         return;
