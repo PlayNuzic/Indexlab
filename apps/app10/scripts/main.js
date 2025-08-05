@@ -99,10 +99,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const { width, height } = container.getBoundingClientRect();
     renderer.resize(width, height);
     const ctx = renderer.getContext();
-    const stave = new Stave(0,height*0.4,width);
+    const scale = 2;
+    ctx.scale(scale, scale);
+    const stave = new Stave(0, height*0.4/scale, width/scale);
     stave.addClef('treble');
     stave.setContext(ctx).draw();
-    stave.setNoteStartX(stave.getNoteStartX()-15);
+    stave.setNoteStartX(stave.getNoteStartX() - 15/scale);
     const baseDur=getBaseDuration(iT);
     const allNotes=[];
     const ties=[];
@@ -120,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const voice=new Voice({numBeats:perm.length,beatValue:4});
     voice.setStrict(false);
     voice.addTickables(allNotes);
-    new Formatter().joinVoices([voice]).format([voice],230);
+    new Formatter().joinVoices([voice]).format([voice],230/scale);
     const beams=[];
     let group=[];
     allNotes.forEach(note=>{
@@ -241,3 +243,4 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   renderSnapshots();
   renderPerms();
 });
+
