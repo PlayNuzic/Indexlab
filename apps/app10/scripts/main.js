@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
     const svg = container.querySelector('svg');
     const bbox = svg.getBBox();
-    svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+    svg.setAttribute('viewBox', `${bbox.x/scale} ${bbox.y/scale} ${bbox.width/scale} ${bbox.height/scale}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   }
