@@ -101,7 +101,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const ctx = renderer.getContext();
     const scale = 2;
     ctx.scale(scale, scale);
-    const stave = new Stave(0, height*0.4/scale, width/scale);
+    const margin = 10;
+    const stave = new Stave(margin/scale, margin/scale, (width - margin * 2)/scale);
     stave.addClef('treble');
     stave.setContext(ctx).draw();
     stave.setNoteStartX(stave.getNoteStartX() - 15/scale);
@@ -122,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const voice=new Voice({numBeats:perm.length,beatValue:4});
     voice.setStrict(false);
     voice.addTickables(allNotes);
-    new Formatter().joinVoices([voice]).format([voice],230/scale);
+    new Formatter().joinVoices([voice]).format([voice], (width - margin * 2 - 10)/scale);
     const beams=[];
     let group=[];
     allNotes.forEach(note=>{
@@ -143,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
     const svg = container.querySelector('svg');
     const bbox = svg.getBBox();
-    svg.setAttribute('viewBox', `${bbox.x/scale} ${bbox.y/scale} ${bbox.width/scale} ${bbox.height/scale}`);
+    svg.setAttribute('viewBox', `${(bbox.x - margin)/scale} ${(bbox.y - margin)/scale} ${(bbox.width + margin * 2)/scale} ${(bbox.height + margin * 2)/scale}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   }
