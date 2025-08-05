@@ -1,6 +1,6 @@
 import { generateITPermutations } from '../../../shared/rhythm.js';
 import { init, ensureAudio, playRhythm } from '../../../libs/sound/index.js';
-import { Renderer, Stave, StaveNote, Voice, Formatter, Tuplet, Dot, Beam } from '../../../libs/vendor/vexflow/entry/vexflow.js';
+import { Renderer, Stave, StaveNote, Voice, Formatter, Tuplet, Dot, Beam, StaveTie } from '../../../libs/vendor/vexflow/entry/vexflow.js';
 
 const { initSnapshots, saveSnapshot, loadSnapshot, resetSnapshots } = window.SnapUtils;
 const Presets = window.Presets;
@@ -61,19 +61,36 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     if(n===1) return 'q';
     if(n<=3) return '8';
     if(n<=6) return '16';
-    if(n<=8) return '32';
+    if(n<=9) return '32';
     return '64';
   }
 
-  function noteFromUnits(units, baseDur){
+  function notesFromUnits(units, baseDur){
     const denomMap={w:1,h:2,q:4,'8':8,'16':16,'32':32,'64':64};
     const noteMap={1:'w',2:'h',4:'q',8:'8',16:'16',32:'32',64:'64'};
     const baseDen=denomMap[baseDur];
-    const simpleDen=baseDen/units;
-    if(noteMap[simpleDen]) return {duration:noteMap[simpleDen],dots:0};
-    const dottedDen=(3*baseDen)/(2*units);
-    if(Number.isInteger(dottedDen) && noteMap[dottedDen]) return {duration:noteMap[dottedDen],dots:1};
-    return {duration:baseDur,dots:0};
+    const simples=[];
+    const dotted=[];
+    Object.entries(noteMap).forEach(([denStr,dur])=>{
+      const den=parseInt(denStr,10);
+      if(baseDen%den===0) simples.push({units:baseDen/den,duration:dur,dots:0});
+      if((3*baseDen)%(2*den)===0) dotted.push({units:(3*baseDen)/(2*den),duration:dur,dots:1});
+    });
+    simples.sort((a,b)=>b.units-a.units);
+    dotted.sort((a,b)=>b.units-a.units);
+    const res=[];
+    let rem=units;
+    while(rem>0){
+      const match=simples.find(n=>n.units===rem)||dotted.find(n=>n.units===rem);
+      if(match){ res.push(match); break; }
+      let s=simples.find(n=>n.units<rem);
+      if(s){ res.push(s); rem-=s.units; continue; }
+      let d=dotted.find(n=>n.units<rem);
+      if(d){ res.push(d); rem-=d.units; continue; }
+      res.push({duration:baseDur,dots:0});
+      rem-=1;
+    }
+    return res;
   }
 
   function drawPerm(container, perm, iT){
@@ -85,19 +102,26 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     stave.addClef('treble');
     stave.setContext(ctx).draw();
     const baseDur=getBaseDuration(iT);
-    const notes=perm.map(n=>{
-      const {duration,dots}=noteFromUnits(n,baseDur);
-      const note=new StaveNote({keys:['c/5/x'],duration});
-      for(let i=0;i<dots;i++) Dot.buildAndAttach([note]);
-      return note;
+    const allNotes=[];
+    const ties=[];
+    perm.forEach(n=>{
+      const parts=notesFromUnits(n,baseDur);
+      let prev=null;
+      parts.forEach((p,idx)=>{
+        const note=new StaveNote({keys:['c/5/x'],duration:p.duration});
+        for(let i=0;i<p.dots;i++) Dot.buildAndAttach([note]);
+        allNotes.push(note);
+        if(prev) ties.push(new StaveTie({first_note:prev,last_note:note}));
+        prev=note;
+      });
     });
     const voice=new Voice({numBeats:perm.length,beatValue:4});
     voice.setStrict(false);
-    voice.addTickables(notes);
+    voice.addTickables(allNotes);
     new Formatter().joinVoices([voice]).format([voice],230);
     const beams=[];
     let group=[];
-    notes.forEach(note=>{
+    allNotes.forEach(note=>{
       const d=note.getDuration();
       if(d==='w'||d==='h'||d==='q'){
         if(group.length>1) beams.push(new Beam(group));
@@ -107,10 +131,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       }
     });
     if(group.length>1) beams.push(new Beam(group));
-    const tuplet=new Tuplet(notes,{numNotes:iT,notesOccupied:iT>3?4:2,ratioed:false,bracketed:true});
+    const tuplet=new Tuplet(allNotes,{numNotes:iT,notesOccupied:iT>3?4:2,ratioed:false,bracketed:true});
     voice.draw(ctx,stave);
     beams.forEach(b=>b.setContext(ctx).draw());
     tuplet.setContext(ctx).draw();
+    ties.forEach(t=>t.setContext(ctx).draw());
 
     const svg = container.querySelector('svg');
     const bbox = svg.getBBox();
