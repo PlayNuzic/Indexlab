@@ -96,9 +96,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function drawPerm(container, perm, iT){
     container.innerHTML='';
     const renderer = new Renderer(container, Renderer.Backends.SVG);
-    renderer.resize(240,80);
+    const { width, height } = container.getBoundingClientRect();
+    renderer.resize(width, height);
     const ctx = renderer.getContext();
-    const stave = new Stave(0,32,240);
+    const stave = new Stave(0,height*0.4,width);
     stave.addClef('treble');
     stave.setContext(ctx).draw();
     stave.setNoteStartX(stave.getNoteStartX()-15);
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
     const svg = container.querySelector('svg');
     const bbox = svg.getBBox();
-    svg.setAttribute('viewBox', `0 0 ${bbox.width} ${bbox.height}`);
+    svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   }
