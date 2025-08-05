@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       miniWrap.appendChild(title);
       const row=document.createElement('div');
       row.className='attack-row';
+      miniWrap.appendChild(row);
       groups[len].forEach(perm=>{
         const div=document.createElement('div');
         div.className='mini';
@@ -186,7 +187,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
           selectedPerm=perm;
         };
       });
-      miniWrap.appendChild(row);
     });
   }
 
