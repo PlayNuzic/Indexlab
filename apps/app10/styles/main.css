@@ -7,8 +7,10 @@ h1{margin-bottom:1rem;font-weight:400;}
 #app-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;}
 .controls,label{display:flex;gap:.5rem;align-items:center;justify-content:center;margin-bottom:0;}
 .preset-row{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:1rem;}
-#miniWrap{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
-.mini{width:187px;height:133px;overflow:hidden;background:#fff;border:1px solid #ccc;border-radius:4px;cursor:pointer;}
+#miniWrap{display:flex;flex-direction:column;gap:.5rem;align-items:center;}
+.attack-row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}
+.mini{width:187px;height:66px;overflow:hidden;background:#fff;border:1px solid #ccc;border-radius:4px;cursor:pointer;}
+.attack-title{margin:.5rem 0 0;}
 .mini svg{width:100%;height:100%;}
 .mini.selected{border-color:#0074D9;}
 .snapshots{display:flex;gap:.25rem;}

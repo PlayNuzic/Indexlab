@@ -96,11 +96,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function drawPerm(container, perm, iT){
     container.innerHTML='';
     const renderer = new Renderer(container, Renderer.Backends.SVG);
-    renderer.resize(240,100);
+    renderer.resize(240,80);
     const ctx = renderer.getContext();
-    const stave = new Stave(0,40,240);
+    const stave = new Stave(0,32,240);
     stave.addClef('treble');
     stave.setContext(ctx).draw();
+    stave.setNoteStartX(stave.getNoteStartX()-15);
     const baseDur=getBaseDuration(iT);
     const allNotes=[];
     const ties=[];
@@ -117,8 +118,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     });
     const voice=new Voice({numBeats:perm.length,beatValue:4});
     voice.setStrict(false);
-    voice.addTickables(allNotes);
-    new Formatter().joinVoices([voice]).format([voice],230);
+    voice.addTickables(notes);
+    new Formatter().joinVoices([voice]).format([voice],240);
     const beams=[];
     let group=[];
     allNotes.forEach(note=>{
@@ -146,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   function selectPerm(arr){
     selectedPerm=arr;
-    Array.from(miniWrap.children).forEach(div=>{
+    Array.from(miniWrap.querySelectorAll('.mini')).forEach(div=>{
       if(div.perm && JSON.stringify(div.perm)===JSON.stringify(arr)){
         div.classList.add('selected');
         selectedDiv=div;
@@ -157,20 +158,34 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function renderPerms(){
     permutations=generateITPermutations(iT);
     miniWrap.innerHTML='';
+    const groups={};
     permutations.forEach(perm=>{
-      const div=document.createElement('div');
-      div.className='mini';
-      div.perm=perm;
-      miniWrap.appendChild(div);
-      drawPerm(div,perm,iT);
-      div.onclick=async()=>{
-        await ensureAudio();
-        playRhythm(perm, parseFloat(bpmInput.value)||60);
-        if(selectedDiv) selectedDiv.classList.remove('selected');
-        div.classList.add('selected');
-        selectedDiv=div;
-        selectedPerm=perm;
-      };
+      const len=perm.length;
+      (groups[len] ||= []).push(perm);
+    });
+    Object.keys(groups).map(Number).sort((a,b)=>b-a).forEach(len=>{
+      const title=document.createElement('h3');
+      title.className='attack-title';
+      title.textContent=`${len} ataques`;
+      miniWrap.appendChild(title);
+      const row=document.createElement('div');
+      row.className='attack-row';
+      groups[len].forEach(perm=>{
+        const div=document.createElement('div');
+        div.className='mini';
+        div.perm=perm;
+        row.appendChild(div);
+        drawPerm(div,perm,iT);
+        div.onclick=async()=>{
+          await ensureAudio();
+          playRhythm(perm, parseFloat(bpmInput.value)||60);
+          if(selectedDiv) selectedDiv.classList.remove('selected');
+          div.classList.add('selected');
+          selectedDiv=div;
+          selectedPerm=perm;
+        };
+      });
+      miniWrap.appendChild(row);
     });
   }
 
