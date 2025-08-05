@@ -6,7 +6,7 @@ const { initSnapshots, saveSnapshot, loadSnapshot, resetSnapshots } = window.Sna
 const Presets = window.Presets;
 
 document.addEventListener('DOMContentLoaded', async ()=>{
-  await init('woodblocks');
+  await Promise.all([init('woodblocks'), document.fonts.ready]);
   const itSelect = document.getElementById('itSelect');
   const bpmInput = document.getElementById('bpm');
   const miniWrap = document.getElementById('miniWrap');
@@ -79,9 +79,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function drawPerm(container, perm, iT){
     container.innerHTML='';
     const renderer = new Renderer(container, Renderer.Backends.SVG);
-    renderer.resize(260,100);
+    renderer.resize(240,100);
     const ctx = renderer.getContext();
-    const stave = new Stave(10,40,240);
+    const stave = new Stave(0,40,240);
     stave.addClef('treble');
     stave.setContext(ctx).draw();
     const baseDur=getBaseDuration(iT);
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const voice=new Voice({numBeats:perm.length,beatValue:4});
     voice.setStrict(false);
     voice.addTickables(notes);
-    new Formatter().joinVoices([voice]).format([voice],220);
+    new Formatter().joinVoices([voice]).format([voice],230);
     const beams=[];
     let group=[];
     notes.forEach(note=>{
@@ -107,14 +107,14 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       }
     });
     if(group.length>1) beams.push(new Beam(group));
-    const tuplet=new Tuplet(notes,{num_notes:iT,notes_occupied:iT>3?4:2,ratioed:false,bracketed:true});
+    const tuplet=new Tuplet(notes,{numNotes:iT,notesOccupied:iT>3?4:2,ratioed:false,bracketed:true});
     voice.draw(ctx,stave);
     beams.forEach(b=>b.setContext(ctx).draw());
     tuplet.setContext(ctx).draw();
 
     const svg = container.querySelector('svg');
     const bbox = svg.getBBox();
-    svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+    svg.setAttribute('viewBox', `0 0 ${bbox.width} ${bbox.height}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
   }
