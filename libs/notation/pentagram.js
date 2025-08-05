@@ -112,11 +112,15 @@ export function drawPentagram(container, midis = [], options = {}) {
               if(!el && obj.note && typeof obj.note.getSVGElement === 'function'){ el = obj.note.getSVGElement(); }
               if(el){
                 const bb = el.getBBox();
+                const pad = 4;
+                const paddedWidth = bb.width + pad * 2;
+                const paddedHeight = bb.height + pad * 2;
+                const rectHeight = paddedHeight / 2;
                 const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-                rect.setAttribute('x', bb.x - 4);
-                rect.setAttribute('y', bb.y - 4);
-                rect.setAttribute('width', bb.width + 8);
-                rect.setAttribute('height', bb.height + 8);
+                rect.setAttribute('x', bb.x - pad);
+                rect.setAttribute('y', bb.y - pad + paddedHeight / 4);
+                rect.setAttribute('width', paddedWidth);
+                rect.setAttribute('height', rectHeight);
                 rect.setAttribute('fill', 'none');
                 rect.setAttribute('stroke', highlightChordColor);
                 rect.setAttribute('stroke-width', 2);
