@@ -112,14 +112,14 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         const note=new StaveNote({keys:['c/5/x'],duration:p.duration});
         for(let i=0;i<p.dots;i++) Dot.buildAndAttach([note]);
         allNotes.push(note);
-        if(prev) ties.push(new StaveTie({first_note:prev,last_note:note}));
+        if(prev) ties.push(new StaveTie({firstNote: prev, lastNote: note}));
         prev=note;
       });
     });
     const voice=new Voice({numBeats:perm.length,beatValue:4});
     voice.setStrict(false);
-    voice.addTickables(notes);
-    new Formatter().joinVoices([voice]).format([voice],240);
+    voice.addTickables(allNotes);
+    new Formatter().joinVoices([voice]).format([voice],230);
     const beams=[];
     let group=[];
     allNotes.forEach(note=>{
