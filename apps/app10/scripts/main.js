@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     svg.setAttribute('viewBox', `${(bbox.x - margin)/scale} ${(bbox.y - margin)/scale} ${(bbox.width + margin * 2)/scale} ${(bbox.height + margin * 2)/scale}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
+    svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
   }
 
   function selectPerm(arr){
@@ -179,6 +180,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         const div=document.createElement('div');
         div.className='mini';
         div.perm=perm;
+        const baseDur=getBaseDuration(iT);
+        let totalNotes=0;
+        perm.forEach(n=>{ totalNotes += notesFromUnits(n, baseDur).length; });
+        let newWidth=240;
+        if(totalNotes>6){ newWidth = 240 + (totalNotes - 6) * 20; }
+        div.style.width = `${newWidth}px`;
         row.appendChild(div);
         drawPerm(div,perm,iT);
         div.onclick=async()=>{
