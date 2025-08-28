@@ -143,8 +143,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     ties.forEach(t=>t.setContext(ctx).draw());
 
     const svg = container.querySelector('svg');
-    const bbox = svg.getBBox();
-    svg.setAttribute('viewBox', `${(bbox.x - margin)/scale} ${(bbox.y - margin)/scale} ${(bbox.width + margin * 2)/scale} ${(bbox.height + margin * 2)/scale}`);
+    svg.setAttribute('viewBox', `0 0 ${width/scale} ${height/scale}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
@@ -183,8 +182,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         const baseDur=getBaseDuration(iT);
         let totalNotes=0;
         perm.forEach(n=>{ totalNotes += notesFromUnits(n, baseDur).length; });
-        let newWidth=240;
-        if(totalNotes>6){ newWidth = 240 + (totalNotes - 6) * 20; }
+        const newWidth = Math.max(240, Math.ceil(240 * totalNotes / 6));
         div.style.width = `${newWidth}px`;
         row.appendChild(div);
         drawPerm(div,perm,iT);
