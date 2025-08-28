@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const { width, height } = container.getBoundingClientRect();
     renderer.resize(width, height);
     const ctx = renderer.getContext();
-    const scale = 2;
+    const scale = 1.8;
     ctx.scale(scale, scale);
     const margin = 10;
     const stave = new Stave(margin/scale, margin/scale, (width - margin * 2)/scale);
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         div.perm=perm;
         let totalNotes=0;
         perm.forEach(n=>{ totalNotes+=notesFromUnits(n,baseDur).length; });
-        const newWidth = 240 + Math.max(0,totalNotes-6)*20;
+        const newWidth = 260 + Math.max(0,totalNotes-6)*25;
         div.style.width = `${newWidth}px`;
         row.appendChild(div);
         drawPerm(div,perm,iT);
