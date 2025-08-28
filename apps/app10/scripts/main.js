@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     ties.forEach(t=>t.setContext(ctx).draw());
 
     const svg = container.querySelector('svg');
-    svg.setAttribute('viewBox', `0 0 ${width/scale} ${height/scale}`);
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
@@ -162,6 +162,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   function renderPerms(){
     permutations=generateITPermutations(iT);
     miniWrap.innerHTML='';
+    const baseDur=getBaseDuration(iT);
     const groups={};
     permutations.forEach(perm=>{
       const len=perm.length;
@@ -179,8 +180,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         const div=document.createElement('div');
         div.className='mini';
         div.perm=perm;
-        const attacks = perm.length;
-        const newWidth = Math.max(240, Math.ceil(240 * attacks / 6));
+        let totalNotes=0;
+        perm.forEach(n=>{ totalNotes+=notesFromUnits(n,baseDur).length; });
+        const newWidth = 240 + Math.max(0,totalNotes-6)*20;
         div.style.width = `${newWidth}px`;
         row.appendChild(div);
         drawPerm(div,perm,iT);
