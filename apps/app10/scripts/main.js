@@ -179,10 +179,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         const div=document.createElement('div');
         div.className='mini';
         div.perm=perm;
-        const baseDur=getBaseDuration(iT);
-        let totalNotes=0;
-        perm.forEach(n=>{ totalNotes += notesFromUnits(n, baseDur).length; });
-        const newWidth = Math.max(240, Math.ceil(240 * totalNotes / 6));
+        const attacks = perm.length;
+        const newWidth = Math.max(240, Math.ceil(240 * attacks / 6));
         div.style.width = `${newWidth}px`;
         row.appendChild(div);
         drawPerm(div,perm,iT);
