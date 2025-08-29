@@ -100,7 +100,8 @@ function drawPerm(container, perm, iT, pass=0){
   let { width, height } = container.getBoundingClientRect();
   // Evita valores cero en ciclos de layout
   width = Math.max(1, Math.round(width));
-  height = Math.max(1, Math.round(height));
+  // Si aún no tiene altura, usa una estimación inicial
+  height = Math.max(1, Math.round(height || parseInt(container.style.height||'60',10)));
   renderer.resize(width, height);
   const ctx = renderer.getContext();
 
@@ -172,10 +173,19 @@ function drawPerm(container, perm, iT, pass=0){
   // Medición real del contenido y re-render con ancho ajustado si es necesario
   try{
     const bbox = svg.getBBox();
-    const required = Math.ceil(bbox.x + bbox.width + margin);
-    if(pass < 1 && Math.abs(required - width) > 2){
-      container.style.width = `${required}px`;
-      // Recalcula con el nuevo ancho para que el pentagrama llegue más allá
+    const requiredW = Math.ceil(bbox.x + bbox.width + margin);
+    const requiredH = Math.ceil(bbox.y + bbox.height + margin);
+    let needs = false;
+    if(Math.abs(requiredW - width) > 2){
+      container.style.width = `${requiredW}px`;
+      needs = true;
+    }
+    if(Math.abs(requiredH - height) > 2){
+      container.style.height = `${requiredH}px`;
+      needs = true;
+    }
+    if(pass < 2 && needs){
+      // Recalcula con nuevos tamaños para que el fondo blanco abarque todo
       drawPerm(container, perm, iT, pass+1);
       return;
     }
@@ -220,6 +230,8 @@ function drawPerm(container, perm, iT, pass=0){
         const bracketBuffer = 40; // extra room for clef, tuplets and beams
         const newWidth = Math.max(260, 2 * margin + totalNotes * noteSpacing + bracketBuffer);
         div.style.width = `${newWidth}px`;
+        // Altura provisional; se ajustará tras medir el SVG real
+        if(!div.style.height) div.style.height = '60px';
         row.appendChild(div);
         drawPerm(div,perm,iT);
         div.onclick=async()=>{
