@@ -93,62 +93,94 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     return res;
   }
 
-  function drawPerm(container, perm, iT){
-    container.innerHTML='';
-    const renderer = new Renderer(container, Renderer.Backends.SVG);
-    const { width, height } = container.getBoundingClientRect();
-    renderer.resize(width, height);
-    const ctx = renderer.getContext();
-    const baseDur = getBaseDuration(iT);
-    let totalNotes = 0;
-    perm.forEach(n => { totalNotes += notesFromUnits(n, baseDur).length; });
-    const scale = totalNotes > 8 ? 1.6 : 1.8;
-    ctx.scale(scale, scale);
-    const margin = 10;
-    const stave = new Stave(margin/scale, margin/scale, (width - margin * 2)/scale);
-    stave.addClef('treble');
-    stave.setContext(ctx).draw();
-    const allNotes=[];
-    const ties=[];
-    perm.forEach(n=>{
-      const parts=notesFromUnits(n,baseDur);
-      let prev=null;
-      parts.forEach((p,idx)=>{
-        const note=new StaveNote({keys:['c/5/x'],duration:p.duration});
-        for(let i=0;i<p.dots;i++) Dot.buildAndAttach([note]);
-        allNotes.push(note);
-        if(prev) ties.push(new StaveTie({firstNote: prev, lastNote: note}));
-        prev=note;
-      });
-    });
-    const voice=new Voice({numBeats:perm.length,beatValue:4});
-    voice.setStrict(false);
-    voice.addTickables(allNotes);
-    new Formatter().joinVoices([voice]).format([voice], (width - margin * 2)/scale);
-    const beams=[];
-    let group=[];
-    allNotes.forEach(note=>{
-      const d=note.getDuration();
-      if(d==='w'||d==='h'||d==='q'){
-        if(group.length>1) beams.push(new Beam(group));
-        group=[];
-      }else{
-        group.push(note);
-      }
-    });
-    if(group.length>1) beams.push(new Beam(group));
-    const tuplet=new Tuplet(allNotes,{numNotes:iT,notesOccupied:iT>3?4:2,ratioed:false,bracketed:true});
-    voice.draw(ctx,stave);
-    beams.forEach(b=>b.setContext(ctx).draw());
-    tuplet.setContext(ctx).draw();
-    ties.forEach(t=>t.setContext(ctx).draw());
+function drawPerm(container, perm, iT, pass=0){
+  container.innerHTML='';
+  const renderer = new Renderer(container, Renderer.Backends.SVG);
+  // Usa el ancho/alto actual del contenedor para un primer render
+  let { width, height } = container.getBoundingClientRect();
+  // Evita valores cero en ciclos de layout
+  width = Math.max(1, Math.round(width));
+  height = Math.max(1, Math.round(height));
+  renderer.resize(width, height);
+  const ctx = renderer.getContext();
 
-    const svg = container.querySelector('svg');
-    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-    svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
-  }
+  const baseDur = getBaseDuration(iT);
+  let totalNotes = 0;
+  perm.forEach(n => { totalNotes += notesFromUnits(n, baseDur).length; });
+
+  // 25% más pequeño respecto al ajuste previo (1.6/1.8)
+  const scale = totalNotes > 8 ? 1.2 : 1.35;
+  ctx.scale(scale, scale);
+
+  const margin = 10;             // margen visual dentro del SVG
+  const tailGap = 16;            // espacio extra de pentagrama tras la última nota
+
+  const staveWidth = (width - margin * 2) / scale;
+  const stave = new Stave(margin/scale, margin/scale, staveWidth);
+  stave.addClef('treble');
+  stave.setContext(ctx).draw();
+
+  const allNotes=[];
+  const ties=[];
+  perm.forEach(n=>{
+    const parts=notesFromUnits(n,baseDur);
+    let prev=null;
+    parts.forEach((p)=>{
+      const note=new StaveNote({keys:['c/5/x'],duration:p.duration});
+      for(let i=0;i<p.dots;i++) Dot.buildAndAttach([note]);
+      allNotes.push(note);
+      if(prev) ties.push(new StaveTie({firstNote: prev, lastNote: note}));
+      prev=note;
+    });
+  });
+
+  const voice=new Voice({numBeats:perm.length,beatValue:4});
+  voice.setStrict(false);
+  voice.addTickables(allNotes);
+
+  // Formatea ligeramente más estrecho que el ancho del pentagrama
+  // Resta un pequeño margen al ancho disponible para formateo para
+  // que el pentagrama continúe un poco tras la última nota.
+  const formatWidth = Math.max(0, staveWidth - (tailGap/scale));
+  new Formatter().joinVoices([voice]).format([voice], formatWidth);
+
+  const beams=[];
+  let group=[];
+  allNotes.forEach(note=>{
+    const d=note.getDuration();
+    if(d==='w'||d==='h'||d==='q'){
+      if(group.length>1) beams.push(new Beam(group));
+      group=[];
+    }else{
+      group.push(note);
+    }
+  });
+  if(group.length>1) beams.push(new Beam(group));
+  const tuplet=new Tuplet(allNotes,{numNotes:iT,notesOccupied:iT>3?4:2,ratioed:false,bracketed:true});
+
+  voice.draw(ctx,stave);
+  beams.forEach(b=>b.setContext(ctx).draw());
+  tuplet.setContext(ctx).draw();
+  ties.forEach(t=>t.setContext(ctx).draw());
+
+  const svg = container.querySelector('svg');
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+
+  // Medición real del contenido y re-render con ancho ajustado si es necesario
+  try{
+    const bbox = svg.getBBox();
+    const required = Math.ceil(bbox.x + bbox.width + margin);
+    if(pass < 1 && Math.abs(required - width) > 2){
+      container.style.width = `${required}px`;
+      // Recalcula con el nuevo ancho para que el pentagrama llegue más allá
+      drawPerm(container, perm, iT, pass+1);
+      return;
+    }
+  }catch(_e){ /* algunos navegadores limitan getBBox antes de paint */ }
+}
 
   function selectPerm(arr){
     selectedPerm=arr;
