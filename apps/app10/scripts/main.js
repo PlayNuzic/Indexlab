@@ -93,37 +93,27 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     return res;
   }
 
-function drawPerm(container, perm, iT, pass=0){
+function drawPerm(container, perm, iT){
   container.innerHTML='';
   const renderer = new Renderer(container, Renderer.Backends.SVG);
-  // Usa el ancho/alto actual del contenedor para un primer render
-  let { width, height } = container.getBoundingClientRect();
-  // Evita valores cero en ciclos de layout
-  width = Math.max(1, Math.round(width));
-  // Si aún no tiene altura, usa una estimación inicial
-  height = Math.max(1, Math.round(height || parseInt(container.style.height||'60',10)));
-  renderer.resize(width, height);
+  // Arrancamos con tamaño mínimo; re-dimensionamos tras calcular el contenido
+  renderer.resize(10, 10);
   const ctx = renderer.getContext();
 
   const baseDur = getBaseDuration(iT);
   let totalNotes = 0;
   perm.forEach(n => { totalNotes += notesFromUnits(n, baseDur).length; });
 
-  // Escala global 25% más pequeña respecto al ajuste previo (1.6/1.8)
+  // Escala global coherente con los previews anteriores
   const SCALE_FACTOR = 0.75;
   const BASE_SMALL = 1.6; // >8 notas
   const BASE_LARGE = 1.8; // <=8 notas
   const scale = (totalNotes > 8 ? BASE_SMALL : BASE_LARGE) * SCALE_FACTOR;
   ctx.scale(scale, scale);
 
-  const margin = 8;              // margen visual dentro del SVG
-  const tailGap = 22 * SCALE_FACTOR; // espacio extra de pentagrama tras la última nota
+  const margin = 8; // margen visual alrededor del SVG
 
-  const staveWidth = (width - margin * 2) / scale;
-  const stave = new Stave(margin/scale, margin/scale, staveWidth);
-  stave.addClef('treble');
-  stave.setContext(ctx).draw();
-
+  // Construye notas primero (sin dibujar) para medir ancho mínimo real
   const allNotes=[];
   const ties=[];
   perm.forEach(n=>{
@@ -142,10 +132,39 @@ function drawPerm(container, perm, iT, pass=0){
   voice.setStrict(false);
   voice.addTickables(allNotes);
 
-  // Formatea más estrecho para que el pentagrama continúe tras la última nota
-  const formatWidth = Math.max(0, staveWidth - (tailGap/scale));
-  new Formatter().joinVoices([voice]).format([voice], formatWidth);
+  const formatter = new Formatter();
+  formatter.joinVoices([voice]);
 
+  // Stave provisional solo para calcular desplazamientos de la clave
+  const stave = new Stave(margin/scale, margin/scale, 10);
+  stave.addClef('treble');
+
+  // Ancho mínimo necesario para las notas (sin sumar el espacio previo de clave)
+  const contentWidth = Math.ceil(formatter.preCalculateMinTotalWidth([voice]));
+  const left = stave.getNoteStartX(); // incluye efecto de clave/barra inicial
+  const x = stave.getX();
+  const leftPad = left - x;
+  const rightPad = 12; // pequeño margen tras la última nota para el bracket
+  const staveWidth = leftPad + contentWidth + rightPad;
+
+  // Ahora sí, dimensionamos el renderer en píxeles (tras aplicar escala)
+  const widthPx = Math.ceil((staveWidth + margin/scale) * scale);
+  const heightPx = Math.ceil((stave.getBottomY() + margin/scale) * scale);
+  renderer.resize(widthPx, heightPx);
+
+  // Debemos volver a establecer el contexto tras el resize
+  const ctx2 = renderer.getContext();
+  ctx2.scale(scale, scale);
+
+  // Redefine el mismo pentagrama con el ancho final y dibuja
+  const finalStave = new Stave(margin/scale, margin/scale, staveWidth);
+  finalStave.addClef('treble');
+  finalStave.setContext(ctx2).draw();
+
+  // Formatea exactamente al ancho calculado
+  formatter.format([voice], contentWidth);
+
+  // Beams, tuplets y ligaduras
   const beams=[];
   let group=[];
   allNotes.forEach(note=>{
@@ -160,39 +179,22 @@ function drawPerm(container, perm, iT, pass=0){
   if(group.length>1) beams.push(new Beam(group));
   const tuplet=new Tuplet(allNotes,{numNotes:iT,notesOccupied:iT>3?4:2,ratioed:false,bracketed:true});
 
-  voice.draw(ctx,stave);
-  beams.forEach(b=>b.setContext(ctx).draw());
-  tuplet.setContext(ctx).draw();
-  ties.forEach(t=>t.setContext(ctx).draw());
+  voice.draw(ctx2,finalStave);
+  beams.forEach(b=>b.setContext(ctx2).draw());
+  tuplet.setContext(ctx2).draw();
+  ties.forEach(t=>t.setContext(ctx2).draw());
 
+  // Ajusta viewBox exacto al contenido dibujado
   const svg = container.querySelector('svg');
-  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
-  svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
-
-  // Medición real del contenido y re-render con tamaño ajustado si es necesario
   try{
-    const bbox = svg.getBBox();
-    const padX = 6, padY = 6;
-    // Ajuste sin “aire” sobrante: usamos solo dimensiones del contenido
-    const requiredW = Math.ceil(bbox.width + padX*2);
-    const requiredH = Math.ceil(bbox.height + padY*2);
-    let needs = false;
-    if(Math.abs(requiredW - width) > 2){
-      container.style.width = `${requiredW}px`;
-      needs = true;
-    }
-    if(Math.abs(requiredH - height) > 2){
-      container.style.height = `${requiredH}px`;
-      needs = true;
-    }
-    if(pass < 2 && needs){
-      // Recalcula con nuevos tamaños para que el fondo blanco abarque todo
-      drawPerm(container, perm, iT, pass+1);
-      return;
-    }
-  }catch(_e){ /* algunos navegadores limitan getBBox antes de paint */ }
+    // Intenta medir el grupo principal si existe; si no, el propio SVG
+    const g = svg.querySelector('g') || svg;
+    const bb = g.getBBox();
+    const pad = 6;
+    svg.setAttribute('viewBox', `${Math.floor(bb.x - pad)} ${Math.floor(bb.y - pad)} ${Math.ceil(bb.width + pad*2)} ${Math.ceil(bb.height + pad*2)}`);
+    container.style.width = `${Math.ceil(bb.width + pad*2)}px`;
+    container.style.height = `${Math.ceil(bb.height + pad*2)}px`;
+  }catch(_e){ /* getBBox puede fallar antes del paint en algunos navegadores */ }
 }
 
   function selectPerm(arr){
@@ -226,16 +228,7 @@ function drawPerm(container, perm, iT, pass=0){
         const div=document.createElement('div');
         div.className='mini';
         div.perm=perm;
-        let totalNotes=0;
-        perm.forEach(n=>{ totalNotes+=notesFromUnits(n,baseDur).length; });
-        const previewScale = 0.75; // coherente con el escalado del render
-        const margin = 8;
-        const noteSpacing = 25 * previewScale; // reduce ancho físico ~25%
-        const bracketBuffer = 40 * previewScale; // espacio para tuplet/clef
-        const newWidth = Math.max(220, 2 * margin + totalNotes * noteSpacing + bracketBuffer);
-        div.style.width = `${newWidth}px`;
-        // Altura provisional mínima; se ajustará tras medir el SVG real
-        if(!div.style.height) div.style.height = '48px';
+        // Deja que drawPerm mida y ajuste tamaño exacto
         row.appendChild(div);
         drawPerm(div,perm,iT);
         div.onclick=async()=>{
