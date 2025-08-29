@@ -110,7 +110,9 @@ function drawPerm(container, perm, iT){
   const BASE_LARGE = 1.8; // <=8 notas
   let scale = (totalNotes > 8 ? BASE_SMALL : BASE_LARGE) * SCALE_FACTOR;
 
-  const margin = 8; // margen visual alrededor del SVG
+  // Márgenes internos (horizontal y vertical por separado)
+  const marginX = 6; // px
+  const marginY = 2; // px
 
   // Construye notas primero (sin dibujar) para medir ancho mínimo real
   const allNotes=[];
@@ -135,7 +137,7 @@ function drawPerm(container, perm, iT){
   formatter.joinVoices([voice]);
 
   // Stave provisional solo para calcular desplazamientos de la clave
-  const stave = new Stave(margin, margin, 10);
+  const stave = new Stave(marginX, marginY, 10);
   stave.addClef('treble');
 
   // Ancho mínimo necesario para las notas (sin sumar el espacio previo de clave)
@@ -143,7 +145,8 @@ function drawPerm(container, perm, iT){
   const left = stave.getNoteStartX(); // incluye efecto de clave/barra inicial
   const x = stave.getX();
   const leftPad = left - x;
-  const rightPad = 12; // pequeño margen tras la última nota para el bracket
+  // margen derecho similar al izquierdo para centrar visualmente el contenido
+  const rightPad = Math.max(14, leftPad);
   const staveWidth = leftPad + contentWidth + rightPad;
 
   // Ajuste de escala a un ancho objetivo para evitar renders gigantes
@@ -154,8 +157,8 @@ function drawPerm(container, perm, iT){
   if (initialPx < targetMin) scale = Math.min(scale, targetMin / staveWidth);
 
   // Ahora sí, dimensionamos el renderer en píxeles (tras aplicar escala)
-  const widthPx = Math.ceil((staveWidth + margin/scale) * scale);
-  const heightPx = Math.ceil((stave.getBottomY() + margin/scale) * scale);
+  const widthPx = Math.ceil((staveWidth + marginX/scale) * scale);
+  const heightPx = Math.ceil((stave.getBottomY() + marginY/scale) * scale);
   renderer.resize(widthPx, heightPx);
 
   // Debemos volver a establecer el contexto tras el resize
@@ -163,7 +166,7 @@ function drawPerm(container, perm, iT){
   ctx2.scale(scale, scale);
 
   // Redefine el mismo pentagrama con el ancho final y dibuja
-  const finalStave = new Stave(margin/scale, margin/scale, staveWidth);
+  const finalStave = new Stave(marginX/scale, marginY/scale, staveWidth);
   finalStave.addClef('treble');
   finalStave.setContext(ctx2).draw();
 
@@ -205,11 +208,12 @@ function drawPerm(container, perm, iT){
       maxY = Math.max(maxY, b.y + b.height);
     });
     if(isFinite(minX) && isFinite(minY) && isFinite(maxX) && isFinite(maxY)){
-      const pad = 6;
-      const x = Math.floor(minX - pad);
-      const y = Math.floor(minY - pad);
-      const w = Math.ceil(maxX - minX + pad*2);
-      const h = Math.ceil(maxY - minY + pad*2);
+      // Menos margen vertical; márgenes horizontales simétricos
+      const padLeft = 12, padRight = 12, padTop = 2, padBottom = 2;
+      const x = Math.floor(minX - padLeft);
+      const y = Math.floor(minY - padTop);
+      const w = Math.ceil((maxX + padRight) - (minX - padLeft));
+      const h = Math.ceil((maxY + padBottom) - (minY - padTop));
       svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
       container.style.width = `${w}px`;
       container.style.height = `${h}px`;
