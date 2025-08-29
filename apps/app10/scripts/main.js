@@ -109,12 +109,15 @@ function drawPerm(container, perm, iT, pass=0){
   let totalNotes = 0;
   perm.forEach(n => { totalNotes += notesFromUnits(n, baseDur).length; });
 
-  // 25% más pequeño respecto al ajuste previo (1.6/1.8)
-  const scale = totalNotes > 8 ? 1.2 : 1.35;
+  // Escala global 25% más pequeña respecto al ajuste previo (1.6/1.8)
+  const SCALE_FACTOR = 0.75;
+  const BASE_SMALL = 1.6; // >8 notas
+  const BASE_LARGE = 1.8; // <=8 notas
+  const scale = (totalNotes > 8 ? BASE_SMALL : BASE_LARGE) * SCALE_FACTOR;
   ctx.scale(scale, scale);
 
-  const margin = 10;             // margen visual dentro del SVG
-  const tailGap = 16;            // espacio extra de pentagrama tras la última nota
+  const margin = 8;              // margen visual dentro del SVG
+  const tailGap = 22 * SCALE_FACTOR; // espacio extra de pentagrama tras la última nota
 
   const staveWidth = (width - margin * 2) / scale;
   const stave = new Stave(margin/scale, margin/scale, staveWidth);
@@ -139,9 +142,7 @@ function drawPerm(container, perm, iT, pass=0){
   voice.setStrict(false);
   voice.addTickables(allNotes);
 
-  // Formatea ligeramente más estrecho que el ancho del pentagrama
-  // Resta un pequeño margen al ancho disponible para formateo para
-  // que el pentagrama continúe un poco tras la última nota.
+  // Formatea más estrecho para que el pentagrama continúe tras la última nota
   const formatWidth = Math.max(0, staveWidth - (tailGap/scale));
   new Formatter().joinVoices([voice]).format([voice], formatWidth);
 
@@ -170,11 +171,13 @@ function drawPerm(container, perm, iT, pass=0){
   svg.setAttribute('height', '100%');
   svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
 
-  // Medición real del contenido y re-render con ancho ajustado si es necesario
+  // Medición real del contenido y re-render con tamaño ajustado si es necesario
   try{
     const bbox = svg.getBBox();
-    const requiredW = Math.ceil(bbox.x + bbox.width + margin);
-    const requiredH = Math.ceil(bbox.y + bbox.height + margin);
+    const padX = 6, padY = 6;
+    // Ajuste sin “aire” sobrante: usamos solo dimensiones del contenido
+    const requiredW = Math.ceil(bbox.width + padX*2);
+    const requiredH = Math.ceil(bbox.height + padY*2);
     let needs = false;
     if(Math.abs(requiredW - width) > 2){
       container.style.width = `${requiredW}px`;
@@ -225,13 +228,14 @@ function drawPerm(container, perm, iT, pass=0){
         div.perm=perm;
         let totalNotes=0;
         perm.forEach(n=>{ totalNotes+=notesFromUnits(n,baseDur).length; });
-        const margin = 10;
-        const noteSpacing = 25;
-        const bracketBuffer = 40; // extra room for clef, tuplets and beams
-        const newWidth = Math.max(260, 2 * margin + totalNotes * noteSpacing + bracketBuffer);
+        const previewScale = 0.75; // coherente con el escalado del render
+        const margin = 8;
+        const noteSpacing = 25 * previewScale; // reduce ancho físico ~25%
+        const bracketBuffer = 40 * previewScale; // espacio para tuplet/clef
+        const newWidth = Math.max(220, 2 * margin + totalNotes * noteSpacing + bracketBuffer);
         div.style.width = `${newWidth}px`;
-        // Altura provisional; se ajustará tras medir el SVG real
-        if(!div.style.height) div.style.height = '60px';
+        // Altura provisional mínima; se ajustará tras medir el SVG real
+        if(!div.style.height) div.style.height = '48px';
         row.appendChild(div);
         drawPerm(div,perm,iT);
         div.onclick=async()=>{
