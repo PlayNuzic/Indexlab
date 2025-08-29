@@ -104,12 +104,11 @@ function drawPerm(container, perm, iT){
   let totalNotes = 0;
   perm.forEach(n => { totalNotes += notesFromUnits(n, baseDur).length; });
 
-  // Escala global coherente con los previews anteriores
+  // Base de escala (se ajustará a un ancho objetivo)
   const SCALE_FACTOR = 0.75;
   const BASE_SMALL = 1.6; // >8 notas
   const BASE_LARGE = 1.8; // <=8 notas
-  const scale = (totalNotes > 8 ? BASE_SMALL : BASE_LARGE) * SCALE_FACTOR;
-  ctx.scale(scale, scale);
+  let scale = (totalNotes > 8 ? BASE_SMALL : BASE_LARGE) * SCALE_FACTOR;
 
   const margin = 8; // margen visual alrededor del SVG
 
@@ -136,7 +135,7 @@ function drawPerm(container, perm, iT){
   formatter.joinVoices([voice]);
 
   // Stave provisional solo para calcular desplazamientos de la clave
-  const stave = new Stave(margin/scale, margin/scale, 10);
+  const stave = new Stave(margin, margin, 10);
   stave.addClef('treble');
 
   // Ancho mínimo necesario para las notas (sin sumar el espacio previo de clave)
@@ -146,6 +145,13 @@ function drawPerm(container, perm, iT){
   const leftPad = left - x;
   const rightPad = 12; // pequeño margen tras la última nota para el bracket
   const staveWidth = leftPad + contentWidth + rightPad;
+
+  // Ajuste de escala a un ancho objetivo para evitar renders gigantes
+  const targetMin = 240;  // px
+  const targetMax = 420;  // px
+  const initialPx = staveWidth * scale; // ancho estimado en px sin márgenes
+  if (initialPx > targetMax) scale = targetMax / staveWidth;
+  if (initialPx < targetMin) scale = Math.min(scale, targetMin / staveWidth);
 
   // Ahora sí, dimensionamos el renderer en píxeles (tras aplicar escala)
   const widthPx = Math.ceil((staveWidth + margin/scale) * scale);
@@ -184,16 +190,30 @@ function drawPerm(container, perm, iT){
   tuplet.setContext(ctx2).draw();
   ties.forEach(t=>t.setContext(ctx2).draw());
 
-  // Ajusta viewBox exacto al contenido dibujado
+  // Ajusta viewBox exacto al contenido dibujado (unión de todos los nodos)
   const svg = container.querySelector('svg');
   try{
-    // Intenta medir el grupo principal si existe; si no, el propio SVG
-    const g = svg.querySelector('g') || svg;
-    const bb = g.getBBox();
-    const pad = 6;
-    svg.setAttribute('viewBox', `${Math.floor(bb.x - pad)} ${Math.floor(bb.y - pad)} ${Math.ceil(bb.width + pad*2)} ${Math.ceil(bb.height + pad*2)}`);
-    container.style.width = `${Math.ceil(bb.width + pad*2)}px`;
-    container.style.height = `${Math.ceil(bb.height + pad*2)}px`;
+    const nodes = Array.from(svg.querySelectorAll('*')).filter(n => typeof n.getBBox === 'function');
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    nodes.forEach(n => {
+      const b = n.getBBox();
+      if(!isFinite(b.x) || !isFinite(b.y) || !isFinite(b.width) || !isFinite(b.height)) return;
+      if(b.width === 0 && b.height === 0) return;
+      minX = Math.min(minX, b.x);
+      minY = Math.min(minY, b.y);
+      maxX = Math.max(maxX, b.x + b.width);
+      maxY = Math.max(maxY, b.y + b.height);
+    });
+    if(isFinite(minX) && isFinite(minY) && isFinite(maxX) && isFinite(maxY)){
+      const pad = 6;
+      const x = Math.floor(minX - pad);
+      const y = Math.floor(minY - pad);
+      const w = Math.ceil(maxX - minX + pad*2);
+      const h = Math.ceil(maxY - minY + pad*2);
+      svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+      container.style.width = `${w}px`;
+      container.style.height = `${h}px`;
+    }
   }catch(_e){ /* getBBox puede fallar antes del paint en algunos navegadores */ }
 }
 
