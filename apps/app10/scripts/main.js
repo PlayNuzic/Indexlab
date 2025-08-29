@@ -185,7 +185,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         perm.forEach(n=>{ totalNotes+=notesFromUnits(n,baseDur).length; });
         const margin = 10;
         const noteSpacing = 25;
-        const newWidth = Math.max(260, 2 * margin + totalNotes * noteSpacing);
+        const bracketBuffer = 40; // extra room for clef, tuplets and beams
+        const newWidth = Math.max(260, 2 * margin + totalNotes * noteSpacing + bracketBuffer);
         div.style.width = `${newWidth}px`;
         row.appendChild(div);
         drawPerm(div,perm,iT);
@@ -252,4 +253,3 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   renderSnapshots();
   renderPerms();
 });
-
