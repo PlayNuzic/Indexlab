@@ -99,14 +99,16 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const { width, height } = container.getBoundingClientRect();
     renderer.resize(width, height);
     const ctx = renderer.getContext();
-    const scale = 1.8;
+    const baseDur = getBaseDuration(iT);
+    let totalNotes = 0;
+    perm.forEach(n => { totalNotes += notesFromUnits(n, baseDur).length; });
+    const scale = totalNotes > 8 ? 1.6 : 1.8;
     ctx.scale(scale, scale);
     const margin = 10;
     const stave = new Stave(margin/scale, margin/scale, (width - margin * 2)/scale);
     stave.addClef('treble');
     stave.setContext(ctx).draw();
     stave.setNoteStartX(stave.getNoteStartX() - 15/scale);
-    const baseDur=getBaseDuration(iT);
     const allNotes=[];
     const ties=[];
     perm.forEach(n=>{
